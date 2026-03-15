@@ -1,0 +1,20 @@
+{
+  "defaultMode": "default",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(del /s *)",
+      "Bash(format *)",
+      "Bash(* --force *)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | bash)",
+      "Bash(powershell -enc *)",
+      "Bash(powershell -e *)"
+    ]
+  }
+}
