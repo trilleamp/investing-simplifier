@@ -1,0 +1,195 @@
+COMPOUNDER IDENTIFICATION FRAMEWORK
+Helmer 7 Powers + Porter 5 Forces + Capital Allocation
+MASTER PROMPT
+Analyze [COMPANY TICKER] as a potential compounding investment using the integrated Helmer-Porter-Capital Allocation framework below. Your goal is to determine whether this company possesses durable competitive advantages AND the ability to reinvest at high returns—the two requirements for long-term compounding.
+
+PART 1: STRUCTURAL ADVANTAGE ASSESSMENT
+A. Helmer's Seven Powers (Sources of Durable Advantage)
+For each power—Scale Economies, Network Economies, Counter-Positioning, Switching Costs, Branding, Cornered Resource, Process Power:
+
+Verdict: State whether the power is STRONG / MODERATE / WEAK / ABSENT
+Evidence: Provide 2-3 specific, verifiable data points that justify your verdict
+Economic Quantification: Quantify the margin or return advantage this power provides vs. competitors
+Erosion Risks: Top 3 risks that could erode this advantage, with estimated time horizons (e.g., "2-3 years if competitor X achieves Y")
+Flywheel Dynamics: Is this power static, strengthening, or eroding over time? Identify any compounding mechanisms.
+B. Porter's Five Forces (Competitive Intensity)
+For each force—Threat of New Entrants, Supplier Power, Buyer Power, Threat of Substitutes, Industry Rivalry:
+
+Intensity Rating: HIGH / MODERATE / LOW and direction of change (improving/stable/worsening)
+Evidence: 2-3 concrete examples with numbers where possible
+Margin Impact: How does this force affect gross margin, EBITDA margin, or pricing power?
+Structural Change Risks: What could shift this force against the company over 3-5 years?
+PART 2: REINVESTMENT CAPACITY ASSESSMENT
+Durable advantages without reinvestment opportunities create cash cows, not compounders. For each power identified as STRONG or MODERATE:
+
+Reinvestment Runway: What is the total addressable opportunity for deploying incremental capital at returns exceeding cost of capital? Estimate in dollar terms over 5-10 years.
+Incremental ROIC: What returns has the company earned on recent investments? Is incremental ROIC above, at, or below average ROIC?
+Capital Deployment Options: Rank the company's reinvestment options: organic growth, M&A, buybacks, dividends, debt paydown. Which creates most value?
+Reinvestment Rate: What percentage of earnings is being reinvested vs. returned to shareholders? Is this appropriate given opportunities?
+PART 3: MANAGEMENT & CAPITAL ALLOCATION
+Evaluate the operators who will execute on the structural advantages:
+
+A. Ownership Alignment
+Insider ownership percentage and recent buying/selling patterns
+Compensation structure: Are incentives tied to ROIC, FCF per share, or just revenue/EPS?
+Board composition and independence
+B. Capital Allocation Track Record
+M&A history: Calculate ROIC on acquisitions >3 years old. Value-creating or destroying?
+Buyback timing: Did they buy back stock when undervalued or at peaks?
+Dividend policy: Sustainable payout ratio? Growing appropriately?
+Stated vs. revealed priorities: Does management do what they say?
+C. Management Quality Indicators (Rochon Framework)
+Long-term thinking: Evidence of decisions that sacrifice short-term results for long-term value
+Operational excellence: Consistent execution on stated goals
+Communication quality: Transparent about problems? Consistent messaging?
+Succession planning: Bench strength and transition history
+PART 4: FINANCIAL METRICS FRAMEWORK
+Select 5-7 metrics most relevant to this company's business model from the master list below. Provide current values, 5-year trends, and comparison to top 3 competitors.
+
+Core Metrics (Always Include)
+Metric	Why It Matters
+ROIC	Core measure of capital efficiency and moat strength
+ROIC - WACC Spread	Value creation vs. destruction indicator
+Free Cash Flow Margin	Cash generation quality; earnings quality check
+Revenue Growth (Organic)	Underlying demand strength, exclude M&A noise
+Business-Model-Specific Metrics
+SaaS/Subscription: LTV/CAC, Net Revenue Retention, Churn Rate, ARPU, Rule of 40
+
+Consumer/Retail: Same-Store Sales, Gross Margin Trend, Inventory Turnover, Customer Acquisition Cost
+
+Industrial/Manufacturing: Book-to-Bill, Backlog/Revenue, Capex/Sales, Asset Turnover
+
+Biotech/Pharma: R&D Productivity (NPV per R&D $), Pipeline Value, Patent Cliff Exposure, Probability-Adjusted Peak Sales
+
+Financial Services: ROE, NIM, Efficiency Ratio, Credit Loss Rate, Tangible Book Value Growth
+
+Balance Sheet Health
+Net Debt/EBITDA, Interest Coverage, Current Ratio, Working Capital Trends
+
+PART 5: VALUATION ANALYSIS
+A. Reverse DCF (What's Priced In)
+Before building forward scenarios, solve for the market's implied assumptions:
+
+What revenue growth rate is implied for years 1-5? Years 6-10?
+What terminal operating margin is implied?
+What ROIC is implied at steady state?
+For biotech: What probability-weighted peak sales and margin profile is implied?
+How do these implied assumptions compare to historical performance and industry benchmarks?
+B. Scenario Valuation (1-3 Year Horizon)
+Scenario	Base (50%)	Upside (25%)	Downside (25%)
+Revenue CAGR	[X%]	[Y%]	[Z%]
+EBITDA Margin	[X%]	[Y%]	[Z%]
+Exit Multiple	[X]x	[Y]x	[Z]x
+Target Price	$[X]	$[Y]	$[Z]
+Implied Return	[X%]	[Y%]	[Z%]
+Probability-Weighted Expected Return: [Calculate weighted average]
+
+C. Valuation Adjustment for Structural Durability
+Based on your structural analysis, determine appropriate multiple premium or discount:
+
+Strong moat + high reinvestment runway: Premium of 20-40% to sector average
+Strong moat + limited reinvestment: No premium (cash cow)
+Weak moat + high growth: Discount of 10-20% (vulnerable to competition)
+Eroding moat: Significant discount, apply terminal value haircut
+PART 6: BEAR CASE STEELMAN
+Articulate the strongest possible case against this investment. This is not the "downside scenario"—it is the intellectually honest version of why this stock could underperform materially over 3+ years.
+
+[Bear thesis point 1 with specific evidence]
+[Bear thesis point 2 with specific evidence]
+[Bear thesis point 3 with specific evidence]
+[Bear thesis point 4 with specific evidence]
+[Bear thesis point 5 with specific evidence]
+What would have to be true for the bear case to play out?
+
+How would you know if the bear case is winning?
+
+PART 7: SYNTHESIS & DECISION
+A. Structural Durability Score
+Category	Score (1-5)	Weight	Weighted	Trend
+Helmer Powers (avg)	[ ]	35%	[ ]	↑/→/↓
+Porter Forces (avg)	[ ]	25%	[ ]	↑/→/↓
+Reinvestment Capacity	[ ]	25%	[ ]	↑/→/↓
+Management Quality	[ ]	15%	[ ]	↑/→/↓
+TOTAL SCORE		100%	[ ]/5.0	
+B. Investment Action
+Score Range	4.0-5.0	3.0-3.9	2.0-2.9	1.0-1.9
+Classification	Compounder	Quality Hold	Watch List	Avoid
+Position Size	Full (4-6%)	Starter (1-2%)	None	None/Short
+RECOMMENDATION: [BUY / HOLD / AVOID / SHORT] at $[current price]
+
+Target Position Size: [X%] of portfolio
+
+Conviction Level: [High / Medium / Low] — explain why
+
+PART 8: MONITORING TRIPWIRES
+Specify 5 quantitative tripwires with exact thresholds that would trigger position review. These must be measurable and unambiguous:
+
+[Metric] falls below/rises above [specific threshold] for [time period]
+[Metric] falls below/rises above [specific threshold] for [time period]
+[Metric] falls below/rises above [specific threshold] for [time period]
+[Metric] falls below/rises above [specific threshold] for [time period]
+[Competitive/strategic event] occurs
+Example tripwires: - "Gross margin falls below 55% for two consecutive quarters" - "Net revenue retention drops below 110%" - "ROIC falls below 15% on a trailing twelve-month basis" - "Key executive (CEO/CFO) departs unexpectedly" - "Competitor launches directly competitive product with >20% price advantage"
+
+EXECUTIVE SUMMARY TEMPLATE
+(Complete this after all analysis sections)
+
+Company: [TICKER] — [One-line description] Current Price: $[X] | Market Cap: $[X]B Verdict: [COMPOUNDER / QUALITY HOLD / WATCH LIST / AVOID]
+
+Investment Thesis (3 sentences max)
+[Why this is or isn't a compounder in plain English]
+
+Key Strengths
+[Strongest competitive advantage with evidence]
+[Second strength]
+[Third strength]
+Key Risks
+[Biggest risk to thesis]
+[Second risk]
+[Third risk]
+Valuation
+Current: [X]x EV/EBITDA vs. [Y]x sector avg | [X]x P/E vs. [Y]x sector avg
+Implied by reverse DCF: [X]% revenue growth, [Y]% terminal margin
+Expected return (probability-weighted): [X]% over [Y] years
+Action
+Recommendation: [BUY / HOLD / AVOID] at $[X] Position Size: [X%] of portfolio Review Date: [Date for next reassessment]
+
+APPENDIX: SECTOR WEIGHTING RUBRIC
+Not all powers and forces matter equally across sectors. Use these weightings to adjust your emphasis:
+
+Biotech / Pharma
+Factor	Weight	Key Metrics
+Cornered Resource (IP, talent)	HIGH	Patent life, pipeline depth
+Counter-Positioning	HIGH	Novel mechanisms
+Scale Economies	MODERATE	R&D leverage
+Threat of Substitutes	HIGH	Generics, biosimilars
+Supplier Power	LOW	CMO dependency
+Technology / SaaS
+Factor	Weight	Key Metrics
+Network Economies	HIGH	User growth, engagement
+Switching Costs	HIGH	NRR, churn rate
+Scale Economies	HIGH	Gross margin at scale
+Threat of New Entrants	HIGH	VC funding in space
+Industry Rivalry	MODERATE	Market share trends
+Consumer / Retail
+Factor	Weight	Key Metrics
+Branding	HIGH	Pricing power, NPS
+Scale Economies	MODERATE	Unit economics
+Buyer Power	HIGH	Customer concentration
+Threat of Substitutes	MODERATE	Private label share
+Industry Rivalry	HIGH	Promotional intensity
+Industrial / Manufacturing
+Factor	Weight	Key Metrics
+Process Power	HIGH	Operating margin vs peers
+Switching Costs	HIGH	Customer retention
+Scale Economies	MODERATE	Fixed cost absorption
+Supplier Power	MODERATE	Input cost volatility
+Threat of New Entrants	LOW	Capital requirements
+Financial Services
+Factor	Weight	Key Metrics
+Scale Economies	HIGH	Efficiency ratio
+Switching Costs	MODERATE	Deposit stickiness
+Process Power	MODERATE	Underwriting quality
+Threat of New Entrants	MODERATE	Fintech disruption
+Industry Rivalry	HIGH	NIM compression
+— End of Framework —

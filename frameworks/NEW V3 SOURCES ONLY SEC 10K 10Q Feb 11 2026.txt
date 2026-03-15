@@ -1,0 +1,71 @@
+Collect verified, official PDF files for a specific public company.
+
+Company: [] 
+A) Annual Reports (primary task) 
+
+Retrieve only official SEC EDGAR Reports 
+
+Here are the sources to collect:
+Core EDGAR Sources for Forensic Accounting 
+1. Annual Reports (10-K)
+•	Financial Statements (Income Statement, Balance Sheet, Cash Flow)
+•	Footnotes (details on revenue recognition, stock-based comp, contingencies, impairments)
+•	MD&A (Management Discussion & Analysis) — management’s narrative often reveals adjustments, risks, or unusual items
+•	Risk Factors — can hint at litigation, regulatory exposure, or accounting policy changes
+2. Quarterly Reports (10-Q)
+•	Interim updates on earnings distortions (restructuring, impairments, SBC)
+•	Footnotes for short-term adjustments
+•	Useful for tracking timing mismatches between GAAP and cash flow
+3. Current Reports (8-K)
+•	One-time events: acquisitions, divestitures, litigation settlements, restructuring announcements
+•	Non-recurring gains/losses that distort earnings
+4. Proxy Statements (DEF 14A)
+•	Executive compensation (stock options, RSUs, performance shares)
+•	Dilution impact from equity awards
+•	Related-party transactions
+5. Registration Statements (S-1, S-3, S-4)
+•	Detailed breakdown of capital structure, warrants, convertibles
+•	Pro forma financials that highlight adjustments
+6. Insider & Ownership Filings (Forms 3, 4, 5, 13D, 13G)
+•	Track insider selling/buying around distortion-heavy quarters
+•	Identify incentives for earnings management
+7. Specialized Filings
+•	Form 11-K: Employee benefit plans (stock comp impact)
+•	Form 20-F: Foreign issuers (same forensic approach as 10-K)
+•	Form SD: Conflict minerals, supply chain disclosures (can reveal hidden costs)
+
+Today' s Date is MM/DD/Year. 
+Retrieve sources or documents from the exact years: 2021, 2022, 2023, 2024, 2025 and 2025LTM. Download and list yearly filings in chronological order with the most recent document first
+
+Retrieve sources or documents from the quarters 2024, 2025 Please make sure to include the most recent quarter. Download and list quarterly filings in chronological order with the most recent document first
+
+Return only direct downloadable PDF links (URL must end with .pdf).
+
+Sources must be official:
+
+Company investor-relations website, Investor days
+
+Letters to Shareholders, Download and list letters to share holders yearly in chronological order with the most recent document first
+
+Official regulators (e.g., SEC.gov, https://www.sec.gov/edgar)
+Exclude HTML pages, aggregators, press releases, CSR/ESG reports, presentations, or interim results.
+
+If the company changed names, search prior names to locate older filings.
+
+Return verified PDFs per year, and per quarter in chronological order.
+
+B) Capital Markets Day / Investor Day (secondary task)
+
+Search for Capital Markets Day or Investor Day materials within 2019–2025 LTM. Download and list materials, documents, slides, PDFs in chronological order with the most recent document first
+
+Sources must be official (company IR site or official exchange/regulator portals).
+
+Exclude non-PDFs, media articles, and third-party summaries.
+
+Formatting:
+
+Provide Annual Reports Individually and in order with most recent filing listed first, then MD/Investor Day Individually and in order with most recent filing listed first.
+
+Do not include anything else.
+
+Please make the output a PDF document ready to upload to NotebookLM 

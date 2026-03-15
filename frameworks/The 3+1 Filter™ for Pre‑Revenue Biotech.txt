@@ -1,0 +1,70 @@
+The 3+1 Filter™ for Pre‑Revenue Biotech (Investor Edition)
+This section upgrades the original three‑layer filter with a +1 Enablers Gate and plain‑English scoring so non‑specialists can use it confidently.
+
+Overview
+1) Score the 3 layers (Science, Commercial, Competitive) on a 0–5 scale.
+2) Apply the +1 Enablers Gate (pass/fail). If any gate fails → No‑Go.
+3) Combine score + gate to pick Go / Watch / No‑Go and position size.
+
+Layer 1 — Science (0–5)
+Question: Does the biology and clinical plan credibly deliver a meaningful patient benefit?
+• Mechanism quality: genetically/clinically validated target; credible MoA (Mechanism of Action).
+• Differentiation vs Standard of Care (SoC): effect size, safety/tolerability, dosing burden, route (oral vs injection), time to onset.
+• Translational logic: preclinical → early clinical coherence; biomarkers that predict response.
+• Trial readiness: endpoints patients/physicians/regulators value; feasible powering.
+• Score guide — 0–1: weak data; 2–3: plausible, modest differentiation; 4–5: validated biology, clear patient‑felt benefit.
+
+Layer 2 — Commercial (0–5)
+Question: If it works, will people pay for it—and how much?
+• Market type: Large validated; niche high‑value (rare disease); or unvalidated.
+• Willingness‑to‑pay & reimbursement: payer pain points, cost‑offsets (fewer hospitalizations/visits).
+• Adherence & convenience: monthly vs weekly dosing, home vs clinic, monitoring burden.
+• Route to uptake: specialist vs primary care; care‑pathway friction.
+• Score guide — 0–1: hand‑wavy TAM; 2–3: plausible but with friction; 4–5: validated demand, clean reimbursement story.
+
+Layer 3 — Competitive (0–5)
+Question: Can this company win against current and incoming rivals?
+• Head‑to‑head edge: efficacy/tolerability, dosing simplicity, combo potential.
+• Defensibility: IP strength, know‑how, data exclusivity, switching costs.
+• Speed & focus: trial timelines vs rivals, partner leverage, crisp indication strategy.
+• Score guide — 0–1: late, no edge; 2–3: partial edge; 4–5: first‑mover with moat or follower with material real‑world edge.
+
++1 Enablers Gate — PASS / FAIL (hard kill‑switches)
+Fail any → No‑Go (regardless of 3‑layer score).
+• CMC (Chemistry, Manufacturing & Controls): scalable process, yield/comparability plan appropriate for phase. (Yield & Comparability Plan: Yield: % of usable product per batch — critical for cost and supply. Comparability: Ensures that product made in different batches or facilities is clinically and analytically equivalent.)
+• Regulatory/Trial design: clear primary endpoints, adequate powering, credible comparator; FDA/EMA dialogue or plan.
+• IP/FTO (Intellectual Property / Freedom‑To‑Operate): enforceable claims, no obvious blocking patents through launch + 7–10 years.
+• Financing runway: ≥ 18–24 months of cash or a credible plan to reach ≥ 2 value catalysts before raising.
+
+Decision rules & position sizing
+Composite Score = (Science 30%) + (Commercial 25%) + (Competitive 20%).
+Outcome grid (if Enablers PASS):
+• ≥ 4.0 composite → Go (Core) position ~ 2–4%
+• 3.0–3.9 → Go (Starter) 0.5–1.5%; require near‑term catalysts
+• < 3.0 → Watch / No‑Go
+• Any Gate FAIL → No‑Go
+
+The plain‑English test (use for non‑specialists)
+In one sentence each, answer:
+1) Why this should work (in the body).
+2) Why payers will pay (in the wallet).
+3) Why it beats rivals (in the market).
+If any sentence sounds squishy → downgrade that layer one full point.
+
+Minimal data to pull every time
+• Clinical: target, phase, primary endpoint, expected effect size vs SoC, key safety risks.
+• Commercial: target population (treated, not just eligible), pricing analogs, payer hurdles, adherence friction.
+• Competitive: top 5 rivals, timing, relative strengths/weaknesses.
+• Enablers: CMC status by phase, IP expiry (composition/method‑of‑use/data exclusivity), cash runway (months), dated catalyst map.
+
+Examples of material differentiation
+• Patients: fewer injections, less GI upset, fewer clinic visits.
+• Physicians: faster onset, simpler titration, cleaner monitoring.
+• Payers: lower total cost of care via better adherence and outcomes.
+
+Common red flags (auto‑downgrade or Gate fail)
+• Changing primary endpoints mid‑development without strong rationale. (The primary endpoint is the main outcome a clinical trial is designed to measure — the one that determines whether the drug works.)
+• Overreliance on subgroup/post‑hoc signals.
+• Platform story with weak lead‑asset economics.
+• Cash < 12 months and no near‑term catalytic data.
+• IP built on narrow claims with obvious design‑arounds. (Means the patent protection for a drug or technology is weak—either because the claims are too specific or competitors can easily sidestep them by making small changes. This is a red flag in biotech investing and partnering.)
