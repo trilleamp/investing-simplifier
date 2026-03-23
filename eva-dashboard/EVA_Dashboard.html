@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVA & Compounder Analysis Dashboard</title>
+<style>
+:root {
+  --dark: #f0f2f5;
+  --navy: #ffffff;
+  --blue: #2c3e7a;
+  --accent: #d63354;
+  --green: #00875a;
+  --red: #cf4a3a;
+  --orange: #c49000;
+  --light: #4a5568;
+  --white: #1a202c;
+  --card-bg: #ffffff;
+  --input-bg: #f7f8fa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--dark);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+.header h1 {
+  -webkit-text-fill-color: unset;
+  background: none;
+  color: #ffffff;
+}
+
+.header {
+  background: linear-gradient(135deg, #2c3e7a, #1a2550);
+  padding: 20px 30px;
+  border-bottom: 3px solid var(--accent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header h1 {
+  font-size: 1.6rem;
+  background: linear-gradient(90deg, var(--white), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header .subtitle {
+  font-size: 0.85rem;
+  color: #c0c8d4;
+}
+
+.tabs {
+  display: flex;
+  background: #e8eaed;
+  padding: 0 20px;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 12px 22px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab:hover { color: var(--white); background: rgba(0,0,0,0.05); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(214,51,84,0.08); }
+
+.content { padding: 20px; max-width: 1600px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.summary-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 18px;
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.summary-card .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+.summary-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
+.summary-card.green { border-left-color: var(--green); }
+.summary-card.green .value { color: var(--green); }
+.summary-card.red { border-left-color: var(--red); }
+.summary-card.red .value { color: var(--red); }
+.summary-card.orange { border-left-color: var(--orange); }
+.summary-card.orange .value { color: var(--orange); }
+
+/* Tables */
+.table-wrapper {
+  overflow-x: auto;
+  background: var(--card-bg);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th {
+  background: var(--blue);
+  color: #ffffff;
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+}
+
+th:first-child { text-align: left; }
+
+td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+td:first-child { text-align: left; font-weight: 600; }
+
+tr:hover { background: rgba(0,0,0,0.03); }
+
+.positive { color: var(--green); font-weight: 600; }
+.negative { color: var(--red); font-weight: 600; }
+.neutral { color: var(--orange); font-weight: 600; }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-compounder { background: rgba(0,184,148,0.2); color: var(--green); border: 1px solid var(--green); }
+.badge-potential { background: rgba(253,203,110,0.2); color: var(--orange); border: 1px solid var(--orange); }
+.badge-not { background: rgba(225,112,85,0.2); color: var(--red); border: 1px solid var(--red); }
+
+/* Score dots */
+.score-dots {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.12);
+}
+
+.dot.filled { background: var(--green); }
+
+/* Inputs */
+.assumptions-bar {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 25px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.assumptions-bar label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.assumptions-bar input {
+  background: var(--input-bg);
+  border: 1px solid rgba(0,0,0,0.15);
+  color: var(--white);
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 80px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.assumptions-bar input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(233,69,96,0.3);
+}
+
+/* Editable table inputs */
+table input {
+  background: var(--input-bg);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #2563eb;
+  padding: 4px 6px;
+  border-radius: 4px;
+  width: 85px;
+  font-size: 0.82rem;
+  text-align: right;
+}
+
+table input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Gauge charts */
+.gauge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.gauge-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.gauge-card h3 {
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-label {
+  font-size: 0.7rem;
+  width: 50px;
+  text-align: right;
+  color: #6b7280;
+}
+
+.bar-track {
+  flex: 1;
+  height: 16px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease;
+  min-width: 2px;
+}
+
+.bar-value {
+  font-size: 0.72rem;
+  width: 55px;
+  font-weight: 600;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Formula cards */
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.formula-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 18px;
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.formula-card h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.formula-card .desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.formula-card .formula {
+  background: var(--dark);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #2563eb;
+}
+
+/* Sorting */
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { background: rgba(0,0,0,0.15); }
+th.sortable::after { content: ' \25B5'; font-size: 0.7rem; }
+th.sortable.asc::after { content: ' \25B4'; color: var(--accent); }
+th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
+
+/* Veeva projection */
+.veeva-notes {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--orange);
+}
+
+.veeva-notes h3 { color: var(--orange); margin-bottom: 8px; font-size: 0.95rem; }
+.veeva-notes ul { padding-left: 18px; font-size: 0.82rem; color: #6b7280; line-height: 1.7; }
+
+/* Buttons */
+.btn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #c0392b; }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { background: #00a381; }
+.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-outline:hover { background: rgba(233,69,96,0.15); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red); font-size: 0.75rem; padding: 4px 10px; }
+.btn-danger:hover { background: rgba(225,112,85,0.2); }
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 25px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid var(--blue);
+}
+
+.modal h2 {
+  color: var(--accent);
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-field label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.modal-field input {
+  background: var(--input-bg);
+  border: 1px solid rgba(0,0,0,0.15);
+  color: var(--white);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.modal-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.modal-field.full { grid-column: 1 / -1; }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--green);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 2000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.error { background: var(--red); }
+
+/* Last saved indicator */
+.save-indicator {
+  font-size: 0.75rem;
+  color: #636e72;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header h1 { font-size: 1.2rem; }
+  .tabs { padding: 0 10px; }
+  .tab { padding: 10px 14px; font-size: 0.8rem; }
+  .content { padding: 12px; }
+  table { font-size: 0.75rem; }
+  .modal-grid { grid-template-columns: 1fr; }
+}
+
+/* Print */
+@media print {
+  body { background: white; color: black; }
+  .header { background: white; border-bottom: 2px solid #333; }
+  .header h1 { -webkit-text-fill-color: #333; }
+  .tabs, .toolbar { display: none; }
+  .panel { display: block !important; page-break-before: always; }
+  .panel:first-child { page-break-before: auto; }
+  .card-bg, .table-wrapper, .summary-card, .gauge-card, .formula-card { background: white; border: 1px solid #ddd; }
+  th { background: #eee; color: #333; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>EVA & Compounder Analysis Dashboard</h1>
+    <div class="subtitle">Economic Value Added | Return Metrics | Compounder Scoring | <span id="dataDate">Data as of March 23, 2026</span></div>
+  </div>
+  <div class="assumptions-bar" style="background:transparent;padding:0;margin:0;">
+    <label>Risk-Free Rate <input type="text" id="rfr" value="4.25" onchange="recalcAll()">%</label>
+    <label>Market Risk Premium <input type="text" id="mrp" value="5.50" onchange="recalcAll()">%</label>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+  <button class="tab" onclick="showTab('details')">Detailed Metrics</button>
+  <button class="tab" onclick="showTab('inputs')">Edit Inputs</button>
+  <button class="tab" onclick="showTab('veeva')">Veeva Projection</button>
+  <button class="tab" onclick="showTab('charts')">Visual Comparisons</button>
+  <button class="tab" onclick="showTab('formulas')">Formulas Guide</button>
+</div>
+
+<div class="content">
+
+<!-- ============== DASHBOARD PANEL ============== -->
+<div id="dashboard" class="panel active">
+  <div id="summaryCards" class="summary-cards"></div>
+  <div class="section-title">Compounder Scorecard</div>
+  <div class="table-wrapper">
+    <table id="dashTable">
+      <thead>
+        <tr>
+          <th class="sortable" data-col="company">Company</th>
+          <th class="sortable" data-col="roic">ROIC</th>
+          <th class="sortable" data-col="wacc">WACC</th>
+          <th class="sortable" data-col="spread">ROIC-WACC</th>
+          <th class="sortable" data-col="roiic">ROIIC</th>
+          <th class="sortable" data-col="roe">ROE</th>
+          <th class="sortable" data-col="roa">ROA</th>
+          <th class="sortable" data-col="eva">EVA ($M)</th>
+          <th class="sortable" data-col="score">Score</th>
+          <th>Assessment</th>
+        </tr>
+      </thead>
+      <tbody id="dashBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============== DETAILS PANEL ============== -->
+<div id="details" class="panel">
+  <div class="section-title">Full Calculation Breakdown</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>EBIT ($M)</th>
+          <th>Tax Rate</th>
+          <th>NOPAT ($M)</th>
+          <th>Equity ($M)</th>
+          <th>Debt ($M)</th>
+          <th>Capital ($M)</th>
+          <th>Beta</th>
+          <th>Cost of Eq</th>
+          <th>Cost of Debt</th>
+          <th>Eq Weight</th>
+          <th>Dt Weight</th>
+          <th>WACC</th>
+          <th>ROIC</th>
+          <th>EVA ($M)</th>
+        </tr>
+      </thead>
+      <tbody id="detailBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section-title" style="margin-top:25px;">Incremental Capital Analysis (ROIIC)</div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Prev NOPAT ($M)</th>
+          <th>Curr NOPAT ($M)</th>
+          <th>Delta NOPAT ($M)</th>
+          <th>Prev Capital ($M)</th>
+          <th>Curr Capital ($M)</th>
+          <th>Delta Capital ($M)</th>
+          <th>ROIIC</th>
+          <th>Interpretation</th>
+        </tr>
+      </thead>
+      <tbody id="roiicBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============== INPUTS PANEL ============== -->
+<div id="inputs" class="panel">
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add Company</button>
+    <button class="btn btn-success" onclick="saveData()">Save Data</button>
+    <button class="btn btn-outline" onclick="loadData()">Load Data</button>
+    <button class="btn btn-outline" onclick="exportCSV()">Export CSV</button>
+    <span id="saveIndicator" class="save-indicator"></span>
+  </div>
+  <div class="section-title">Editable Company Inputs <span style="font-size:0.75rem;color:#b2bec3;font-weight:400;margin-left:10px;">Blue values are editable. Click the X to remove a company.</span></div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30px;"></th>
+          <th>Company</th>
+          <th>Period</th>
+          <th>EBIT ($M)</th>
+          <th>Net Inc ($M)</th>
+          <th>Equity ($M)</th>
+          <th>Debt ($M)</th>
+          <th>Total Assets ($M)</th>
+          <th>Tax Rate</th>
+          <th>Beta</th>
+          <th>Cost of Debt</th>
+          <th>Prev EBIT ($M)</th>
+          <th>Prev Equity ($M)</th>
+          <th>Prev Debt ($M)</th>
+          <th>Prev Tax Rate</th>
+        </tr>
+      </thead>
+      <tbody id="inputBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============== VEEVA PANEL ============== -->
+<div id="veeva" class="panel">
+  <div class="section-title">Veeva Systems (VEEV) - EVA Projection FY2025-FY2030</div>
+  <div class="veeva-notes">
+    <h3>Key Assumptions</h3>
+    <ul>
+      <li>Salesforce royalties (~$120M/yr) fully eliminated by FY2027 - margin tailwind</li>
+      <li>AI agent revenue begins FY2028, scales through FY2030 (Vault CRM + AI data agents)</li>
+      <li>Management target: $6B revenue by 2030, 35%+ operating margin</li>
+      <li>Beta declines as business matures and recurring revenue grows (1.10 to 1.00)</li>
+      <li>Debt remains at $0 - Veeva is entirely equity-funded</li>
+    </ul>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Revenue ($M)</th>
+          <th>EBIT Margin</th>
+          <th>EBIT ($M)</th>
+          <th>Tax Rate</th>
+          <th>NOPAT ($M)</th>
+          <th>Capital ($M)</th>
+          <th>Beta</th>
+          <th>WACC</th>
+          <th>ROIC</th>
+          <th>ROIC-WACC</th>
+          <th>EVA ($M)</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody id="veevaBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============== CHARTS PANEL ============== -->
+<div id="charts" class="panel">
+  <div class="section-title">ROIC vs WACC Spread</div>
+  <div class="gauge-grid" id="spreadCharts"></div>
+
+  <div class="section-title" style="margin-top:25px;">EVA Rankings ($M)</div>
+  <div id="evaBarChart" style="background:var(--card-bg);border-radius:10px;padding:20px;"></div>
+
+  <div class="section-title" style="margin-top:25px;">Return Metrics Comparison</div>
+  <div id="returnBars" style="background:var(--card-bg);border-radius:10px;padding:20px;"></div>
+</div>
+
+<!-- ============== FORMULAS PANEL ============== -->
+<div id="formulas" class="panel">
+  <div class="section-title">Formulas & Definitions</div>
+  <div class="formula-grid">
+    <div class="formula-card">
+      <h3>NOPAT</h3>
+      <div class="desc">Net Operating Profit After Tax - the true operating profit available to all capital providers</div>
+      <div class="formula">NOPAT = EBIT x (1 - Tax Rate)</div>
+    </div>
+    <div class="formula-card">
+      <h3>Capital Invested</h3>
+      <div class="desc">Total capital used to run the business, from both equity and debt holders</div>
+      <div class="formula">Capital = Equity + Interest-Bearing Debt</div>
+    </div>
+    <div class="formula-card">
+      <h3>Cost of Equity (CAPM)</h3>
+      <div class="desc">The return equity investors demand for the risk of owning the stock</div>
+      <div class="formula">Ke = Risk-Free Rate + Beta x Market Risk Premium</div>
+    </div>
+    <div class="formula-card">
+      <h3>WACC</h3>
+      <div class="desc">Weighted Average Cost of Capital - the blended cost of all capital</div>
+      <div class="formula">WACC = (Eq% x Ke) + (Debt% x Kd x (1 - Tax))</div>
+    </div>
+    <div class="formula-card">
+      <h3>ROIC</h3>
+      <div class="desc">Return on Invested Capital - what the business earns on every dollar of capital</div>
+      <div class="formula">ROIC = NOPAT / Capital Invested</div>
+    </div>
+    <div class="formula-card">
+      <h3>EVA (Economic Value Added)</h3>
+      <div class="desc">The dollar amount of value created (or destroyed) above the cost of capital</div>
+      <div class="formula">EVA = NOPAT - (Capital x WACC)</div>
+    </div>
+    <div class="formula-card">
+      <h3>ROE</h3>
+      <div class="desc">Return on Equity - profit generated per dollar of shareholder equity</div>
+      <div class="formula">ROE = Net Income / Shareholders' Equity</div>
+    </div>
+    <div class="formula-card">
+      <h3>ROA</h3>
+      <div class="desc">Return on Assets - how efficiently total assets generate profit</div>
+      <div class="formula">ROA = Net Income / Total Assets</div>
+    </div>
+    <div class="formula-card">
+      <h3>ROIIC</h3>
+      <div class="desc">Return on Incremental Invested Capital - how well NEW capital is being deployed</div>
+      <div class="formula">ROIIC = Change in NOPAT / Change in Capital Invested</div>
+    </div>
+    <div class="formula-card">
+      <h3>ROIC-WACC Spread</h3>
+      <div class="desc">The value creation signal - positive means creating value, negative means destroying it</div>
+      <div class="formula">Spread = ROIC - WACC<br>Positive = Value Creator | Negative = Value Destroyer</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:30px;">Compounder Scoring System (5 Points)</div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Points</th><th>Criteria</th><th>What It Means</th></tr></thead>
+      <tbody>
+        <tr><td>1 point</td><td>ROIC &gt; WACC</td><td>Company earns above its cost of capital</td></tr>
+        <tr><td>1 point</td><td>ROIC &gt; 15%</td><td>High absolute return on capital</td></tr>
+        <tr><td>1 point</td><td>ROIIC &gt; WACC</td><td>Reinvesting incremental capital profitably</td></tr>
+        <tr><td>1 point</td><td>ROE &gt; 15%</td><td>Strong return to equity holders</td></tr>
+        <tr><td>1 point</td><td>EVA &gt; $0</td><td>Creating economic value in absolute dollars</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:15px;font-size:0.85rem;">
+      <span class="badge badge-compounder">4-5: COMPOUNDER</span>&nbsp;&nbsp;
+      <span class="badge badge-potential">2-3: POTENTIAL COMPOUNDER</span>&nbsp;&nbsp;
+      <span class="badge badge-not">0-1: NOT YET A COMPOUNDER</span>
+    </div>
+  </div>
+  <div style="margin-top:15px;font-size:0.78rem;color:#636e72;font-style:italic;">
+    Based on "Forget ROE. This Is the Metric That Actually Matters" - Jimmy's Journal, July 2025
+  </div>
+</div>
+
+</div>
+
+<!-- ADD COMPANY MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add New Company</h2>
+    <div class="modal-grid">
+      <div class="modal-field full">
+        <label>Company Name (e.g. "Apple (AAPL)")</label>
+        <input id="m_name" placeholder="Company Name (TICKER)">
+      </div>
+      <div class="modal-field">
+        <label>Reporting Period</label>
+        <input id="m_period" placeholder="e.g. FY2025 (Dec 2025)">
+      </div>
+      <div class="modal-field">
+        <label>Beta</label>
+        <input id="m_beta" type="number" step="0.01" placeholder="1.00">
+      </div>
+      <div class="modal-field">
+        <label>EBIT ($M)</label>
+        <input id="m_ebit" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Net Income ($M)</label>
+        <input id="m_ni" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Shareholders' Equity ($M)</label>
+        <input id="m_equity" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Interest-Bearing Debt ($M)</label>
+        <input id="m_debt" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Total Assets ($M)</label>
+        <input id="m_assets" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Tax Rate (%)</label>
+        <input id="m_tax" type="number" step="0.1" placeholder="21">
+      </div>
+      <div class="modal-field">
+        <label>Cost of Debt (%)</label>
+        <input id="m_kd" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field full" style="margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:12px;">
+        <label style="color:var(--orange);font-weight:600;">PRIOR YEAR DATA (for ROIIC calculation)</label>
+      </div>
+      <div class="modal-field">
+        <label>Prev EBIT ($M)</label>
+        <input id="m_prevEbit" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Prev Equity ($M)</label>
+        <input id="m_prevEquity" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Prev Debt ($M)</label>
+        <input id="m_prevDebt" type="number" step="0.1" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Prev Tax Rate (%)</label>
+        <input id="m_prevTax" type="number" step="0.1" placeholder="21">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addCompany()">Add Company</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HIDDEN FILE INPUT FOR LOAD -->
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileLoad(event)">
+
+<script>
+// ====================================================================
+// DATA
+// ====================================================================
+let DATA = [
+  {name:'Veeva (VEEV)',period:'FY2026 (Jan 2026)',ebit:1438,ni:1121,equity:6500,debt:0,assets:8500,tax:0.22,beta:1.08,kd:0,prevEbit:691.4,prevEquity:5832,prevDebt:0,prevTax:0.223},
+  {name:'ServiceNow (NOW)',period:'FY2025 (Dec 2025)',ebit:1824,ni:1748,equity:12964,debt:1491,assets:26038,tax:0.227,beta:0.97,kd:0.0153,prevEbit:1364,prevEquity:9609,prevDebt:2278,prevTax:0.18},
+  {name:'Intuit (INTU)',period:'FY2025 (Jul 2025)',ebit:4923,ni:3869,equity:19710,debt:5973,assets:36958,tax:0.20,beta:1.28,kd:0.048,prevEbit:3630,prevEquity:18436,prevDebt:6038,prevTax:0.17},
+  {name:'Adobe (ADBE)',period:'FY2025 (Nov 2025)',ebit:8706,ni:7130,equity:11623,debt:6210,assets:29496,tax:0.184,beta:1.53,kd:0.0424,prevEbit:6741,prevEquity:14105,prevDebt:5628,prevTax:0.198},
+  {name:'Shopify (SHOP)',period:'FY2025 (Dec 2025)',ebit:1468,ni:1231,equity:13473,debt:188,assets:15189,tax:0.184,beta:2.82,kd:0.045,prevEbit:1075,prevEquity:11558,prevDebt:918,prevTax:0.094},
+  {name:'Axon (AXON)',period:'FY2025 (Dec 2025)',ebit:-62.1,ni:124.7,equity:3243,debt:1811,assets:7000,tax:0.21,beta:1.52,kd:0.052,prevEbit:58.5,prevEquity:2328,prevDebt:690,prevTax:0.012},
+  {name:'BillionToOne (BLLN)',period:'FY2025 (Dec 2025)',ebit:16.0,ni:2.9,equity:480.1,debt:52.5,assets:600,tax:0.04,beta:1.34,kd:0.08,prevEbit:-47.15,prevEquity:168,prevDebt:109,prevTax:0.04},
+  {name:'Intuitive Surgical (ISRG)',period:'FY2025 (Dec 2025)',ebit:2949,ni:2900,equity:17942,debt:0,assets:20459,tax:0.215,beta:1.69,kd:0,prevEbit:1767,prevEquity:13397,prevDebt:0,prevTax:0.1258},
+  {name:'Eli Lilly (LLY)',period:'FY2025 (Dec 2025)',ebit:28300,ni:20600,equity:26535,debt:42510,assets:112476,tax:0.19,beta:0.43,kd:0.026,prevEbit:12899,prevEquity:14272,prevDebt:33644,prevTax:0.165},
+  {name:'Palantir (PLTR)',period:'FY2025 (Dec 2025)',ebit:1414,ni:1625,equity:7500,debt:0,assets:8900,tax:0.015,beta:1.69,kd:0,prevEbit:310.4,prevEquity:5094,prevDebt:0,prevTax:0.0435},
+  {name:'Tesla (TSLA)',period:'FY2025 (Dec 2025)',ebit:4355,ni:3794,equity:82900,debt:1800,assets:137806,tax:0.27,beta:2.07,kd:0.025,prevEbit:8891,prevEquity:72913,prevDebt:7878,prevTax:0.204},
+  {name:'Constellation Software (CSU)',period:'FY2025 (Dec 2025)',ebit:1895,ni:512,equity:4267,debt:4554,assets:16171,tax:0.376,beta:0.72,kd:0.052,prevEbit:1463,prevEquity:3288,prevDebt:4166,prevTax:0.241},
+  {name:'Samsara (IOT)',period:'FY2026 (Jan 2026)',ebit:-52.6,ni:-9.1,equity:1420,debt:72.8,assets:2541,tax:0.0,beta:1.62,kd:0,prevEbit:-190,prevEquity:1069,prevDebt:0,prevTax:0.0},
+  {name:'Comfort Systems (FIX)',period:'FY2025 (Dec 2025)',ebit:1315,ni:1023,equity:2449,debt:145,assets:6441,tax:0.209,beta:1.58,kd:0.062,prevEbit:749.4,prevEquity:1705,prevDebt:68.3,prevTax:0.2162},
+  {name:'Amphenol (APH)',period:'FY2025 (Dec 2025)',ebit:5869,ni:4270.3,equity:13510,debt:15502,assets:36237,tax:0.231,beta:1.21,kd:0.0237,prevEbit:3157,prevEquity:9856,prevDebt:6886,prevTax:0.189},
+  {name:'ASML (ASML)',period:'FY2024 (Dec 2024)',ebit:9745,ni:8178,equity:19955,debt:5470,assets:52477,tax:0.182,beta:1.43,kd:0.032,prevEbit:9765,prevEquity:14528,prevDebt:5389,prevTax:0.155},
+  {name:'EMCOR Group (EME)',period:'FY2024 (Dec 2024)',ebit:1345,ni:1007,equity:2939,debt:0,assets:7716,tax:0.269,beta:1.17,kd:0,prevEbit:876,prevEquity:2471,prevDebt:0,prevTax:0.274},
+  {name:'Interactive Brokers (IBKR)',period:'FY2025 (Dec 2025)',ebit:4771,ni:4357,equity:20472,debt:19,assets:203240,tax:0.087,beta:1.25,kd:0,prevEbit:3695,prevEquity:16597,prevDebt:14,prevTax:0.078},
+];
+
+const VEEVA_PROJ = [
+  {year:'FY2025 (Actual)',rev:2756,margin:0.251,tax:0.223,capital:5832,beta:1.10},
+  {year:'FY2026 (Actual)',rev:3195,margin:0.45,tax:0.22,capital:6500,beta:1.08},
+  {year:'FY2027 (Guided)',rev:3590,margin:0.44,tax:0.22,capital:7200,beta:1.06},
+  {year:'FY2028 (Projected)',rev:4100,margin:0.40,tax:0.22,capital:8000,beta:1.04},
+  {year:'FY2029 (Projected)',rev:5000,margin:0.37,tax:0.22,capital:9000,beta:1.02},
+  {year:'FY2030 (Target)',rev:6000,margin:0.35,tax:0.22,capital:10000,beta:1.00},
+];
+
+// ====================================================================
+// SAVE / LOAD / ADD / DELETE
+// ====================================================================
+function saveData() {
+  const saveObj = {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    rfr: document.getElementById('rfr').value,
+    mrp: document.getElementById('mrp').value,
+    companies: DATA
+  };
+  const blob = new Blob([JSON.stringify(saveObj, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'EVA_Dashboard_Data_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('saveIndicator').textContent = 'Last saved: ' + new Date().toLocaleString();
+  showToast('Data saved successfully!');
+}
+
+function loadData() {
+  document.getElementById('fileInput').click();
+}
+
+function handleFileLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const obj = JSON.parse(e.target.result);
+      if (obj.companies && Array.isArray(obj.companies)) {
+        DATA.length = 0;
+        obj.companies.forEach(c => DATA.push(c));
+        if (obj.rfr) document.getElementById('rfr').value = obj.rfr;
+        if (obj.mrp) document.getElementById('mrp').value = obj.mrp;
+        recalcAll();
+        showToast('Loaded ' + DATA.length + ' companies from ' + (obj.savedAt ? new Date(obj.savedAt).toLocaleDateString() : 'file'));
+        document.getElementById('saveIndicator').textContent = 'Loaded from: ' + file.name;
+      } else {
+        showToast('Invalid file format', true);
+      }
+    } catch(err) {
+      showToast('Error reading file: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function openAddModal() {
+  document.getElementById('addModal').classList.add('show');
+  document.getElementById('m_name').focus();
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('show');
+  // Clear fields
+  ['m_name','m_period','m_ebit','m_ni','m_equity','m_debt','m_assets','m_tax','m_beta','m_kd','m_prevEbit','m_prevEquity','m_prevDebt','m_prevTax'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+}
+
+function addCompany() {
+  const name = document.getElementById('m_name').value.trim();
+  if (!name) { showToast('Please enter a company name', true); return; }
+
+  const g = id => parseFloat(document.getElementById(id).value) || 0;
+
+  DATA.push({
+    name: name,
+    period: document.getElementById('m_period').value.trim() || 'N/A',
+    ebit: g('m_ebit'),
+    ni: g('m_ni'),
+    equity: g('m_equity'),
+    debt: g('m_debt'),
+    assets: g('m_assets'),
+    tax: g('m_tax') / 100,
+    beta: g('m_beta') || 1.0,
+    kd: g('m_kd') / 100,
+    prevEbit: g('m_prevEbit'),
+    prevEquity: g('m_prevEquity'),
+    prevDebt: g('m_prevDebt'),
+    prevTax: g('m_prevTax') / 100,
+  });
+
+  closeAddModal();
+  recalcAll();
+  showToast(name + ' added successfully!');
+  showTab('inputs');
+}
+
+function deleteCompany(idx) {
+  const name = DATA[idx].name;
+  if (confirm('Remove ' + name + ' from the dashboard?')) {
+    DATA.splice(idx, 1);
+    recalcAll();
+    showToast(name + ' removed');
+  }
+}
+
+function exportCSV() {
+  const results = DATA.map(d => ({ ...d, ...calc(d) }));
+  const headers = ['Company','Period','EBIT','Net Income','Equity','Debt','Total Assets','Tax Rate','Beta','Cost of Debt','NOPAT','Capital','WACC','ROIC','ROE','ROA','ROIIC','EVA','Score','Assessment'];
+  let csv = headers.join(',') + '\n';
+  results.forEach(r => {
+    csv += [
+      '"'+r.name+'"', '"'+r.period+'"', r.ebit, r.ni, r.equity, r.debt, r.assets,
+      (r.tax*100).toFixed(1)+'%', r.beta, (r.kd*100).toFixed(2)+'%',
+      r.nopat.toFixed(1), r.capital.toFixed(1), (r.wacc*100).toFixed(2)+'%',
+      (r.roic*100).toFixed(2)+'%', (r.roe*100).toFixed(2)+'%', (r.roa*100).toFixed(2)+'%',
+      r.roiic !== null ? (r.roiic*100).toFixed(1)+'%' : 'N/M',
+      r.eva.toFixed(1), r.score, r.assessment
+    ].join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'EVA_Analysis_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported!');
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+// ====================================================================
+// CALCULATIONS
+// ====================================================================
+function getRfr() { return parseFloat(document.getElementById('rfr').value) / 100 || 0.0425; }
+function getMrp() { return parseFloat(document.getElementById('mrp').value) / 100 || 0.055; }
+
+function calc(d) {
+  const rfr = getRfr(), mrp = getMrp();
+  const ke = rfr + d.beta * mrp;
+  const capital = d.equity + d.debt;
+  const eqW = capital ? d.equity / capital : 0;
+  const dtW = capital ? d.debt / capital : 0;
+  const wacc = eqW * ke + dtW * d.kd * (1 - d.tax);
+  const nopat = d.ebit * (1 - d.tax);
+  const roic = capital ? nopat / capital : 0;
+  const roe = d.equity ? d.ni / d.equity : 0;
+  const roa = d.assets ? d.ni / d.assets : 0;
+  const eva = nopat - capital * wacc;
+
+  const prevNopat = d.prevEbit * (1 - d.prevTax);
+  const prevCapital = d.prevEquity + d.prevDebt;
+  const deltaNopat = nopat - prevNopat;
+  const deltaCapital = capital - prevCapital;
+  const roiic = Math.abs(deltaCapital) < 10 ? null : deltaNopat / deltaCapital;
+
+  let score = 0;
+  if (roic > wacc) score++;
+  if (roic > 0.15) score++;
+  if (roiic !== null && roiic > wacc) score++;
+  if (roe > 0.15) score++;
+  if (eva > 0) score++;
+
+  const assessment = score >= 4 ? 'COMPOUNDER' : score >= 2 ? 'POTENTIAL' : 'NOT YET';
+
+  return { ke, capital, eqW, dtW, wacc, nopat, roic, roe, roa, eva, prevNopat, prevCapital, deltaNopat, deltaCapital, roiic, score, assessment };
+}
+
+function calcVeeva(v) {
+  const rfr = getRfr(), mrp = getMrp();
+  const ebit = v.rev * v.margin;
+  const nopat = ebit * (1 - v.tax);
+  const wacc = rfr + v.beta * mrp;
+  const roic = v.capital ? nopat / v.capital : 0;
+  const spread = roic - wacc;
+  const eva = nopat - v.capital * wacc;
+  return { ebit, nopat, wacc, roic, spread, eva };
+}
+
+// ====================================================================
+// FORMATTERS
+// ====================================================================
+const fPct = (v, d=1) => v === null ? 'N/M' : (v * 100).toFixed(d) + '%';
+const fMoney = v => {
+  if (v === null) return 'N/M';
+  const neg = v < 0;
+  const abs = Math.abs(v);
+  const s = abs >= 1000 ? '$' + (abs/1).toLocaleString('en-US',{maximumFractionDigits:0}) : '$' + abs.toFixed(1);
+  return neg ? '(' + s + ')' : s;
+};
+const fSpread = v => (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+const cls = v => v > 0.001 ? 'positive' : v < -0.001 ? 'negative' : 'neutral';
+const clsVal = v => v > 0 ? 'positive' : v < 0 ? 'negative' : 'neutral';
+
+// ====================================================================
+// TAB SWITCHING
+// ====================================================================
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`.tab[onclick="showTab('${id}')"]`).classList.add('active');
+}
+
+// ====================================================================
+// RENDER ALL
+// ====================================================================
+let sortCol = 'score', sortDir = 'desc';
+
+function recalcAll() {
+  const results = DATA.map((d, i) => ({ ...d, ...calc(d), idx: i }));
+
+  // Summary cards
+  const compounders = results.filter(r => r.score >= 4).length;
+  const potential = results.filter(r => r.score >= 2 && r.score < 4).length;
+  const notYet = results.filter(r => r.score < 2).length;
+  const avgSpread = results.reduce((s, r) => s + (r.roic - r.wacc), 0) / results.length;
+  const totalEva = results.reduce((s, r) => s + r.eva, 0);
+
+  document.getElementById('summaryCards').innerHTML = `
+    <div class="summary-card green"><div class="label">Compounders</div><div class="value">${compounders}</div></div>
+    <div class="summary-card orange"><div class="label">Potential Compounders</div><div class="value">${potential}</div></div>
+    <div class="summary-card red"><div class="label">Not Yet</div><div class="value">${notYet}</div></div>
+    <div class="summary-card"><div class="label">Avg ROIC-WACC Spread</div><div class="value ${cls(avgSpread)}">${fSpread(avgSpread)}</div></div>
+    <div class="summary-card"><div class="label">Total EVA ($M)</div><div class="value ${clsVal(totalEva)}">${fMoney(totalEva)}</div></div>
+    <div class="summary-card"><div class="label">Companies Tracked</div><div class="value">${DATA.length}</div></div>
+  `;
+
+  // Sort
+  const sorted = [...results].sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (sortCol === 'company') { va = a.name; vb = b.name; }
+    if (sortCol === 'spread') { va = a.roic - a.wacc; vb = b.roic - b.wacc; }
+    if (va === null) va = -Infinity;
+    if (vb === null) vb = -Infinity;
+    if (typeof va === 'string') return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortDir === 'asc' ? va - vb : vb - va;
+  });
+
+  // Dashboard table
+  document.getElementById('dashBody').innerHTML = sorted.map(r => {
+    const spread = r.roic - r.wacc;
+    const badge = r.score >= 4 ? 'badge-compounder' : r.score >= 2 ? 'badge-potential' : 'badge-not';
+    const label = r.score >= 4 ? 'COMPOUNDER' : r.score >= 2 ? 'POTENTIAL' : 'NOT YET';
+    return `<tr>
+      <td>${r.name}</td>
+      <td class="${cls(r.roic)}">${fPct(r.roic)}</td>
+      <td>${fPct(r.wacc)}</td>
+      <td class="${cls(spread)}"><strong>${fSpread(spread)}</strong></td>
+      <td class="${r.roiic !== null ? cls(r.roiic) : ''}">${fPct(r.roiic)}</td>
+      <td class="${cls(r.roe - 0.15)}">${fPct(r.roe)}</td>
+      <td>${fPct(r.roa)}</td>
+      <td class="${clsVal(r.eva)}"><strong>${fMoney(r.eva)}</strong></td>
+      <td><div class="score-dots">${[...Array(5)].map((_,j) => `<div class="dot${j < r.score ? ' filled' : ''}"></div>`).join('')}</div></td>
+      <td><span class="badge ${badge}">${label}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Detail table
+  document.getElementById('detailBody').innerHTML = results.map(r => `<tr>
+    <td>${r.name}</td>
+    <td>${fMoney(r.ebit)}</td>
+    <td>${fPct(r.tax)}</td>
+    <td>${fMoney(r.nopat)}</td>
+    <td>${fMoney(r.equity)}</td>
+    <td>${fMoney(r.debt)}</td>
+    <td>${fMoney(r.capital)}</td>
+    <td>${r.beta.toFixed(2)}</td>
+    <td>${fPct(r.ke)}</td>
+    <td>${fPct(r.kd*100 > 0 ? r.kd : 0)}</td>
+    <td>${fPct(r.eqW)}</td>
+    <td>${fPct(r.dtW)}</td>
+    <td>${fPct(r.wacc)}</td>
+    <td class="${cls(r.roic)}"><strong>${fPct(r.roic)}</strong></td>
+    <td class="${clsVal(r.eva)}"><strong>${fMoney(r.eva)}</strong></td>
+  </tr>`).join('');
+
+  // ROIIC table
+  document.getElementById('roiicBody').innerHTML = results.map(r => {
+    const interp = r.roiic === null ? 'Minimal capital change' :
+      r.roiic > r.wacc ? 'Incremental capital creating value' :
+      r.roiic > 0 ? 'Positive but below cost of capital' : 'Incremental capital destroying value';
+    return `<tr>
+      <td>${r.name}</td>
+      <td>${fMoney(r.prevNopat)}</td>
+      <td>${fMoney(r.nopat)}</td>
+      <td class="${clsVal(r.deltaNopat)}">${fMoney(r.deltaNopat)}</td>
+      <td>${fMoney(r.prevCapital)}</td>
+      <td>${fMoney(r.capital)}</td>
+      <td>${fMoney(r.deltaCapital)}</td>
+      <td class="${r.roiic !== null ? cls(r.roiic) : ''}"><strong>${fPct(r.roiic)}</strong></td>
+      <td style="font-size:0.78rem;color:#b2bec3;">${interp}</td>
+    </tr>`;
+  }).join('');
+
+  // Input table with delete buttons
+  document.getElementById('inputBody').innerHTML = DATA.map((d, i) => {
+    const inp = (field, val, isPct=false) =>
+      `<td><input value="${isPct ? (val*100).toFixed(isPct === 2 ? 2 : 1) : val}" onchange="updateField(${i},'${field}',this.value,${isPct ? 'true' : 'false'})"></td>`;
+    return `<tr>
+      <td style="text-align:center;"><button class="btn-danger" onclick="deleteCompany(${i})" title="Remove ${d.name}">X</button></td>
+      <td>${d.name}</td>
+      <td style="font-size:0.78rem;color:#b2bec3;">${d.period}</td>
+      ${inp('ebit', d.ebit)}${inp('ni', d.ni)}${inp('equity', d.equity)}${inp('debt', d.debt)}
+      ${inp('assets', d.assets)}${inp('tax', d.tax, 2)}${inp('beta', d.beta)}${inp('kd', d.kd, 2)}
+      ${inp('prevEbit', d.prevEbit)}${inp('prevEquity', d.prevEquity)}${inp('prevDebt', d.prevDebt)}${inp('prevTax', d.prevTax, 2)}
+    </tr>`;
+  }).join('');
+
+  // Veeva projection
+  document.getElementById('veevaBody').innerHTML = VEEVA_PROJ.map(v => {
+    const c = calcVeeva(v);
+    return `<tr>
+      <td>${v.year}</td>
+      <td>${fMoney(v.rev)}</td>
+      <td>${fPct(v.margin)}</td>
+      <td>${fMoney(c.ebit)}</td>
+      <td>${fPct(v.tax)}</td>
+      <td>${fMoney(c.nopat)}</td>
+      <td>${fMoney(v.capital)}</td>
+      <td>${v.beta.toFixed(2)}</td>
+      <td>${fPct(c.wacc)}</td>
+      <td class="${cls(c.roic)}"><strong>${fPct(c.roic)}</strong></td>
+      <td class="${cls(c.spread)}"><strong>${fSpread(c.spread)}</strong></td>
+      <td class="${clsVal(c.eva)}"><strong>${fMoney(c.eva)}</strong></td>
+      <td><span class="badge ${c.eva > 0 ? 'badge-compounder' : 'badge-not'}">${c.eva > 0 ? 'CREATING VALUE' : 'DESTROYING'}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Charts
+  renderCharts(results);
+
+}
+
+function updateField(idx, field, val, isPct) {
+  const num = parseFloat(val);
+  if (isNaN(num)) return;
+  DATA[idx][field] = isPct ? num / 100 : num;
+  recalcAll();
+}
+
+// ====================================================================
+// SORTING
+// ====================================================================
+document.querySelectorAll('.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+    else { sortCol = col; sortDir = 'desc'; }
+    document.querySelectorAll('.sortable').forEach(t => t.classList.remove('asc', 'desc'));
+    th.classList.add(sortDir);
+    recalcAll();
+  });
+});
+
+// ====================================================================
+// CHARTS
+// ====================================================================
+function renderCharts(results) {
+  // Spread gauges
+  document.getElementById('spreadCharts').innerHTML = results.map(r => {
+    const spread = r.roic - r.wacc;
+    const color = spread > 0 ? 'var(--green)' : 'var(--red)';
+    const roicW = Math.min(Math.abs(r.roic) * 100 * 2, 100);
+    const waccW = Math.min(r.wacc * 100 * 2, 100);
+    return `<div class="gauge-card">
+      <h3>${r.name}</h3>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <span class="bar-label">ROIC</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${roicW}%;background:${r.roic > 0 ? 'var(--green)' : 'var(--red)'}"></div></div>
+          <span class="bar-value ${cls(r.roic)}">${fPct(r.roic)}</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">WACC</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${waccW}%;background:#74b9ff"></div></div>
+          <span class="bar-value">${fPct(r.wacc)}</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Spread</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.abs(spread)*100*2,100)}%;background:${color}"></div></div>
+          <span class="bar-value" style="color:${color}">${fSpread(spread)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // EVA bar chart
+  const evaSorted = [...results].sort((a, b) => b.eva - a.eva);
+  const maxEva = Math.max(...evaSorted.map(r => Math.abs(r.eva)), 1);
+  document.getElementById('evaBarChart').innerHTML = `<div class="bar-chart">${evaSorted.map(r => {
+    const w = (Math.abs(r.eva) / maxEva) * 80;
+    const color = r.eva > 0 ? 'var(--green)' : 'var(--red)';
+    return `<div class="bar-row" style="margin-bottom:4px;">
+      <span class="bar-label" style="width:160px;font-size:0.78rem;">${r.name.split('(')[0].trim()}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${color}"></div></div>
+      <span class="bar-value" style="color:${color};width:100px;">${fMoney(r.eva)}</span>
+    </div>`;
+  }).join('')}</div>`;
+
+  // Return metrics bars
+  document.getElementById('returnBars').innerHTML = `<div class="bar-chart">${results.map(r => {
+    return `<div style="margin-bottom:10px;">
+      <div style="font-size:0.82rem;font-weight:600;margin-bottom:4px;">${r.name}</div>
+      <div class="bar-row"><span class="bar-label">ROIC</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.max(r.roic,0)*200,100)}%;background:var(--green)"></div></div><span class="bar-value positive">${fPct(r.roic)}</span></div>
+      <div class="bar-row"><span class="bar-label">ROE</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.max(r.roe,0)*200,100)}%;background:#a29bfe"></div></div><span class="bar-value" style="color:#a29bfe">${fPct(r.roe)}</span></div>
+      <div class="bar-row"><span class="bar-label">ROA</span><div class="bar-track"><div class="bar-fill" style="width:${Math.min(Math.max(r.roa,0)*200,100)}%;background:#fd79a8"></div></div><span class="bar-value" style="color:#fd79a8">${fPct(r.roa)}</span></div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ====================================================================
+// INITIALIZE — always start from hardcoded data
+// ====================================================================
+// No auto-restore from cache. The file always loads with the exact data
+// hardcoded above. Use Save/Load buttons to persist and restore changes.
+localStorage.removeItem('eva_dashboard_autosave');
+recalcAll();
+
+// Close modal on escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAddModal();
+});
+
+// Close modal on overlay click
+document.getElementById('addModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('addModal')) closeAddModal();
+});
+</script>
+</body>
+</html>
