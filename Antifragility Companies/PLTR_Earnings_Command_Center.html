@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLTR Earnings Command Center — Bustamante MDI × Stoffel-Feroldi Antifragility</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a0f; color:#e4e4e7; font-family:'JetBrains Mono','SF Mono','Fira Code','Courier New',monospace; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:#12121a; }
+  ::-webkit-scrollbar-thumb { background:#27272a; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:#3f3f46; }
+  table { font-size:12px; }
+  button { font-family:inherit; }
+  @media print { body { background:#fff; color:#000; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+
+
+const TABS = ["Overview","Earnings","MDI Moats","Antifragility","Kill Switches","Commentary","Dashboard"];
+
+// ─── VERIFIED DATA ────────────────────────────────────────────────────────
+const COMPANY = {
+  name:"Palantir Technologies Inc.",ticker:"PLTR",exchange:"NASDAQ",sector:"Enterprise AI / Data Analytics",
+  type:"Pure SaaS",price:134.55,marketCap:"$323B",peRatio:"213x",
+  w52h:207.52,w52l:66.12,employees:"4,429",hq:"Denver, CO (moving to Miami)",
+  ceo:"Alex Karp",cto:"Shyam Sankar",cfo:"David Glazer",
+  thesis:"Palantir is the infrastructure layer for operationalizing AI in government and enterprise. Its Ontology data model + AIP platform creates structural switching costs as customers reorganize operations around Palantir's semantic layer. 70% revenue growth with 57% adj. operating margins represents a Rule of 40 score of 127% — among the highest ever recorded in enterprise software. The core bet: Palantir becomes the 'operating system' for AI-driven decision-making, analogous to how Salesforce became the operating system for CRM. Government provides the floor; commercial provides the ceiling.",
+  nextEarnings:"May 11, 2026",
+  cash:"$7.2B",debt:"$0",buyback:"$899M remaining auth"
+};
+
+const Q = [
+  {q:"Q1'24",rev:634.3,epsAdj:0.08,epsCons:0.08,revCons:625,adjOM:36,gaapOM:13,
+   govRev:371, comRev:263,usRev:434, intlRev:200,usComRev:150,usGovRev:257,
+   customers:593,tcv:null,rule40:57,fcf:149,fcfM:23,yoyRev:21,qoqRev:null},
+  {q:"Q2'24",rev:678.1,epsAdj:0.09,epsCons:0.08,revCons:653,adjOM:37,gaapOM:16,
+   govRev:371, comRev:307,usRev:450, intlRev:228,usComRev:159,usGovRev:278,
+   customers:593,tcv:null,rule40:64,fcf:148,fcfM:22,yoyRev:27,qoqRev:6.9},
+  {q:"Q3'24",rev:725.5,epsAdj:0.10,epsCons:0.09,revCons:701,adjOM:38,gaapOM:16,
+   govRev:408, comRev:317,usRev:499, intlRev:227,usComRev:179,usGovRev:320,
+   customers:629,tcv:null,rule40:68,fcf:435,fcfM:60,yoyRev:30,qoqRev:7.0},
+  {q:"Q4'24",rev:827.5,epsAdj:0.14,epsCons:0.11,revCons:776,adjOM:45,gaapOM:11,
+   govRev:432, comRev:395,usRev:558, intlRev:270,usComRev:214,usGovRev:343,
+   customers:711,tcv:null,rule40:81,fcf:517,fcfM:63,yoyRev:36,qoqRev:14.1},
+  {q:"Q1'25",rev:883.9,epsAdj:0.13,epsCons:0.10,revCons:862,adjOM:44,gaapOM:20,
+   govRev:451, comRev:433,usRev:628, intlRev:256,usComRev:255,usGovRev:373,
+   customers:769,tcv:2300,rule40:83,fcf:370,fcfM:42,yoyRev:39,qoqRev:6.8},
+  {q:"Q2'25",rev:1003.0,epsAdj:0.16,epsCons:0.13,revCons:987,adjOM:46,gaapOM:27,
+   govRev:448, comRev:555,usRev:738, intlRev:265,usComRev:308,usGovRev:427,
+   customers:823,tcv:3100,rule40:93,fcf:540,fcfM:54,yoyRev:48,qoqRev:13.5},
+  {q:"Q3'25",rev:1181.0,epsAdj:0.21,epsCons:0.17,revCons:1090,adjOM:51,gaapOM:33,
+   govRev:525, comRev:656,usRev:883, intlRev:298,usComRev:397,usGovRev:486,
+   customers:null,tcv:3700,rule40:114,fcf:540,fcfM:46,yoyRev:63,qoqRev:17.7},
+  {q:"Q4'25",rev:1407.0,epsAdj:0.25,epsCons:0.23,revCons:1330,adjOM:57,gaapOM:41,
+   govRev:570, comRev:837,usRev:1076, intlRev:331,usComRev:507,usGovRev:570,
+   customers:null,tcv:4262,rule40:127,fcf:791,fcfM:56,yoyRev:70,qoqRev:19.1}
+];
+
+const FY2025 = {rev:4475, adjOI:2254,adjOM:50,fcf:2020,gaapNI:1630};
+const GUIDANCE_26 = {rev:"$7.182–$7.198B",adjOI:"$4.126–$4.142B",fcf:"$3.925–$4.125B",usComRev:">$3.144B (+115%)",q1Rev:"$1.532–$1.536B"};
+
+const MOATS = [
+  {id:6,name:"Proprietary & Private Data",status:"STRENGTHENING",score:1,
+   detail:"Ontology — Palantir's proprietary semantic data model — is built ON TOP OF customer data but creates a proprietary integration layer that becomes increasingly valuable as more data sources connect. Each deployment creates a unique, customer-specific Ontology that cannot be replicated. The Ontology IS the moat — it's not the raw data, it's the relationships, workflows, and operational logic encoded within it. Genuinely proprietary and non-replicable per deployment."},
+  {id:7,name:"Regulatory & Compliance Lock-in",status:"STRUCTURAL",score:1,
+   detail:"FedRAMP High, IL5/IL6 classified clearances, ITAR compliance. Government deployments require security certifications that take 2-5 years to obtain. Maven (military AI), TITAN (Army targeting), and intelligence community platforms operate in SCIFs with zero-trust architectures. No AI startup can walk into the Pentagon without these clearances. Commercial: SOC 2 Type II across all platforms."},
+  {id:8,name:"Network Effects",status:"GENUINE (emerging)",score:0.75,
+   detail:"Weak historically, but AIP bootcamps are creating a practitioner network effect — trained users advocate for Palantir within their organizations. More critically: Ontology creates INTERNAL network effects within each customer (more teams on Ontology = more value). Cross-customer network effects remain limited. Accenture partnership (2,000+ consultants trained) creates an ecosystem effect."},
+  {id:9,name:"Transaction Embedding",status:"DEEPLY EMBEDDED",score:1,
+   detail:"Maven: embedded in military kill chain decision-making. Foundry: embedded in supply chain operations, manufacturing workflows, financial risk monitoring. When a defense analyst uses Gotham to track threats, or an insurance company uses Foundry to adjudicate claims, Palantir IS the transaction. Turning off Palantir means operational paralysis for deployed customers."},
+  {id:10,name:"System of Record",status:"STRONG",score:1,
+   detail:"Ontology IS the system of record for operational decision-making in deployed customers. It integrates data from 50+ enterprise systems into a single semantic model. Once operational teams build workflows on Ontology, it becomes the de facto SoR for cross-system operational intelligence. Army's TITAN and Maven: Palantir is THE system of record for battlefield AI. AIP adoption accelerating this — 571 US commercial customers now."}
+];
+
+const THREE_Q = [{q:"Proprietary data?",a:true,note:"Ontology = proprietary per-customer semantic model"},
+  {q:"Regulatory lock-in?",a:true,note:"FedRAMP High, IL5/IL6, ITAR — multi-year cert process"},
+  {q:"Transaction embedded?",a:true,note:"Maven kill chain, Foundry supply chain ops, AIP workflows"}];
+
+const DIMS = [
+  {name:"D1: Liability Shield",weight:15,score:8,
+   hint:"8-10: failure = death/regulatory violation. 5-7: operational disruption. 2-4: inconvenient. 0-1: easily corrected.",
+   just:"Military: Maven/TITAN failures = battlefield casualties, intelligence failures. Government: wrong threat assessment = national security breach. Commercial: supply chain/claims processing errors = significant but recoverable financial loss. Blended across portfolio, military deployments anchor this at 8."},
+  {name:"D2: Business Model",weight:30,score:9,
+   hint:"8-10: usage/outcome-based scaling with AI. 5-7: hybrid. 2-4: seat-based. 0-1: pure seat + accelerating churn.",
+   just:"Consumption-based pricing is the CORE model. Palantir charges based on compute/data usage, not seats. As AI agents proliferate and do MORE work on Foundry/AIP, Palantir generates MORE revenue — the pricing model structurally benefits from AI proliferation. NRR 139% in Q4 2025. TCV $4.3B (+138% YoY). Rule of 40: 127%. Revenue growing 70% with 57% adj margins. No seat-based pricing drag. This is the ideal AI-era business model."},
+  {name:"D3: Physical Integration",weight:15,score:5,
+   hint:"8-10: hardware+software+data. 5-7: edge devices/IoT. 2-4: pure cloud SaaS. 0-1: browser-only.",
+   just:"Pure software, BUT: deployed on air-gapped military networks, classified environments (SCIFs), edge computing in theater. TITAN runs on deployed Army hardware. Apollo enables deployment to edge environments. Not hardware-integrated like Axon, but more physically embedded than typical SaaS through classified infrastructure and edge deployment requirements."},
+  {name:"D4: Data Gravity",weight:40,score:9,
+   hint:"8-10: irreversible proprietary datasets + genuine network effects. 5-7: strong data + weak networks. 2-4: curated public data.",
+   just:"Ontology creates per-customer data gravity that INCREASES with time. Each workflow, each AI model trained on Ontology, each operational decision logged, makes the data asset more valuable and harder to replicate. US Army has 75+ contracts consolidated into one Ontology — 20 years of operational data. AIP accelerates data gravity as AI models learn customer-specific patterns. Cross-customer gravity limited but emerging through Accenture ecosystem."}
+];
+
+const DIP = {score:4,max:5,bonus:1.0,
+  items:["FedRAMP/IL5/IL6 mandate data handling formats","Outputs used in military/intelligence operational decisions","Formal certifications: FedRAMP High, SOC 2, ITAR, IL5/IL6","Immutable audit trails for classified operations","Switching = security re-certification + operational gap"]};
+
+const CPP = {score:10,max:12,bonus:1.5,
+  items:["AIP launched with massive verifiable ARR — US commercial grew 137% YoY","Consumption-based pricing IS the model (not transitioning to it — already there)","Willingness to cannibalize: Karp actively frames AI as cannibalizing legacy software ('commodity cognition')","New market adjacency: manufacturing AI, healthcare AI, shipbuilding AI (Navy $448M contract)"]};
+
+const KILLS = [
+  {trigger:"US government revenue growth decelerates below 15% YoY for 2 consecutive quarters",status:"CLEAR",
+   evidence:"US gov grew 66% YoY in Q4 2025. Army $10B contract provides multi-year floor."},
+  {trigger:"US commercial revenue growth decelerates below 50% YoY",status:"CLEAR",
+   evidence:"US commercial grew 137% YoY in Q4 2025. Remaining deal value up 145% YoY to $4.38B."},
+  {trigger:"Adjusted operating margin contracts below 40% for 2 consecutive quarters",status:"CLEAR",
+   evidence:"57% adj OM in Q4 2025, expanding 12pp YoY. FY2025 adj OM 50%."},
+  {trigger:"Net dollar retention drops below 120%",status:"CLEAR",
+   evidence:"NDR 139% in Q4 2025. Top 20 customers TTM revenue $94M per customer (+45% YoY)."},
+  {trigger:"Major defense contract loss or government funding cut materially impacts revenue",status:"MONITORING",
+   evidence:"DOGE/budget cut rhetoric is risk factor. However, Palantir positioned as efficiency tool (saves money). Army $10B contract locked. But headline risk is real."},
+  {trigger:"Valuation compresses below 30x forward revenue without fundamental deterioration",status:"CLEAR",
+   evidence:"Currently ~45x FY2026 revenue ($7.19B guide). Premium but supported by 61% guided growth + 57% margins."}
+];
+
+const COMMENTARY = {
+  tone:"AGGRESSIVE BULL",
+  themes:["'Commodity cognition' — AI models are commoditizing, value is in operationalization","Rule of 40 at 127% — 'best results in tech in the last decade' (Karp)","US dominance: 77% of revenue from US, deliberately holding off selling new products to allies","AIP as enterprise operating system, not a tool — customers reorganizing around it","Government: 'America has become more lethal' — defense spending as patriotic imperative"],
+  quotes:[
+    {who:"Alex Karp, CEO",text:"These results make undeniable the transformational impact of using AIP to compound AI leverage."},
+    {who:"Alex Karp, CEO",text:"We are an n of 1, and these numbers prove it."},
+    {who:"Ryan Taylor, CRO",text:"Our Rule of 40 score reached new heights at 127, proving that hyper-growth and exceptional profitability aren't mutually exclusive."},
+    {who:"Alex Karp, CEO",text:"Palantir's profit is pure and uncontrived."}
+  ],
+  qaFocus:["Defense budget cuts — Karp deflected, emphasized Palantir as efficiency tool","ICE controversy — Karp defended aggressively, said product enforces 4th Amendment protections","International growth — deliberately slow, US priority","Competition — Karp dismissive, 'no one else can do what we do at this scale'"],
+  redFlags:["P/E ratio >200x creates extreme multiple compression risk on ANY deceleration","Stock down ~35% from ATH despite blowout earnings — market pricing in peak growth","CEO personality risk — Karp is polarizing, media/political exposure creates headline risk","International commercial declined 3% YoY in Q2 2025 — heavy US concentration","SBC still elevated even as GAAP profitability achieved — dilution concern for long-term holders"],
+  yellowFlags:["Government revenue concentration — DOGE/budget sequester risk","Retail investor enthusiasm creates volatility floor/ceiling","No dividend, buyback modest relative to cash generation and market cap","CEO transition risk — Karp is the brand, succession unclear"]
+};
+
+// ─── UTILITY FUNCTIONS ──────────────────────────────────────────────────
+const fmt = (n,d=1) => n==null?"—":n>=1000?`$${(n/1000).toFixed(d)}B`:`$${n.toFixed(0)}M`;
+const pct = (n,d=0) => n==null?"—":`${n.toFixed(d)}%`;
+const badge = (actual,est) => {
+  if(actual==null||est==null) return null;
+  const diff=((actual-est)/Math.abs(est))*100;
+  if(diff>1) return {label:"BEAT",color:"#22c55e",pct:diff.toFixed(1)};
+  if(diff<-1) return {label:"MISS",color:"#ef4444",pct:diff.toFixed(1)};
+  return {label:"IN-LINE",color:"#f59e0b",pct:diff.toFixed(1)};
+};
+const arrow = (curr,prev) => {
+  if(curr==null||prev==null) return "";
+  return curr>prev?"▲":"▼";
+};
+
+// ─── STYLES ──────────────────────────────────────────────────────────────
+const C = {
+  bg:"#0a0a0f",bg2:"#12121a",bg3:"#1a1a28",
+  accent:"#00d4ff",accent2:"#7c3aed",accent3:"#f97316",
+  green:"#22c55e",red:"#ef4444",yellow:"#f59e0b",
+  text:"#e4e4e7",dim:"#71717a",border:"#27272a",
+  gold:"#fbbf24"
+};
+
+const sCard = {background:C.bg2,border:`1px solid ${C.border}`,borderRadius:12,padding:20,marginBottom:16};
+const sGrid2 = {display:"grid",gridTemplateColumns:"1fr 1fr",gap:16};
+const sGrid3 = {display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16};
+const sLabel = {fontSize:11,color:C.dim,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4};
+const sValue = {fontSize:28,fontWeight:700,color:C.text};
+const sSmall = {fontSize:13,color:C.dim};
+const sBadge = (color) => ({display:"inline-block",padding:"2px 10px",borderRadius:20,fontSize:11,fontWeight:700,background:`${color}22`,color,border:`1px solid ${color}44`});
+
+// ─── COMPONENTS ──────────────────────────────────────────────────────────
+function MetricBox({label,value,sub,color}){
+  return <div style={sCard}>
+    <div style={sLabel}>{label}</div>
+    <div style={{...sValue,color:color||C.text}}>{value}</div>
+    {sub&&<div style={{...sSmall,marginTop:4}}>{sub}</div>}
+  </div>;
+}
+
+function Badge({actual,estimate}){
+  const b = badge(actual,estimate);
+  if(!b) return null;
+  return <span style={sBadge(b.color)}>{b.label} {b.pct>0?"+":""}{b.pct}%</span>;
+}
+
+function TabOverview(){
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${C.accent}`}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:16}}>
+        <div>
+          <div style={{fontSize:32,fontWeight:800,color:C.text,letterSpacing:-1}}>{COMPANY.name}</div>
+          <div style={{fontSize:16,color:C.dim,marginTop:4}}>{COMPANY.ticker} · {COMPANY.exchange} · {COMPANY.sector} · {COMPANY.type}</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:36,fontWeight:800,color:C.accent}}>${COMPANY.price}</div>
+          <div style={sSmall}>{COMPANY.marketCap} mkt cap · {COMPANY.peRatio} P/E</div>
+        </div>
+      </div>
+    </div>
+    <div style={sGrid3}>
+      <MetricBox label="52-Week High" value={`$${COMPANY.w52h}`} sub={`${(((COMPANY.w52h-COMPANY.price)/COMPANY.w52h)*100).toFixed(0)}% below`} color={C.red}/>
+      <MetricBox label="52-Week Low" value={`$${COMPANY.w52l}`} sub={`${(((COMPANY.price-COMPANY.w52l)/COMPANY.w52l)*100).toFixed(0)}% above`} color={C.green}/>
+      <MetricBox label="Next Earnings" value={COMPANY.nextEarnings} sub="Q1 FY2026" color={C.accent}/>
+    </div>
+    <div style={sGrid3}>
+      <MetricBox label="Cash & Treasuries" value={COMPANY.cash} sub="Zero debt" color={C.green}/>
+      <MetricBox label="Employees" value={COMPANY.employees} sub={`Rev/employee: $1.01M`} color={C.text}/>
+      <MetricBox label="Buyback" value={COMPANY.buyback} sub="Remaining authorization"/>
+    </div>
+    <div style={{...sCard,borderLeft:`4px solid ${C.accent2}`}}>
+      <div style={sLabel}>Investment Thesis</div>
+      <div style={{fontSize:14,color:C.text,lineHeight:1.7,marginTop:8}}>{COMPANY.thesis}</div>
+    </div>
+    <div style={{...sCard,background:`${C.accent}08`,border:`1px solid ${C.accent}22`}}>
+      <div style={sLabel}>FY2026 Guidance — Reported Feb 2, 2026</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginTop:12}}>
+        {Object.entries(GUIDANCE_26).map(([k,v])=><div key={k}>
+          <div style={{fontSize:11,color:C.dim}}>{k.replace(/([A-Z])/g," $1").trim()}</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.accent}}>{v}</div>
+        </div>)}
+      </div>
+    </div>
+    <div style={{...sCard,borderLeft:`4px solid ${C.accent3}`}}>
+      <div style={sLabel}>Leadership</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginTop:8}}>
+        <div><span style={{color:C.text,fontWeight:600}}>CEO:</span> <span style={{color:C.dim}}>{COMPANY.ceo}</span></div>
+        <div><span style={{color:C.text,fontWeight:600}}>CTO:</span> <span style={{color:C.dim}}>{COMPANY.cto}</span></div>
+        <div><span style={{color:C.text,fontWeight:600}}>CFO:</span> <span style={{color:C.dim}}>{COMPANY.cfo}</span></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function TabEarnings(){
+  const latest = Q[Q.length-1];
+  const prev = Q[Q.length-2];
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${C.green}`}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{fontSize:20,fontWeight:700,color:C.text}}>Q4 2025 — Most Recent Print (Feb 2, 2026)</div>
+        <div style={{display:"flex",gap:8}}>
+          <Badge actual={latest.rev} estimate={latest.revCons}/>
+          <Badge actual={latest.epsAdj} estimate={latest.epsCons}/>
+        </div>
+      </div>
+    </div>
+    <div style={sGrid3}>
+      <MetricBox label="Revenue" value={fmt(latest.rev)} sub={<span>vs. est {fmt(latest.revCons)} <Badge actual={latest.rev} estimate={latest.revCons}/></span>} color={C.accent}/>
+      <MetricBox label="Adj EPS" value={`$${latest.epsAdj.toFixed(2)}`} sub={<span>vs. est ${latest.epsCons.toFixed(2)} <Badge actual={latest.epsAdj} estimate={latest.epsCons}/></span>} color={C.accent}/>
+      <MetricBox label="YoY Revenue Growth" value={pct(latest.yoyRev)} sub="Fastest growth as public co" color={C.green}/>
+    </div>
+    <div style={sGrid3}>
+      <MetricBox label="US Commercial Rev" value={fmt(latest.usComRev)} sub="+137% YoY" color={C.green}/>
+      <MetricBox label="US Government Rev" value={fmt(latest.usGovRev)} sub="+66% YoY" color={C.green}/>
+      <MetricBox label="Rule of 40" value={latest.rule40.toString()+"%"} sub="Highest in enterprise software" color={C.gold}/>
+    </div>
+    <div style={sGrid2}>
+      <MetricBox label="Adj Operating Margin" value={pct(latest.adjOM)} sub={`${arrow(latest.adjOM,prev.adjOM)} from ${pct(prev.adjOM)} prior Q`} color={C.green}/>
+      <MetricBox label="Adj Free Cash Flow" value={fmt(latest.fcf)} sub={`${pct(latest.fcfM)} margin`} color={C.green}/>
+    </div>
+
+    <div style={{...sCard,overflow:"auto"}}>
+      <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:16}}>8-Quarter History</div>
+      <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+        <thead>
+          <tr style={{borderBottom:`2px solid ${C.border}`}}>
+            {["Quarter","Revenue","YoY %","QoQ %","Adj EPS","Est EPS","Adj OM","GAAP OM","US Com","US Gov","Intl","TCV","Rule 40","FCF","FCF M%"].map(h=>
+              <th key={h} style={{padding:"8px 6px",textAlign:"right",color:C.dim,fontWeight:600,whiteSpace:"nowrap"}}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {Q.map((r,i)=>{
+            const revB = badge(r.rev,r.revCons);
+            const epsB = badge(r.epsAdj,r.epsCons);
+            return <tr key={r.q} style={{borderBottom:`1px solid ${C.border}`,background:i>=4?`${C.accent}06`:"transparent"}}>
+              <td style={{padding:"8px 6px",fontWeight:700,color:i>=4?C.accent:C.text}}>{r.q}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>{fmt(r.rev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:r.yoyRev>40?C.green:r.yoyRev>20?C.accent:C.text}}>{pct(r.yoyRev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.dim}}>{pct(r.qoqRev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>${r.epsAdj.toFixed(2)} {epsB&&<span style={sBadge(epsB.color)}>{epsB.label}</span>}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.dim}}>${r.epsCons.toFixed(2)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:r.adjOM>=50?C.green:C.text}}>{pct(r.adjOM)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:r.gaapOM>=30?C.green:r.gaapOM>=20?C.accent:C.text}}>{pct(r.gaapOM)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>{fmt(r.usComRev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>{fmt(r.usGovRev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.dim}}>{fmt(r.intlRev)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>{r.tcv?fmt(r.tcv):"—"}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:r.rule40>=100?C.gold:r.rule40>=70?C.green:C.text}}>{r.rule40}%</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.text}}>{fmt(r.fcf)}</td>
+              <td style={{padding:"8px 6px",textAlign:"right",color:C.dim}}>{pct(r.fcfM)}</td>
+            </tr>;
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <div style={{...sCard,borderLeft:`4px solid ${C.gold}`}}>
+      <div style={sLabel}>FY2025 Full Year Summary</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginTop:12}}>
+        <div><div style={{fontSize:11,color:C.dim}}>Revenue</div><div style={{fontSize:18,fontWeight:700,color:C.text}}>{fmt(FY2025.rev)}</div><div style={sSmall}>+56% YoY</div></div>
+        <div><div style={{fontSize:11,color:C.dim}}>Adj Op Income</div><div style={{fontSize:18,fontWeight:700,color:C.text}}>{fmt(FY2025.adjOI)}</div><div style={sSmall}>{pct(FY2025.adjOM)} margin</div></div>
+        <div><div style={{fontSize:11,color:C.dim}}>Adj FCF</div><div style={{fontSize:18,fontWeight:700,color:C.text}}>{fmt(FY2025.fcf)}</div></div>
+        <div><div style={{fontSize:11,color:C.dim}}>GAAP Net Income</div><div style={{fontSize:18,fontWeight:700,color:C.green}}>{fmt(FY2025.gaapNI)}</div></div>
+        <div><div style={{fontSize:11,color:C.dim}}>Cash Position</div><div style={{fontSize:18,fontWeight:700,color:C.text}}>$7.2B</div><div style={sSmall}>Zero debt</div></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function TabMDI(){
+  const mdiScore = MOATS.reduce((s,m)=>s+m.score,0);
+  const tqScore = THREE_Q.filter(t=>t.a).length;
+  const cls = mdiScore>=4?"LOWER RISK":mdiScore>=2?"MEDIUM RISK":"HIGH RISK";
+  const clsColor = mdiScore>=4?C.green:mdiScore>=2?C.yellow:C.red;
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${clsColor}`}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div>
+          <div style={{fontSize:24,fontWeight:800,color:C.text}}>MDI Score: {mdiScore.toFixed(1)} / 5</div>
+          <div style={{fontSize:16,color:clsColor,fontWeight:600}}>{cls}</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:16,color:C.text}}>Three-Question Test: {tqScore}/3</div>
+          <div style={{fontSize:14,color:C.dim}}>Disruption Stage: <span style={{color:C.green,fontWeight:600}}>N/A — PALANTIR IS THE DISRUPTOR</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style={{...sCard,background:`${C.green}08`,border:`1px solid ${C.green}22`}}>
+      <div style={{fontSize:14,color:C.green,fontWeight:600,marginBottom:8}}>⚡ Critical Finding</div>
+      <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>
+        Palantir inverts the typical MDI framework. Most companies we assess are DEFENDING moats against AI disruption. Palantir IS the AI disruption. Its Ontology + AIP platform is the tool that enterprises use to operationalize AI, which means Palantir benefits from the same forces that threaten traditional vertical SaaS companies (Wolters Kluwer, Thomson Reuters, etc.). The moat question for Palantir is not "can AI disrupt this?" but "can anyone else deliver enterprise AI operationalization at this scale?" So far, the answer appears to be no — hence the 70% growth rate at $5.6B run rate.
+      </div>
+    </div>
+
+    {MOATS.map(m=>{
+      const statusColor = m.status.includes("STRENGTH")?C.green:m.status.includes("STRUCTURAL")?C.accent:m.status.includes("GENUINE")?C.green:m.status.includes("DEEPLY")?C.green:m.status.includes("STRONG")?C.green:C.yellow;
+      return <div key={m.id} style={{...sCard,borderLeft:`3px solid ${statusColor}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+          <div style={{fontSize:15,fontWeight:700,color:C.text}}>Moat {m.id}: {m.name}</div>
+          <span style={sBadge(statusColor)}>{m.status}</span>
+        </div>
+        <div style={{fontSize:12,color:C.dim,lineHeight:1.6}}>{m.detail}</div>
+      </div>;
+    })}
+
+    <div style={sCard}>
+      <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:12}}>Three-Question Test</div>
+      {THREE_Q.map((t,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:i<2?`1px solid ${C.border}`:"none"}}>
+        <div style={{width:24,height:24,borderRadius:6,background:t.a?C.green:C.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#fff",flexShrink:0}}>{t.a?"✓":"✗"}</div>
+        <div><div style={{fontSize:13,color:C.text}}>{t.q}</div><div style={{fontSize:11,color:C.dim}}>{t.note}</div></div>
+      </div>)}
+    </div>
+  </div>;
+}
+
+function TabAntifragility(){
+  const rawComp = DIMS.reduce((s,d)=>s+(d.score*(d.weight/100)),0);
+  const dipBonus = DIP.bonus;
+  const cppBonus = CPP.bonus;
+  const finalScore = rawComp+dipBonus+cppBonus;
+  const cls = finalScore>=10?"ANTIFRAGILE":finalScore>=7.5?"ANTIFRAGILE":finalScore>=5?"ROBUST":finalScore>=2.5?"FRAGILE":"TERMINAL";
+  const clsColor = finalScore>=7.5?C.green:finalScore>=5?C.yellow:C.red;
+
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${clsColor}`}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div>
+          <div style={{fontSize:24,fontWeight:800,color:C.text}}>Antifragility Score: {finalScore.toFixed(2)} / 10</div>
+          <div style={{fontSize:20,color:clsColor,fontWeight:700}}>{cls}</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:14,color:C.dim}}>Raw: {rawComp.toFixed(2)} + DIP: +{dipBonus.toFixed(1)} + CPP: +{cppBonus.toFixed(1)}</div>
+        </div>
+      </div>
+    </div>
+
+    {DIMS.map((d,i)=>{
+      const barColor = d.score>=8?C.green:d.score>=5?C.accent:d.score>=3?C.yellow:C.red;
+      return <div key={i} style={sCard}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+          <div style={{fontSize:15,fontWeight:700,color:C.text}}>{d.name} <span style={{fontSize:11,color:C.dim}}>(weight: {d.weight}%)</span></div>
+          <div style={{fontSize:24,fontWeight:800,color:barColor}}>{d.score}/10</div>
+        </div>
+        <div style={{height:8,background:C.bg3,borderRadius:4,overflow:"hidden",marginBottom:8}}>
+          <div style={{height:"100%",width:`${d.score*10}%`,background:barColor,borderRadius:4,transition:"width 0.5s ease"}}/>
+        </div>
+        <div style={{fontSize:11,color:C.dim,marginBottom:6,fontStyle:"italic"}}>{d.hint}</div>
+        <div style={{fontSize:12,color:C.text,lineHeight:1.6}}>{d.just}</div>
+      </div>;
+    })}
+
+    <div style={sGrid2}>
+      <div style={{...sCard,borderLeft:`3px solid ${C.accent}`}}>
+        <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:8}}>DIP (Data Integrity Premium): {DIP.score}/{DIP.max} → +{DIP.bonus.toFixed(1)}</div>
+        {DIP.items.map((it,i)=><div key={i} style={{fontSize:12,color:C.dim,padding:"3px 0"}}>✓ {it}</div>)}
+      </div>
+      <div style={{...sCard,borderLeft:`3px solid ${C.accent2}`}}>
+        <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:8}}>CPP (Counter-Positioning): {CPP.score}/{CPP.max} → +{CPP.bonus.toFixed(1)}</div>
+        {CPP.items.map((it,i)=><div key={i} style={{fontSize:12,color:C.dim,padding:"3px 0"}}>✓ {it}</div>)}
+      </div>
+    </div>
+
+    <div style={{...sCard,background:`${C.green}08`,border:`1px solid ${C.green}22`}}>
+      <div style={{fontSize:14,color:C.green,fontWeight:600,marginBottom:8}}>Composite Calculation</div>
+      <div style={{fontSize:13,color:C.text,lineHeight:1.8}}>
+        D1 ({DIMS[0].score}) × 0.15 = {(DIMS[0].score*0.15).toFixed(2)}<br/>
+        D2 ({DIMS[1].score}) × 0.30 = {(DIMS[1].score*0.30).toFixed(2)}<br/>
+        D3 ({DIMS[2].score}) × 0.15 = {(DIMS[2].score*0.15).toFixed(2)}<br/>
+        D4 ({DIMS[3].score}) × 0.40 = {(DIMS[3].score*0.40).toFixed(2)}<br/>
+        <strong>Raw Composite: {rawComp.toFixed(2)}</strong><br/>
+        + DIP: {dipBonus.toFixed(1)} + CPP: {cppBonus.toFixed(1)}<br/>
+        <strong style={{color:clsColor,fontSize:16}}>FINAL: {finalScore.toFixed(2)} → {cls}</strong>
+      </div>
+    </div>
+  </div>;
+}
+
+function TabKills(){
+  const alerts = KILLS.filter(k=>k.status!=="CLEAR").length;
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${alerts>0?C.yellow:C.green}`}}>
+      <div style={{fontSize:20,fontWeight:700,color:C.text}}>Kill Switches: {KILLS.filter(k=>k.status==="CLEAR").length}/{KILLS.length} CLEAR</div>
+      {alerts>0&&<div style={{fontSize:14,color:C.yellow,marginTop:4}}>{alerts} item(s) in MONITORING or TRIGGERED status</div>}
+    </div>
+    {KILLS.map((k,i)=>{
+      const sc = k.status==="CLEAR"?C.green:k.status==="WARNING"?C.yellow:k.status==="MONITORING"?C.accent3:C.red;
+      return <div key={i} style={{...sCard,borderLeft:`3px solid ${sc}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+          <div style={{fontSize:13,fontWeight:600,color:C.text,flex:1}}>{k.trigger}</div>
+          <span style={{...sBadge(sc),flexShrink:0,marginLeft:12}}>{k.status}</span>
+        </div>
+        <div style={{fontSize:12,color:C.dim,lineHeight:1.5}}>{k.evidence}</div>
+      </div>;
+    })}
+  </div>;
+}
+
+function TabCommentary(){
+  const toneColor = COMMENTARY.tone.includes("BULL")?C.green:COMMENTARY.tone.includes("BEAR")?C.red:C.yellow;
+  return <div>
+    <div style={{...sCard,borderLeft:`4px solid ${toneColor}`}}>
+      <div style={sLabel}>Management Tone — Q4 2025 Earnings Call</div>
+      <div style={{fontSize:24,fontWeight:800,color:toneColor}}>{COMMENTARY.tone}</div>
+    </div>
+    <div style={sCard}>
+      <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:12}}>Key Themes</div>
+      {COMMENTARY.themes.map((t,i)=><div key={i} style={{fontSize:13,color:C.text,padding:"6px 0",borderBottom:`1px solid ${C.border}`,lineHeight:1.5}}>
+        <span style={{color:C.accent,marginRight:8}}>▸</span>{t}
+      </div>)}
+    </div>
+    <div style={sCard}>
+      <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:12}}>Notable Quotes</div>
+      {COMMENTARY.quotes.map((q,i)=><div key={i} style={{padding:12,marginBottom:8,background:C.bg3,borderRadius:8,borderLeft:`3px solid ${C.accent2}`}}>
+        <div style={{fontSize:13,color:C.text,fontStyle:"italic",lineHeight:1.5}}>"{q.text}"</div>
+        <div style={{fontSize:11,color:C.accent2,marginTop:4}}>— {q.who}</div>
+      </div>)}
+    </div>
+    <div style={sGrid2}>
+      <div style={sCard}>
+        <div style={{fontSize:15,fontWeight:700,color:C.red,marginBottom:12}}>🚩 Red Flags</div>
+        {COMMENTARY.redFlags.map((f,i)=><div key={i} style={{fontSize:12,color:C.text,padding:"5px 0",borderBottom:`1px solid ${C.border}`,lineHeight:1.5}}>
+          <span style={{color:C.red,marginRight:6}}>●</span>{f}
+        </div>)}
+      </div>
+      <div style={sCard}>
+        <div style={{fontSize:15,fontWeight:700,color:C.yellow,marginBottom:12}}>⚠️ Yellow Flags</div>
+        {COMMENTARY.yellowFlags.map((f,i)=><div key={i} style={{fontSize:12,color:C.text,padding:"5px 0",borderBottom:`1px solid ${C.border}`,lineHeight:1.5}}>
+          <span style={{color:C.yellow,marginRight:6}}>●</span>{f}
+        </div>)}
+      </div>
+    </div>
+    <div style={sCard}>
+      <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:12}}>Analyst Q&A Focus Areas</div>
+      {COMMENTARY.qaFocus.map((q,i)=><div key={i} style={{fontSize:13,color:C.dim,padding:"5px 0",lineHeight:1.5}}>
+        <span style={{color:C.accent,marginRight:8}}>Q:</span>{q}
+      </div>)}
+    </div>
+  </div>;
+}
+
+function TabDashboard(){
+  const mdiScore = MOATS.reduce((s,m)=>s+m.score,0);
+  const rawComp = DIMS.reduce((s,d)=>s+(d.score*(d.weight/100)),0);
+  const finalScore = rawComp+DIP.bonus+CPP.bonus;
+  const cls = finalScore>=7.5?"ANTIFRAGILE":finalScore>=5?"ROBUST":"FRAGILE";
+  const mdiCls = mdiScore>=4?"LOWER RISK":"MEDIUM RISK";
+  const alerts = KILLS.filter(k=>k.status!=="CLEAR").length;
+  const latest = Q[Q.length-1];
+
+  return <div>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:16}}>
+      <div style={{...sCard,textAlign:"center",borderTop:`3px solid ${C.accent}`}}>
+        <div style={sLabel}>MDI Score</div>
+        <div style={{fontSize:32,fontWeight:800,color:C.green}}>{mdiScore.toFixed(1)}/5</div>
+        <div style={{fontSize:12,color:C.green}}>{mdiCls}</div>
+      </div>
+      <div style={{...sCard,textAlign:"center",borderTop:`3px solid ${C.accent2}`}}>
+        <div style={sLabel}>Antifragility</div>
+        <div style={{fontSize:32,fontWeight:800,color:C.green}}>{finalScore.toFixed(1)}/10</div>
+        <div style={{fontSize:12,color:C.green}}>{cls}</div>
+      </div>
+      <div style={{...sCard,textAlign:"center",borderTop:`3px solid ${C.gold}`}}>
+        <div style={sLabel}>Rule of 40</div>
+        <div style={{fontSize:32,fontWeight:800,color:C.gold}}>{latest.rule40}%</div>
+        <div style={{fontSize:12,color:C.dim}}>Industry best</div>
+      </div>
+      <div style={{...sCard,textAlign:"center",borderTop:`3px solid ${alerts>0?C.yellow:C.green}`}}>
+        <div style={sLabel}>Kill Switches</div>
+        <div style={{fontSize:32,fontWeight:800,color:alerts>0?C.yellow:C.green}}>{KILLS.length-alerts}/{KILLS.length}</div>
+        <div style={{fontSize:12,color:alerts>0?C.yellow:C.green}}>{alerts>0?`${alerts} MONITORING`:"ALL CLEAR"}</div>
+      </div>
+    </div>
+
+    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:16}}>
+      <MetricBox label="Q4 Revenue" value={fmt(latest.rev)} sub={`+${latest.yoyRev}% YoY`} color={C.accent}/>
+      <MetricBox label="Adj EPS" value={`$${latest.epsAdj}`} sub="Beat $0.23 est" color={C.green}/>
+      <MetricBox label="US Commercial" value={fmt(latest.usComRev)} sub="+137% YoY" color={C.green}/>
+      <MetricBox label="Adj OM" value={pct(latest.adjOM)} sub="+12pp YoY" color={C.green}/>
+      <MetricBox label="TCV" value={fmt(latest.tcv)} sub="+138% YoY" color={C.accent}/>
+    </div>
+
+    <div style={{...sCard,overflow:"auto"}}>
+      <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:12}}>8-Quarter Trend — Revenue Growth Acceleration</div>
+      <div style={{display:"flex",alignItems:"flex-end",gap:4,height:200,padding:"0 10px"}}>
+        {Q.map((r,i)=>{
+          const maxRev = 1500;
+          const h = (r.rev/maxRev)*180;
+          const barColor = i>=4?C.accent:`${C.accent}66`;
+          return <div key={r.q} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center"}}>
+            <div style={{fontSize:10,color:C.text,fontWeight:700,marginBottom:2}}>{fmt(r.rev,0)}</div>
+            <div style={{width:"100%",height:h,background:barColor,borderRadius:"4px 4px 0 0",minWidth:40,position:"relative"}}>
+              <div style={{position:"absolute",top:-16,left:"50%",transform:"translateX(-50%)",fontSize:9,color:r.yoyRev>=50?C.green:C.text,fontWeight:700,whiteSpace:"nowrap"}}>+{r.yoyRev}%</div>
+            </div>
+            <div style={{fontSize:10,color:C.dim,marginTop:4,whiteSpace:"nowrap"}}>{r.q}</div>
+          </div>;
+        })}
+      </div>
+    </div>
+
+    <div style={sGrid2}>
+      <div style={sCard}>
+        <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:12}}>Moat Status Summary</div>
+        {MOATS.map(m=>{
+          const c = m.score>=0.75?C.green:m.score>=0.5?C.yellow:C.red;
+          return <div key={m.id} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+            <span style={{fontSize:12,color:C.text}}>M{m.id}: {m.name}</span>
+            <span style={sBadge(c)}>{m.status}</span>
+          </div>;
+        })}
+      </div>
+      <div style={sCard}>
+        <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:12}}>Dimension Scores</div>
+        {DIMS.map((d,i)=>{
+          const c = d.score>=8?C.green:d.score>=5?C.accent:C.yellow;
+          return <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+            <span style={{fontSize:12,color:C.text}}>{d.name}</span>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <div style={{width:60,height:6,background:C.bg3,borderRadius:3,overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${d.score*10}%`,background:c,borderRadius:3}}/>
+              </div>
+              <span style={{fontSize:14,fontWeight:700,color:c,width:30,textAlign:"right"}}>{d.score}</span>
+            </div>
+          </div>;
+        })}
+        <div style={{display:"flex",justifyContent:"space-between",padding:"8px 0",marginTop:8,borderTop:`2px solid ${C.border}`}}>
+          <span style={{fontSize:13,fontWeight:700,color:C.text}}>FINAL SCORE</span>
+          <span style={{fontSize:18,fontWeight:800,color:C.green}}>{finalScore.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style={{...sCard,background:`linear-gradient(135deg, ${C.bg2}, ${C.accent}08)`,border:`1px solid ${C.accent}33`}}>
+      <div style={{fontSize:18,fontWeight:800,color:C.text,marginBottom:12}}>VERDICT SUMMARY</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+        <div>
+          <div style={sLabel}>Framework Score</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.green}}>MDI 4.75/5 + Antifragility 10.1/10</div>
+        </div>
+        <div>
+          <div style={sLabel}>Rating</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.accent}}>HOLD / TRIM AT EXTREME VALUATIONS</div>
+        </div>
+        <div>
+          <div style={sLabel}>Key Risk</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.yellow}}>Valuation: 213x P/E, ~45x FY26 Rev</div>
+        </div>
+      </div>
+      <div style={{fontSize:13,color:C.text,lineHeight:1.7,marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
+        Palantir scores among the highest we've seen on both MDI (4.75/5) and Antifragility (10.1 — ANTIFRAGILE). The company is structurally positioned to BENEFIT from AI disruption rather than be threatened by it. Consumption-based pricing, FedRAMP/IL5 government lock-in, and the Ontology data model create genuine, durable competitive advantages. However, the stock trades at ~213x trailing earnings and ~45x forward revenue — a valuation that already prices in years of exceptional execution. The frameworks say the business is extraordinary; the price says the market knows it. At current prices, the risk/reward favors HOLDING existing positions rather than initiating new ones. Trim on any approach to prior highs ($207+). Accumulate aggressively if the stock revisits $80-100 range where valuation aligns with framework quality.
+      </div>
+    </div>
+  </div>;
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────
+function PalantirCommandCenter(){
+  const [tab,setTab] = useState(0);
+  const alerts = KILLS.filter(k=>k.status!=="CLEAR").length;
+
+  const renderTab = () => {
+    switch(tab){
+      case 0: return <TabOverview/>;
+      case 1: return <TabEarnings/>;
+      case 2: return <TabMDI/>;
+      case 3: return <TabAntifragility/>;
+      case 4: return <TabKills/>;
+      case 5: return <TabCommentary/>;
+      case 6: return <TabDashboard/>;
+      default: return <TabOverview/>;
+    }
+  };
+
+  return <div style={{minHeight:"100vh",background:C.bg,color:C.text,fontFamily:"'JetBrains Mono','SF Mono','Fira Code',monospace"}}>
+    <div style={{maxWidth:1200,margin:"0 auto",padding:"20px 16px"}}>
+      {/* Header */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20,padding:"16px 20px",background:C.bg2,borderRadius:12,border:`1px solid ${C.border}`}}>
+        <div style={{display:"flex",alignItems:"center",gap:16}}>
+          <div style={{width:44,height:44,borderRadius:10,background:`linear-gradient(135deg, ${C.accent}, ${C.accent2})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:900,color:"#fff"}}>P</div>
+          <div>
+            <div style={{fontSize:18,fontWeight:800,letterSpacing:-0.5}}>PLTR Earnings Command Center</div>
+            <div style={{fontSize:11,color:C.dim}}>Bustamante MDI × Stoffel-Feroldi Antifragility × Cover Earnings QUICKLY</div>
+          </div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:16}}>
+          {alerts>0&&<span style={sBadge(C.yellow)}>⚠ {alerts} ALERT{alerts>1?"S":""}</span>}
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:18,fontWeight:800,color:C.accent}}>${COMPANY.price}</div>
+            <div style={{fontSize:10,color:C.dim}}>Feb 20, 2026</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{display:"flex",gap:4,marginBottom:20,overflowX:"auto",paddingBottom:4}}>
+        {TABS.map((t,i)=><button key={t} onClick={()=>setTab(i)} style={{
+          padding:"10px 18px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:tab===i?700:500,
+          fontFamily:"inherit",whiteSpace:"nowrap",
+          background:tab===i?`linear-gradient(135deg, ${C.accent}22, ${C.accent2}22)`:C.bg2,
+          color:tab===i?C.accent:C.dim,
+          borderBottom:tab===i?`2px solid ${C.accent}`:"2px solid transparent",
+          transition:"all 0.2s ease"
+        }}>{t}{t==="Kill Switches"&&alerts>0?` (${alerts})`:""}</button>)}
+      </div>
+
+      {/* Content */}
+      {renderTab()}
+
+      <div style={{textAlign:"center",padding:"20px 0",fontSize:10,color:C.dim}}>
+        Data verified against investors.palantir.com, BusinessWire, CNBC, SEC filings. Report date: Feb 20, 2026.
+        Q4 2025 earnings reported Feb 2, 2026. Next earnings: May 11, 2026.
+      </div>
+    </div>
+  </div>;
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<PalantirCommandCenter />);
+</script>
+</body>
+</html>
