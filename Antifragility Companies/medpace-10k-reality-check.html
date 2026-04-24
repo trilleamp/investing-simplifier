@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medpace 10-K Reality Check — Source-Locked Forensic Read</title>
+<style>
+  :root {
+    --ink: #0f2a44;
+    --ink2: #264a6d;
+    --muted: #6a6a6a;
+    --quote: #5f4b1f;
+    --quote-bar: #8a6d3b;
+    --bg: #fbf9f4;
+    --paper: #ffffff;
+    --rule: #e4dfd2;
+    --hi: #aa2222;
+    --med: #aa6600;
+    --lo: #556b1e;
+    --chip: #f1ece0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: #111; font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 28px 120px; }
+  header.masthead { border-top: 4px solid var(--ink); border-bottom: 1px solid var(--rule); padding: 22px 0 18px; margin-bottom: 28px; }
+  .kicker { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  h1 { font-size: 36px; line-height: 1.15; margin: 0 0 8px; color: var(--ink); font-weight: 700; }
+  .dek { font-size: 18px; color: #333; font-style: italic; margin: 0 0 12px; }
+  .byline { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 12px; color: var(--muted); }
+  h2 { font-size: 22px; color: var(--ink); margin: 36px 0 10px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+  h3 { font-size: 17px; color: var(--ink2); margin: 24px 0 8px; }
+  p { font-size: 17px; line-height: 1.65; margin: 0 0 14px; }
+  .lede:first-letter { font-size: 54px; float: left; line-height: 0.88; margin: 6px 8px 0 0; font-weight: 700; color: var(--ink); }
+  blockquote { margin: 14px 0; padding: 8px 16px; border-left: 4px solid var(--quote-bar); background: #fdfaf1; color: var(--quote); font-style: italic; font-size: 16px; }
+  blockquote .cite { display: block; color: var(--muted); font-style: normal; font-size: 13px; margin-top: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0 18px; font-size: 14px; font-family: "Helvetica Neue", Arial, sans-serif; background: var(--paper); }
+  th { background: var(--ink); color: #fff; padding: 8px 10px; text-align: left; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
+  td { border-bottom: 1px solid var(--rule); padding: 8px 10px; vertical-align: top; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sev { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+  .sev.h { background: var(--hi); }
+  .sev.m { background: var(--med); }
+  .sev.l { background: var(--lo); }
+  ul.bullets { margin: 6px 0 16px 20px; padding: 0; }
+  ul.bullets li { font-size: 16px; line-height: 1.6; margin-bottom: 8px; }
+  .pull { font-family: "Helvetica Neue", Arial, sans-serif; font-weight: 300; font-size: 24px; line-height: 1.3; color: var(--ink); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 18px 4px; margin: 22px 0 26px; text-align: center; font-style: italic; }
+  .stamp { background: var(--paper); border: 1px solid var(--rule); padding: 16px 18px; margin: 14px 0 18px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 14px; }
+  .stamp strong { font-family: Georgia, serif; }
+  .chip { display: inline-block; background: var(--chip); color: var(--ink); font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11px; padding: 3px 8px; border-radius: 10px; margin-right: 6px; letter-spacing: 0.3px; }
+  .source { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 12px; color: var(--muted); font-style: italic; margin: -4px 0 12px; }
+  nav.toc { background: var(--paper); border: 1px solid var(--rule); padding: 12px 18px; margin: 0 0 26px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 13px; }
+  nav.toc a { color: var(--ink2); text-decoration: none; margin-right: 14px; }
+  nav.toc a:hover { text-decoration: underline; }
+  footer { border-top: 1px solid var(--rule); margin-top: 48px; padding-top: 14px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 12px; color: var(--muted); }
+  .callout { background: #fdf6e7; border: 1px solid #e9d9a8; padding: 12px 16px; margin: 14px 0 18px; font-size: 15px; color: #5a4a1e; }
+  .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12.5px; }
+  @media print { body { background: #fff; } .wrap { max-width: 720px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker">Source-Locked Forensic Read · FY2025 10-K</div>
+  <h1>Medpace's 20% year, reread</h1>
+  <p class="dek">What the Form 10-K filed February 10, 2026 actually says when you strip out the pass-through, the buybacks, and the CEO's real-estate receivables.</p>
+  <div class="byline">Cowork · for Ann · April 2026 · MEDP / NASDAQ</div>
+</header>
+
+<nav class="toc">
+  <a href="#frame">Frame</a>
+  <a href="#anomalies">Anomaly log</a>
+  <a href="#thread1">Thread 1: Pass-through</a>
+  <a href="#thread2">Thread 2: Backlog</a>
+  <a href="#thread3">Thread 3: The DTA spring</a>
+  <a href="#buried">Buried details</a>
+  <a href="#quality">Earnings quality</a>
+  <a href="#followups">Follow-ups</a>
+</nav>
+
+<p class="lede">Medpace Holdings reported a 20% revenue year in 2025, crossed $2.5 billion in top line, bought back nearly a billion dollars of its own stock, and filed a 10-K that, on a first read, looks like a clean beat. It is a second read that rewards the patient investor. Strip the accounting pass-throughs out of revenue, and the operating business grew roughly 11 to 12 percent. Strip the buyback out of earnings per share, and the rate of real income accretion slowed to the low double digits. Read the deferred-tax footnote carefully, and a $112 million asset disappears without a walk. Medpace had a good year. It did not have the year the headline implies.</p>
+
+<div class="pull">"Reported revenue grew $421 million in 2025. Two-thirds of that — $267 million — was zero-margin pass-through expense."</div>
+
+<h2 id="frame">1. The frame you need before reading the numbers</h2>
+<p>Medpace, like most full-service CROs, reports revenue on a <strong>gross</strong> basis — meaning the $1.04 billion of "reimbursed out-of-pocket expenses" it pays to investigators, labs, travel vendors, and sites is included in the $2.53 billion revenue line. The same dollar shows up again as a direct cost. It nets to zero at the gross-profit line. That accounting choice is standard and disclosed. It also makes headline revenue growth very sensitive to program timing — one big Phase 3 starting up can push reimbursed OOP by tens of millions.</p>
+<p>The honest way to read Medpace's top line is to separate the two streams:</p>
+
+<table>
+  <thead><tr><th>Line</th><th class="num">FY25 $M</th><th class="num">FY24 $M</th><th class="num">Δ$M</th><th class="num">Δ%</th></tr></thead>
+  <tbody>
+    <tr><td>Revenue, net (as reported)</td><td class="num">2,530.2</td><td class="num">2,109.1</td><td class="num">+421.2</td><td class="num">+20.0%</td></tr>
+    <tr><td>Less: reimbursed OOP</td><td class="num">(1,037.5)</td><td class="num">(770.7)</td><td class="num">(266.8)</td><td class="num">+34.6%</td></tr>
+    <tr><td><strong>Direct-service revenue (derived)</strong></td><td class="num"><strong>1,492.7</strong></td><td class="num"><strong>1,338.4</strong></td><td class="num"><strong>+154.3</strong></td><td class="num"><strong>+11.5%</strong></td></tr>
+    <tr><td>Direct-service gross profit</td><td class="num">760.6</td><td class="num">656.3</td><td class="num">+104.3</td><td class="num">+15.9%</td></tr>
+  </tbody>
+</table>
+<p class="source">Derivation: 10-K Consolidated Statements of Operations (p. 48) and MD&amp;A Results of Operations (p. 34).</p>
+
+<div class="stamp">
+<strong>Financial lens stamp.</strong> Read every Medpace number through this pane: reported revenue is gross of pass-through; 63% of 2025's revenue growth was pass-through; direct-service revenue grew 11.5%, not 20%; EPS growth was carried by an 8%+ share-count reduction that cost $917 million of cash.
+</div>
+
+<h2 id="anomalies">2. The anomaly log</h2>
+<p>A dozen items flagged during a second-pass read, ranked by how far they would move a valuation.</p>
+
+<table>
+  <thead><tr><th>#</th><th>Anomaly</th><th>Why it matters</th><th>Sev</th></tr></thead>
+  <tbody>
+    <tr><td>A1</td><td>OOP pass-through revenue +34.6% vs direct-service +11.5%; 63% of revenue growth is non-economic.</td><td>A reported-revenue multiple implicitly pays for pass-through dollars.</td><td><span class="sev h">HIGH</span></td></tr>
+    <tr><td>A2</td><td>Performance obligations: 55% expected within 12 months, vs 43% prior year.</td><td>Backlog is either being worked off faster or of shorter duration — out-year visibility compresses.</td><td><span class="sev h">HIGH</span></td></tr>
+    <tr><td>A3</td><td>Advance-billings DTA collapsed $127M → $15M (−$112M) even as the balance-sheet advance-billings LIABILITY GREW $710.6M → $854.4M (+$143.8M). Book-tax timing gap effectively disappeared.</td><td>Likely an OBBBA §451 tax-acceleration event (not customer behavior). Translates into a cash-tax headwind unquantified in MD&amp;A.</td><td><span class="sev h">HIGH</span></td></tr>
+    <tr><td>A4</td><td>Effective tax rate rose 15.0% → 16.8%; excess tax-benefit share-based comp was −7.5% of rate (down from −9.0%).</td><td>Below-the-line tax headwind of $8–10M, will repeat if stock stays flat.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A5</td><td>Interest income $25.0M → $12.8M as cash fell $669M → $497M.</td><td>Buyback opportunity cost: ~$40M/yr forgone interest at current rates.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A6</td><td>Accumulated deficit $(460)M vs retained earnings +$8M prior year — a $468M equity swing.</td><td>Buyback pace ($917M) now exceeds annual income by ~2×.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A7</td><td>Related-party LIB Therapeutics revenue $43.7M (FY23) → $21.7M (FY24) → $7.9M (FY25); CinRx $15.8M → $28.3M → $45.3M.</td><td>Mix of CEO-affiliated revenue shifted materially; not discussed in MD&amp;A.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A8</td><td>AVAI therapeutic revenue −14% YoY; −17% vs 2023.</td><td>Three-year underperformance in antiviral/anti-infective book.</td><td><span class="sev l">LOW</span></td></tr>
+    <tr><td>A9</td><td>Metabolic revenue +63% ($458M → $745M), now 29.4% of revenue vs 21.7% a year ago.</td><td>Concentration in GLP-1 / obesity / diabetes clinical programs raises thematic risk.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A10</td><td>$68.4M of operating-lease ROU assets with CEO-owned entities (~15% of total equity).</td><td>Disclosed annually but magnitude worth an eyebrow for related-party exposure.</td><td><span class="sev l">LOW</span></td></tr>
+    <tr><td>A11</td><td>2.96M shares repurchased at ~$308 average — $912.9M face.</td><td>Capital-allocation test; cash balance now $497M floor.</td><td><span class="sev m">MED</span></td></tr>
+    <tr><td>A12</td><td>SG&amp;A +9.6% vs direct-service revenue +11.5%.</td><td>Operating leverage thinner than the optical margin expansion implies.</td><td><span class="sev l">LOW</span></td></tr>
+  </tbody>
+</table>
+
+<h2 id="thread1">Thread 1. A good year, but not a 20% year</h2>
+<p>The cleanest way to see what really happened in Medpace's 2025 is to put reported revenue next to the pass-through line and derive the operating business by subtraction. It is not a trick; the company publishes the math in its own segment disclosure. It simply does not lead with it.</p>
+<blockquote>
+Reimbursed out-of-pocket expenses, which can fluctuate significantly from period to period based on the timing of program initiation and closeout, increased $266.8 million for the year ended December 31, 2025, compared to the same period in the prior year.
+<span class="cite">— 10-K, MD&amp;A Results of Operations, p. 35</span>
+</blockquote>
+<p>The $266.8 million of OOP growth equals 63.3 percent of the $421.2 million of total revenue growth. That means the underlying direct-service business — the part where Medpace actually earns margin — grew $154.3 million, or 11.5 percent. The 20 percent headline is real, but it is accounting gross revenue, and it could print at 11 percent or 13 percent in FY26 if pass-through merely normalizes. The direction of travel on direct-service margin is good (gross profit on the direct-service piece grew 15.9 percent, faster than revenue, so mix and/or pricing helped). But the pace of direct-service growth is roughly half what the headline suggests.</p>
+
+<h2 id="thread2">Thread 2. The backlog is getting shorter</h2>
+<p>Two disclosures disagree about forward visibility. Backlog at year end was $3,027.2 million, up only 4.3 percent. Performance obligations under ASC 606 were roughly $3,606 million, and management disclosed that 55 percent would be recognized within the next twelve months. The prior-year 10-K put that figure at 43 percent. A 12-point jump in the near-term share of book is a meaningful change.</p>
+<p>A shorter backlog duration can come from three places: shorter-duration studies being booked, faster consumption of in-flight work, or a management reassessment. In all three cases, the practical effect is the same — less visibility into revenue two and three years out. Net new awards of $2,646.8 million against gross revenue of $2,530.2 million gives book-to-bill of 1.05×. That is parity. It is not the kind of number that builds durable backlog for a company whose equity trades on visibility of multi-year trial work.</p>
+<div class="callout">If NTM conversion stays near 55 percent and performance obligations grow just 5 percent, reported revenue growth in FY26 decelerates toward high single digits even before OOP normalizes. That is the bear case and it is in the filing.</div>
+
+<h2 id="thread3">Thread 3. A $112 million deferred-tax asset goes quiet — probably OBBBA</h2>
+<p>Inside Note 11 is a line that should prompt a question on the next earnings call. The deferred tax asset attributable to "advanced billings" fell from $127.1 million at year-end 2024 to $15.0 million at year-end 2025. A $112 million single-line DTA move is not a rounding.</p>
+<p>The instinct is to assume the underlying liability also fell. It didn't. The balance-sheet advance-billings liability actually GREW from $710.6 million to $854.4 million — a $143.8 million increase, also corroborated by the cash-flow statement's $143.8 million working-capital source. Customers are paying Medpace in advance at roughly the same healthy pace they did in 2024.</p>
+<p>So the gross liability grew by $144 million while the DTA on that liability collapsed by $112 million — meaning the tax-book timing gap fell by roughly $530 million worth of deferred income at the federal rate. That kind of mechanical reversal almost always points to a change in tax-accounting method or a tax-law change. OBBBA, enacted July 4, 2025, amended §451 treatment of advance payments. The most probable explanation is that Medpace was required (or elected) to accelerate taxable inclusion of advance payments, converting the DTA into current cash taxes. The 10-K notes OBBBA but does not quantify it. A cash-tax acceleration on the order of $100+ million deserves a paragraph in MD&amp;A; the investor does not get one.</p>
+<p>Why it matters for FY26: if this is a one-time acceleration, the effective tax rate should normalize. If it is a structural method change, the cash-tax run-rate stays elevated. The difference is not disclosed.</p>
+<blockquote>
+The Company has several minimum purchase commitments for project related supplies totaling $18.8 million as of December 31, 2025. In return for the commitment, Medpace receives preferential pricing.
+<span class="cite">— 10-K, Note 12 Commitments &amp; Contingencies, p. 72</span>
+</blockquote>
+
+<h2 id="buried">4. Buried details worth surfacing</h2>
+<ul class="bullets">
+  <li><strong>AI is a risk, not a strategy.</strong> The 10-K mentions AI only in Item 1A Risk Factors. There is no offensive AI roadmap, no AI investment disclosure, no productivity commentary. For a CRO competing with IQVIA's OCE and E360 platforms, silence is a position.</li>
+  <li><strong>99 percent of revenue is booked to U.S. entities</strong> despite operating in 46 countries, which is why a 5-cent move in EUR/USD flipped FX from a $4M tailwind to a $8M headwind. No meaningful natural hedge at the revenue line.</li>
+  <li><strong>CEO-affiliated leases</strong> total $68.4M of right-of-use assets and $81.4M of lease liabilities — roughly 15% of total equity — for the Cincinnati campus. Plus the Summit Hotel on campus (owned by Troendle) and private aviation charter (owned by Troendle) that together generated $2.4M of expense in FY25.</li>
+  <li><strong>Insider-plan cadence in November 2025 was unusually active.</strong> The CEO adopted a 150,000-share plan on Nov 12, adopted a second 150,000-share plan on Nov 24, and terminated that second plan on Dec 4. The President (Geiger), CFO (Brady), and EVP Operations (Burwig) each filed new plans in the same window. Not dispositive, but a cluster worth noting given the timing relative to fourth-quarter performance.</li>
+  <li><strong>No M&amp;A.</strong> Goodwill is flat at $662.4M. Medpace remains a 100% organic-growth story — rare among large CROs, and a deliberate choice, but also means growth must come from the organic book or therapeutic-area wins.</li>
+  <li><strong>OBBBA acknowledged, not quantified.</strong> The 2025 tax law (enacted July 4, 2025) receives mention but no effect disclosure on FDII or GILTI. For a near-pure U.S.-export service business, this is a material absence from the filing.</li>
+</ul>
+
+<h2 id="quality">5. Earnings quality: lower than the headline</h2>
+<p>Pulling the threads together: 2025 net income of $451 million was up 11.6 percent on reported revenue up 20.0 percent. The compression between the two is explained by a 180-basis-point rise in the effective tax rate, a $12 million interest-income drag from a cash balance depleted by buybacks, and a $9 million swing in FX. None of these are truly one-time. Diluted EPS of $15.28 was up 21 percent, but roughly 8 to 9 points of that came from share count shrinking to 27.6 million from about 30.4 million — a reduction that cost the company $917 million of cash to achieve.</p>
+<p>On the credit side, direct-service gross profit grew faster than direct-service revenue, so underlying operating margin is still expanding. No impairments. No unusual accounting policy changes. No material legal proceedings. A clean audit. A debt-free balance sheet.</p>
+<div class="pull">Reported +20% revenue, +12% net income, +21% EPS → underlying +11.5% direct-service revenue, roughly flat-to-up-mid-single-digit operating cash generation once buyback-driven EPS accretion is stripped. The gap is the valuation debate.</div>
+
+<h2 id="followups">6. Follow-up questions for the IR line</h2>
+<ul class="bullets">
+  <li>FY2026 guide: walk it by direct-service growth and pass-through growth separately. Why does management expect OOP to keep outpacing the direct-service line?</li>
+  <li>Advance-billings DTA collapsed $112M while the gross liability grew $144M. Is this OBBBA §451 acceleration? Quantify the cash-tax impact and FY26 run-rate effect.</li>
+  <li>NTM conversion shifted from 43% to 55% of performance obligations. Mix shift, acceleration, or reassessment?</li>
+  <li>OBBBA impact on FY26 ETR and FDII.</li>
+  <li>Buyback IRR hurdle. Cash-balance floor. Capital-allocation priority if direct-service revenue growth decelerates.</li>
+  <li>LIB Therapeutics: from $43.7M (FY23) to $7.9M (FY25). Wind-down? Program attrition? Pipeline visibility?</li>
+  <li>Offensive AI: what, specifically, is the productivity investment and where does it show up in SG&amp;A or headcount efficiency?</li>
+</ul>
+
+<footer>
+  Source-locked to the Medpace Holdings, Inc. Form 10-K for the fiscal year ended December 31, 2025, filed with the SEC on February 10, 2026 (signed by Kevin M. Brady, CFO). No external sources consulted. Page references throughout refer to the PDF pagination of the filed 10-K as uploaded. Prepared for Ann; for internal use; not investment advice.
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amphastar Pharmaceuticals — Filing Reality Check</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --paper: #f8f5ee;
+    --panel: #f2ede3;
+    --panel-border: #e3dccc;
+    --accent: #8c1c1c;
+    --accent-soft: #c9a3a3;
+    --hairline: #d6cdb8;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", "Menlo", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 18px; line-height: 1.62; }
+  .shell { max-width: 780px; margin: 0 auto; padding: 60px 32px 120px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(140,28,28,.3); }
+  a:hover { border-bottom-color: var(--accent); }
+
+  /* Top nav */
+  nav.anchors {
+    position: sticky; top: 0; background: var(--paper);
+    padding: 12px 0 10px; border-bottom: 1px solid var(--hairline);
+    font-family: var(--sans); font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+    display: flex; flex-wrap: wrap; gap: 18px; z-index: 10; margin: -60px -32px 40px; padding-left: 32px; padding-right: 32px;
+  }
+  nav.anchors a { color: var(--muted); border: none; }
+  nav.anchors a:hover { color: var(--accent); }
+
+  /* Hero */
+  .hero { padding: 8px 0 36px; border-bottom: 1px solid var(--hairline); margin-bottom: 48px; }
+  .hero .overline { font-family: var(--sans); font-size: 12px; text-transform: uppercase; letter-spacing: .18em; color: var(--accent); font-weight: 600; margin-bottom: 20px; }
+  .hero h1 { font-family: var(--serif); font-size: 38px; line-height: 1.18; font-weight: 600; margin: 0 0 18px; letter-spacing: -0.01em; }
+  .hero .dateline { font-family: var(--sans); font-size: 13px; color: var(--muted); letter-spacing: .02em; }
+  .lens { margin: 40px 0 0; padding: 0; }
+  .lens p { font-size: 17px; line-height: 1.65; margin: 10px 0; color: var(--ink); }
+  .lens-label { font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: .18em; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+
+  /* Section heading */
+  section { margin: 64px 0; }
+  h2.section-title { font-family: var(--sans); font-size: 22px; font-weight: 700; letter-spacing: -.005em; margin: 0 0 26px; color: var(--ink); }
+  h3.sub-title { font-family: var(--sans); font-size: 17px; font-weight: 700; margin: 28px 0 10px; color: var(--ink); }
+  .overline-label { font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: .18em; color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+
+  /* Bottom line */
+  .bottom-line p { font-size: 19px; line-height: 1.6; }
+
+  /* Exec summary mini-subheads */
+  .exec .item { margin-bottom: 34px; }
+  .exec .kicker { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .01em; margin-bottom: 6px; }
+  .exec p.src { font-family: var(--sans); font-size: 12px; color: var(--muted); font-style: italic; margin-top: 6px; letter-spacing: .01em; }
+
+  /* Buried detail items */
+  .detail { display: grid; grid-template-columns: 60px 1fr; gap: 18px; margin-bottom: 44px; align-items: start; }
+  .detail .num { font-family: var(--sans); font-size: 34px; font-weight: 700; color: var(--accent); line-height: 1; padding-top: 2px; }
+  .detail .content h3 { font-family: var(--sans); font-size: 18px; font-weight: 700; margin: 0 0 12px; color: var(--ink); line-height: 1.35; }
+  .detail .content p { margin: 0 0 12px; }
+  .detail .why { border-left: 2px solid var(--accent); padding: 4px 0 4px 16px; margin: 10px 0 10px; color: var(--ink); font-style: italic; }
+  .detail .why::before { content: "Why it matters. "; font-style: normal; font-family: var(--sans); font-weight: 700; color: var(--accent); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
+  .detail .src { font-family: var(--sans); font-size: 12px; color: var(--muted); font-style: italic; letter-spacing: .01em; margin-top: 8px; }
+  .tag-spec { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 6px; background: rgba(140,28,28,.08); color: var(--accent); border-radius: 3px; letter-spacing: .05em; vertical-align: middle; margin-left: 6px; }
+
+  /* Thread panels */
+  .thread { background: var(--panel); border-radius: 6px; padding: 36px 32px 28px; margin-bottom: 40px; }
+  .thread .thread-label { font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: .2em; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+  .thread h3.thread-title { font-family: var(--serif); font-size: 24px; font-weight: 600; margin: 0 0 14px; line-height: 1.3; }
+  .thread .precis { font-style: italic; color: var(--muted); font-size: 16px; margin: 0 0 20px; line-height: 1.55; }
+  .thread blockquote { margin: 22px 0; padding: 0 0 0 18px; border-left: 3px solid var(--accent); font-style: italic; font-size: 17px; line-height: 1.55; color: var(--ink); }
+  .thread blockquote cite { display: block; font-style: normal; font-family: var(--sans); font-size: 12px; color: var(--muted); margin-top: 8px; letter-spacing: .02em; }
+  .finding { margin: 22px 0 0; padding-top: 20px; border-top: 1px solid var(--panel-border); }
+  .finding:first-of-type { border-top: none; padding-top: 0; }
+  .finding h4 { font-family: var(--sans); font-size: 16px; font-weight: 700; margin: 0 0 10px; color: var(--ink); }
+  .finding .why, .finding .miss { margin: 12px 0; font-size: 16px; line-height: 1.58; }
+  .finding .why-label, .finding .miss-label { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 4px; }
+
+  /* Earnings quality */
+  .eq { display: grid; grid-template-columns: 1fr; gap: 28px; }
+  .eq .block { }
+  .eq .block h3 { font-family: var(--sans); font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin: 0 0 12px; }
+  .eq ul { list-style: none; padding: 0; margin: 0; }
+  .eq li { padding-left: 20px; position: relative; margin-bottom: 10px; line-height: 1.55; }
+  .eq li::before { content: "—"; position: absolute; left: 0; color: var(--accent); font-weight: 600; }
+
+  /* Snapshot panels */
+  .snapshot-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 16px; }
+  .snap { background: var(--panel); border-radius: 5px; padding: 20px; }
+  .snap.verify { border-left: 3px solid var(--accent); }
+  .snap .lbl { font-family: var(--sans); font-size: 11px; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); font-weight: 700; margin-bottom: 10px; }
+  .snap p { margin: 0; font-size: 15px; line-height: 1.55; }
+
+  /* Checklist */
+  ol.checklist { padding-left: 24px; margin: 0; }
+  ol.checklist li { margin-bottom: 12px; padding-left: 6px; line-height: 1.55; }
+  ol.checklist li::marker { color: var(--accent); font-weight: 700; font-family: var(--sans); }
+
+  /* Close */
+  .close p { font-size: 19px; line-height: 1.6; }
+
+  /* Anomaly log */
+  details.log { background: var(--panel); border-radius: 5px; padding: 18px 24px; margin-top: 40px; }
+  details.log summary { font-family: var(--sans); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); cursor: pointer; font-weight: 700; padding: 4px 0; }
+  details.log summary:hover { color: var(--accent); }
+  details.log[open] summary { margin-bottom: 18px; }
+  details.log ul { list-style: none; padding: 0; margin: 0; }
+  details.log li { padding: 8px 0; border-top: 1px solid var(--panel-border); font-size: 15px; line-height: 1.5; color: var(--ink); }
+  details.log li:first-child { border-top: none; }
+  details.log .marker { font-family: var(--mono); font-size: 11px; color: var(--accent); margin-right: 8px; font-weight: 600; }
+
+  /* Footer */
+  footer { margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--hairline); font-family: var(--sans); font-size: 12px; color: var(--muted); line-height: 1.55; font-style: italic; }
+
+  /* Verification addendum */
+  .verify-section { background: #fdfaf2; border-radius: 5px; padding: 30px 28px; margin-top: 48px; border: 1px solid var(--panel-border); }
+  .verify-section h2 { font-family: var(--sans); font-size: 20px; margin-top: 0; }
+  .verify-section h3 { font-family: var(--sans); font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin: 24px 0 10px; font-weight: 700; }
+  .verify-section ul { padding-left: 20px; }
+  .verify-section li { margin-bottom: 8px; font-size: 15px; line-height: 1.55; }
+
+  @media (max-width: 640px) {
+    .shell { padding: 40px 20px 80px; }
+    nav.anchors { margin: -40px -20px 28px; padding: 10px 20px; gap: 12px; }
+    .hero h1 { font-size: 30px; }
+    .detail { grid-template-columns: 40px 1fr; gap: 14px; }
+    .detail .num { font-size: 26px; }
+    .snapshot-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: white; color: #000; font-size: 11pt; }
+    .shell { max-width: 100%; padding: 0.5in; }
+    nav.anchors { display: none; }
+    section { page-break-inside: auto; }
+    .detail, .finding, .thread { break-inside: avoid; page-break-inside: avoid; }
+    .thread { background: #f4f1ea; }
+    details.log[open] { display: block; }
+    details.log summary { display: block; }
+  }
+
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<nav class="anchors">
+  <a href="#lens">Lens</a>
+  <a href="#bottom">Bottom line</a>
+  <a href="#exec">Summary</a>
+  <a href="#buried">Buried details</a>
+  <a href="#threads">Threads</a>
+  <a href="#quality">Quality</a>
+  <a href="#snap">Snapshot</a>
+  <a href="#followup">Follow-up</a>
+  <a href="#verify">Verification</a>
+</nav>
+
+<header class="hero" id="lens">
+  <div class="overline">Filing Reality Check · 10-K · FY 2025</div>
+  <h1>Amphastar Pharmaceuticals, Inc. (AMPH)</h1>
+  <div class="dateline">Prepared April 21, 2026 · Source-locked to the 10-K as provided</div>
+
+  <div class="lens">
+    <div class="lens-label">Financial lens</div>
+    <p>Amphastar earns cash from a concentrated injectable and inhalation portfolio sold through three US wholesalers. BAQSIMI, Primatene, epinephrine, glucagon and lidocaine throw off most of the gross profit; roughly 65% of revenue funnels through McKesson, Cencora and Cardinal.</p>
+    <p>The capital sits in vertical manufacturing (California and Éragny-sur-Epte) and, increasingly, in a $559 million BAQSIMI intangible bundle from the 2023 Lilly acquisition.</p>
+    <p>Reported accounting most plausibly drifts from economic reality in three places: the $79 million chargebacks/rebates reserve the auditor flagged as a critical audit matter; the 24-year useful life beneath the BAQSIMI intangibles; and related-party pricing across the growing Hanxin web that the CEO's son controls.</p>
+  </div>
+</header>
+
+<section id="bottom" class="bottom-line">
+  <h2 class="section-title">Bottom line</h2>
+  <p>Headline revenue held at $720 million and EPS stayed profitable. Strip out the items the filing buries — a one-time R&amp;D-tax windfall, a cannibalizing BAQSIMI franchise, a $609 million debt stack maturing in 2028–2029 against $170 million of cash and a convertible strike at $62.96 the stock would need to double to reach — and underlying earnings quality is weaker than 2024's, not stronger. Three buried realities matter most: related-party escalation with Hanxin, BAQSIMI's intangible value against core-franchise cannibalization, and the refinancing cliff hiding inside non-current debt classification.</p>
+</section>
+
+<section id="exec" class="exec">
+  <h2 class="section-title">Executive summary</h2>
+
+  <div class="item">
+    <div class="kicker">Revenue held flat, but product mix is hollowing out.</div>
+    <p>Product revenue rose 1.0% to $719.9 million. BAQSIMI's $58.5 million year-over-year gain (+46%) almost exactly offset collapses in glucagon (−$39.2 million, −36%) and epinephrine (−$23.5 million, −25%). Two legacy franchises that together were 28% of 2024 revenue are now 19%. The headline growth is mix substitution, not expansion.</p>
+    <p class="src">Item 7 product revenue table · Item 1A risk factors on glucagon/epinephrine price erosion.</p>
+  </div>
+
+  <div class="item">
+    <div class="kicker">Net income fell 38%, but the filing is quiet about why.</div>
+    <p>Reported net income was $98.1 million against $159.5 million in 2024. Three items explain most of the drop, none especially visible on the income-statement line itself: a $23.1 million personal-injury verdict booked to G&amp;A in Q4 2025 (insurance covered only $11.0 million of a $34.1 million jury award), G&amp;A up 51% overall, and a higher effective tax rate (20.7% vs. 15.6%). The 2024 number was also lifted by $19.2 million of non-recurring other revenue.</p>
+    <p class="src">Consolidated Statements of Operations · Note 14 · Note 19.</p>
+  </div>
+
+  <div class="item">
+    <div class="kicker">Related-party concentration is escalating in real time.</div>
+    <p>Amphastar owns 11.5% of Hanxin; the founder-CEO's son runs it. Between late 2025 and early 2026, Amphastar expanded its Hanxin arrangements to a global manufacturing territory for lidocaine, corticotropin, and — most notably — Semaglutide API and finished product at 3/7/14 mg doses; appointed a Hanxin subsidiary as exclusive BAQSIMI distributor for Greater China; and signed a new corticotropin license requiring up to $89 million in milestones plus a 5% royalty.</p>
+    <p class="src">Note 18 · Note 20 · exhibit list 10.17–10.36.</p>
+  </div>
+
+  <div class="item">
+    <div class="kicker">The debt wall is closer than the balance sheet suggests.</div>
+    <p>$608.7 million of long-term debt is classified non-current — but the maturity table concentrates $609 million into 2028 ($255.7 million Wells Fargo term loan) and 2029 ($353.5 million convertible notes). The 2029 convertible converts at $62.96; AMPH trades at $21.65, a 65% deficit. Short-term liquidity is fine. The 24-month refinancing risk is not.</p>
+    <p class="src">Note 10 · issuer disclosures · market price April 21, 2026.</p>
+  </div>
+</section>
+
+<section id="buried">
+  <h2 class="section-title">Buried details that actually matter</h2>
+
+  <div class="detail">
+    <div class="num">1</div>
+    <div class="content">
+      <h3>The $23.1 million personal-injury verdict is buried inside G&amp;A.</h3>
+      <p>A San Bernardino jury returned a $34.1 million verdict against Amphastar on October 22, 2025. Insurance covered $11.0 million; the remaining $23.1 million ran through general and administrative expense and was paid in Q4 2025. The settlement is disclosed in Note 19, but it is not separately broken out on the income statement.</p>
+      <div class="why">Consensus models tracking "G&amp;A trend" will mis-read the 2026 baseline if they assume the 2025 level is recurring. On a clean basis, G&amp;A is closer to $63 million, not $86 million.</div>
+      <div class="src">Note 19 Litigation · Statements of Operations (G&amp;A).</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">2</div>
+    <div class="content">
+      <h3>Federal current tax was negative — a one-time OBBBA windfall.</h3>
+      <p>Federal current tax provision was a $2.9 million benefit in 2025. The driver is the One Big Beautiful Bill Act, enacted July 4, 2025, reinstating immediate expensing of domestic R&amp;D under new Section 174A retroactive to tax years beginning after December 31, 2024. The effective tax rate (20.7%) captures the headline; the cash-tax benefit is non-recurring in magnitude.</p>
+      <div class="why">A reader comparing 2025 cash conversion to 2024 will be flattered by a one-time federal refund posture. Normalized federal current tax liability returns in 2026.</div>
+      <div class="src">Note 14 Income Taxes · OBBBA enacted July 4, 2025.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">3</div>
+    <div class="content">
+      <h3>BAQSIMI carries $530M of net intangibles against a franchise now cannibalizing itself.</h3>
+      <p>BAQSIMI product rights are capitalized at $591.3 million and amortized straight-line over 24 years. An additional $29.2 million is an indefinite-lived trademark. BAQSIMI revenue rose from $126.9 million to $185.4 million. Glucagon fell from $108.3 million to $69.1 million — a $39 million cannibalization of Amphastar's own legacy product. Net BAQSIMI + glucagon grew $19 million on a $254 million combined base, or roughly 8%.</p>
+      <div class="why">If BAQSIMI growth stalls while glucagon erosion continues, the useful-life and terminal-value assumptions behind the $529.7 million carrying value come under pressure. The filing does not disclose a 2025 impairment test result in the body. <span class="tag-spec">SPECULATIVE — 24-yr useful life looks aggressive given category unit-volume dynamics.</span></div>
+      <div class="src">Note 8 Intangible Assets · Item 7 MD&amp;A.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">4</div>
+    <div class="content">
+      <h3>Up to $575M of BAQSIMI contingent consideration is off the balance sheet.</h3>
+      <p>The 2023 BAQSIMI acquisition included up to $450 million in contingent milestones payable to Lilly and up to $125 million in assumed Lilly pre-closing liabilities. None of this sits on the balance sheet. Combined with Anji (up to $267 million development + sales milestones) and Hanxin corticotropin (up to $89 million plus 5% royalty), Amphastar is carrying close to $1.0 billion of potential milestone exposure not inside total liabilities.</p>
+      <div class="why">Leverage ratios based on reported total liabilities understate forward cash-obligation intensity. A single milestone trigger would re-rate the capital structure.</div>
+      <div class="src">Note 17 (BAQSIMI, Anji) · Note 20 (Hanxin).</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">5</div>
+    <div class="content">
+      <h3>Nearly 65% of revenue flows through three wholesalers.</h3>
+      <p>McKesson was 24% of revenue and 28% of AR; Cencora 22%/28%; Cardinal 19%/12%. The $79.2 million chargebacks and rebates reserve — flagged as the Critical Audit Matter — is essentially a function of this concentration and the expected-value estimation around it.</p>
+      <div class="why">Concentration is not itself the story; concentration plus reserve-estimation sensitivity is what the auditor explicitly called out as hardest to audit. A 10% estimate miss is an $8 million pre-tax swing.</div>
+      <div class="src">Note 1 customer concentration · Auditor's Report (CAM).</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">6</div>
+    <div class="content">
+      <h3>The convertible strike is effectively unreachable at current prices.</h3>
+      <p>The $345 million 2029 convertible converts at $62.96. AMPH traded at $21.65 on April 21, 2026 (Jefferies same-day downgrade to Hold, $22 target). Anti-dilutive options grew from 619K to 3.2M shares at a weighted-average price of ~$35 — every broken strike in the cap table sits above current price. Fair value of the notes is $319.1 million versus $345 million face.</p>
+      <div class="why">The convertible was not taken out by equity; it will need cash or new debt. Against $170M cash and $283M cash + short-term investments, the runway does not comfortably bridge 2029 without another financing event.</div>
+      <div class="src">Note 10 Long-term Debt · Note 15 Stockholders' Equity · market pricing April 21, 2026.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">7</div>
+    <div class="content">
+      <h3>Hanxin's BAQSIMI exclusivity in Greater China is a related-party award.</h3>
+      <p>In October 2025, Amphastar appointed Nanjing Chengong Pharmaceutical Co., Ltd. — a wholly-owned Hanxin subsidiary — as exclusive BAQSIMI distributor across Mainland China, Taiwan, Hong Kong and Macau on a 10-year agreement. Hanxin's chairman and general manager is Henry Zhang, son of CEO Dr. Jack Zhang. Dr. Mary Luo (COO) and Dr. Jack Zhang hold ownership through an affiliated entity.</p>
+      <div class="why">Greater China is the largest potential new geography for a nasal glucagon product. Awarding that exclusivity to a CEO-family-controlled entity, without a disclosed arm's-length determination process, is a governance matter that deserves documentation. No 2025 revenue was recorded — transfer pricing has not been tested yet.</div>
+      <div class="src">Note 18 — BAQSIMI Distribution Agreement with Chengong.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">8</div>
+    <div class="content">
+      <h3>Semaglutide API and finished-product supply through Hanxin is new.</h3>
+      <p>The January 2026 Hanxin contract-manufacturing amendment added a global territory (ex-US/Canada for lidocaine and corticotropin) AND a global territory for Semaglutide API and finished product at 3, 7 and 14 mg dose strengths — the Rybelsus strength profile. Item 1 makes no reference to a Semaglutide program.</p>
+      <div class="why">A company building a supply-chain position in a Novo-class molecule is doing something strategically large. The filing's architecture hides it in a related-party footnote rather than a business-development paragraph.</div>
+      <div class="src">Note 18 Contract Manufacturing Agreements — January 2026 amendment.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">9</div>
+    <div class="content">
+      <h3>Foreign operations have run pre-tax losses every year; valuation allowance is rising.</h3>
+      <p>Foreign pre-tax results have been negative every disclosed year. Deferred tax assets carry a $23.3 million valuation allowance, up from $21.7 million. Éragny-sur-Epte (France) houses MannKind insulin API — MannKind is not purchasing for "at least the next two years" per Item 1A. China Nanjing runs $3.2 million of revenue against $110.1 million of assets.</p>
+      <div class="why">The foreign asset base is carried at $150M+ while generating persistent losses. This is the clearest candidate for a future impairment charge the headline narrative does not invite the reader to price in.</div>
+      <div class="src">Note 14 · Note 4 geographic segments · Item 1A France utilization.</div>
+    </div>
+  </div>
+
+  <div class="detail">
+    <div class="num">10</div>
+    <div class="content">
+      <h3>Buybacks are doing real EPS work, and the count is still falling.</h3>
+      <p>Weighted-average basic shares dropped from 48.4M to 46.7M. Treasury stock sits at $408.1 million (16.1M shares). The 2025 buyback was $75.6 million (2.92M shares at ~$26 average). With the stock at $21.65, remaining authorization is economically more valuable — but it consumes the same cash needed to repay the 2028/2029 debt wall.</p>
+      <div class="why">A tighter capital policy would pause buybacks to build a refinancing cushion. Management is doing the opposite. That is a choice, not a neutral fact.</div>
+      <div class="src">Note 15 Stockholders' Equity · Cash Flow Statement.</div>
+    </div>
+  </div>
+</section>
+
+<section id="threads">
+  <h2 class="section-title">Investigation threads</h2>
+
+  <div class="thread">
+    <div class="thread-label">Thread 1</div>
+    <h3 class="thread-title">The Hanxin web</h3>
+    <div class="precis">A related-party network that has expanded from a narrow contract-manufacturing arrangement into a multi-geography commercial, licensing and API partnership — all with the CEO's family — and all while reported cash flows between the parties remain immaterial.</div>
+    <blockquote>
+      "Henry Zhang, the son of Dr. Jack Zhang, is an equity holder, the general manager, and the chairman of the board of directors of Hanxin. Additionally, Dr. Mary Luo and Dr. Jack Zhang, have an ownership interest in Hanxin through an affiliated entity."
+      <cite>— Note 18</cite>
+    </blockquote>
+
+    <div class="finding">
+      <h4>Commercial exclusivity for the crown asset is inside the family.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>If BAQSIMI's growth engine is Asia (the largest unpenetrated geography for nasal glucagon), the economics of that future growth will be split in a way not yet visible and awarded without disclosed competitive process.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>The agreement produced zero revenue in 2025. Readers looking for materiality via the 2025 P&amp;L will miss it. Materiality here is forward-looking, not backward.</div>
+    </div>
+
+    <div class="finding">
+      <h4>Global Semaglutide supply, routed through related party, no Item 1 disclosure.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>A company that is building a supply-chain position in a Novo-class molecule is doing something strategically large. The filing's architecture hides it in a related-party footnote.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>Item 1 readers see a peptide platform; they do not see GLP-1. The disclosure that does exist is in the exhibit list and Note 18.</div>
+    </div>
+
+    <div class="finding">
+      <h4>Small current cash flow disguises a compounding commercial footprint.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>The question is not whether 2025 transactions were material — they were not. It is whether the board has an independent arm's-length review mechanism keeping pace with the deal flow.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>Only a reader who reads Note 18 and Note 20 in sequence — and notices the exhibit-list additions vs. prior year — can see the velocity.</div>
+    </div>
+  </div>
+
+  <div class="thread">
+    <div class="thread-label">Thread 2</div>
+    <h3 class="thread-title">BAQSIMI is paying for itself by cannibalizing glucagon</h3>
+    <div class="precis">The growth of the acquired product is being offset by the decline of the legacy product it displaces. The $529.7 million intangible book value presumes the opposite.</div>
+    <blockquote>
+      "Sales from our glucagon product, represented 10%, 15% and 18% of our total net revenues for the years ended December 31, 2025, 2024, and 2023, respectively."
+      <cite>— Item 1A</cite>
+    </blockquote>
+
+    <div class="finding">
+      <h4>Net franchise growth is minimal, not the 46% BAQSIMI headline.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>If the BAQSIMI DCF in the 2023 acquisition model assumed incremental growth, part of it has arrived as substitution. Over a 24-year amortization period, this materially compresses terminal value.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>The MD&amp;A discusses each product's change; it does not synthesize them into the net-franchise view.</div>
+    </div>
+
+    <div class="finding">
+      <h4>Useful-life (24 years) and indefinite-life (trademark) assumptions are load-bearing.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>$591.3 million on a 24-year straight line produces ~$24.6 million of annual amortization. A shift to 15 years would add roughly $15 million of pre-tax expense annually — about 15% of 2025 net income.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>Note 8 shows the balance and amortization but does not disclose sensitivity. The filing indicates no impairment concern, but absence of evidence is not evidence of absence.</div>
+    </div>
+  </div>
+
+  <div class="thread">
+    <div class="thread-label">Thread 3</div>
+    <h3 class="thread-title">The 2028–2029 refinancing cliff</h3>
+    <div class="precis">Non-current long-term debt classification is obscuring how close the refinancing wall actually is, and the equity-conversion path on the convertible is closed at current prices.</div>
+    <blockquote>
+      "The fair value of the 2029 Convertible Notes was approximately $319.1 million as of December 31, 2025."
+      <cite>— Note 10</cite>
+    </blockquote>
+
+    <div class="finding">
+      <h4>The maturity table tells the real story.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>2026: $1.5M. 2027: $5.7M. 2028: $255.7M. 2029: $353.5M. Against $170.2M cash, $112.6M short-term investments, and $219.5M unused revolver. $609M coming due in 24 months against ~$500M of available liquidity means a refinancing event is mandatory.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>The reader sees "long-term debt" on the balance sheet and relaxes. The filing's own note discloses the concentration, but three pages into Note 10.</div>
+    </div>
+
+    <div class="finding">
+      <h4>The convertible market is already discounting the refi risk.</h4>
+      <div class="why"><span class="why-label">Why it matters</span>Fair value of $319.1M on $345M face is a 7.5% discount. At 2.0% coupon with four years to maturity, that discount implies roughly 340 bps of yield uplift over issuance. The bond market's signal is clear.</div>
+      <div class="miss"><span class="miss-label">Why a fast reader misses it</span>The fair-value disclosure is a single line in Note 10. A skim-reader misses the market's verdict on refinancing pressure.</div>
+    </div>
+  </div>
+</section>
+
+<section id="quality">
+  <h2 class="section-title">Earnings quality read</h2>
+  <div class="eq">
+    <div class="block">
+      <h3>What looks cleaner than reality</h3>
+      <ul>
+        <li>Net income benefits from the OBBBA retroactive R&amp;D deduction (negative federal current tax).</li>
+        <li>EPS benefits from buybacks that reduced weighted-average basic shares by 3.5%.</li>
+        <li>BAQSIMI growth headlines substantially overstate net franchise economics once glucagon cannibalization is netted.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>What may be better than the headline</h3>
+      <ul>
+        <li>The $23.1 million legal charge is non-recurring; 2026 G&amp;A should normalize by roughly $20 million absent similar verdicts.</li>
+        <li>Iron sucrose (Aug 2025), teriparatide (Dec 2025), and ipratropium HFA (Feb 2026, with 180-day exclusivity) unwind into 2026 revenue and are not yet material in the 2025 numbers.</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h3>What remains unclear</h3>
+      <ul>
+        <li>Whether BAQSIMI intangible assumptions hold if 2026 glucagon erosion accelerates.</li>
+        <li>What arm's-length pricing framework governs the expanding Hanxin commercial footprint.</li>
+        <li>Whether the foreign valuation allowance is complete; France and China losses suggest additional carry-base write-downs may be required.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="snap">
+  <h2 class="section-title">Reality snapshot</h2>
+  <div class="snapshot-grid">
+    <div class="snap">
+      <div class="lbl">Cash-flow reality</div>
+      <p>2025 operating cash flow must bridge the 2028–2029 debt wall alongside ongoing buybacks, and the math does not work without a refinancing event in the next 24 months.</p>
+    </div>
+    <div class="snap">
+      <div class="lbl">Balance-sheet reality</div>
+      <p>Reported total liabilities understate forward capital-obligation intensity by close to $1.0 billion in contingent consideration across BAQSIMI, Anji, and Hanxin milestones.</p>
+    </div>
+    <div class="snap verify">
+      <div class="lbl">Verify next</div>
+      <p>The BAQSIMI intangible impairment review process and any disclosed or undisclosed sensitivity — the single line item most exposed to being re-rated in 2026.</p>
+    </div>
+  </div>
+</section>
+
+<section id="followup">
+  <h2 class="section-title">Follow-up questions</h2>
+  <ol class="checklist">
+    <li>What is the independent review mechanism that approves Hanxin-affiliate transactions, and who sits on it?</li>
+    <li>What are the specific BAQSIMI milestones remaining ($450M to Lilly) and the trigger thresholds?</li>
+    <li>Has the BAQSIMI intangible impairment review been performed in Q1 2026, and at what discount rate?</li>
+    <li>What is the assumed terminal market share for BAQSIMI inside the 24-year useful-life model?</li>
+    <li>What is the refinancing plan for the $255.7M Wells Fargo Term Loan due June 2028?</li>
+    <li>What is the Semaglutide program — finished product dose strengths, target market, regulatory pathway?</li>
+    <li>How was Chengong selected as BAQSIMI exclusive distributor for Greater China, and what other parties were considered?</li>
+    <li>What is the transfer-pricing benchmark for Hanxin contract manufacturing on a cost-plus basis — what is the plus?</li>
+    <li>Will the 2026 buyback pace continue given the 2028–2029 maturity wall, and at what stock price does it pause?</li>
+    <li>What is the normalized G&amp;A run-rate ex-legal, and what is the projected 2026 tax rate absent OBBBA timing benefit?</li>
+    <li>What does the France and China foreign-asset base generate in 2026, and is additional valuation-allowance or impairment testing required?</li>
+    <li>What percentage of the $79.2M chargebacks/rebates reserve turns over within 90 days, and what is the historical settlement vs. estimate variance?</li>
+  </ol>
+</section>
+
+<section class="close">
+  <h2 class="section-title">Close</h2>
+  <p>Stripped of mix narrative and non-recurring tax lift, the 2025 filing describes a company whose core US franchise is eroding, whose acquired growth engine is cannibalizing that franchise, whose capital structure must be refinanced inside 36 months, and whose expanding commercial geography is being routed through the CEO's family. The thesis question is not whether any one of these is individually fatal. It is whether the stock's April 2026 price already incorporates all four at once.</p>
+</section>
+
+<details class="log">
+  <summary>Anomaly log (working artifact — for careful readers)</summary>
+  <ul>
+    <li><span class="marker">A1</span>MD&amp;A says "other revenues of $19.2 million" in 2024 dropped to zero in 2025 — characterized as non-recurring but not labeled as such in revenue mix discussion.</li>
+    <li><span class="marker">A2</span>Treasury stock grew to $408.1M vs. total equity $788.8M — buyback activity has absorbed more than half of theoretical equity accumulation.</li>
+    <li><span class="marker">A3</span>Effective tax rate jumped 510 bps YoY; primary driver disclosed as rate mix, but federal current tax was negative — two different framings.</li>
+    <li><span class="marker">A4</span>Note 8 does not include an impairment indicator test narrative — typical 10-Ks disclose some version; absence is an anomaly, not a confirmation.</li>
+    <li><span class="marker">A5</span>Exhibit index 10.17–10.36 added at least seven new Hanxin-affiliate agreements since prior-year filing — not flagged in the MD&amp;A.</li>
+    <li><span class="marker">A6</span>Italic disclosure: "Mannkind will not be purchasing RHI for at least the next two years" — buried in an operational paragraph of Item 1A rather than in any revenue guidance section.</li>
+    <li><span class="marker">A7</span>Rancho Cucamonga new lease commitment — post-close, capital-intensity signal for a company already stretched on maturity wall.</li>
+    <li><span class="marker">A8</span>Three new employee class-action lawsuits in 2024–2025 PAGA/wage-hour category; reserve disclosure is absent.</li>
+    <li><span class="marker">A9</span>Anti-dilutive options expanded from 619K to 3.2M at ~$35 WAP — confirms stock has been well below $35 for an extended period.</li>
+    <li><span class="marker">A10</span>Insulin API line at Éragny-sur-Epte is under-utilized with MannKind in requalification — $110M+ asset base in France at risk.</li>
+  </ul>
+</details>
+
+<section id="verify" class="verify-section">
+  <h2 class="section-title">Verification protocol addendum</h2>
+  <p style="font-style: italic; color: var(--muted); margin-top: 0;">Per user standing instruction — independent fact-check on time-sensitive claims using web search beyond the filing itself.</p>
+
+  <h3>Section 1 — Critical issues (verified)</h3>
+  <p><strong>No material inaccuracies identified</strong> in the filing's verifiable time-sensitive claims. FDA approval dates (iron sucrose Aug 11, 2025; teriparatide Dec 15, 2025; ipratropium HFA Feb 24, 2026) reconcile to independent press releases. OBBBA enactment date (July 4, 2025) and Section 174A retroactive R&amp;D expensing are correctly characterized. BAQSIMI acquisition structure ($500M closing + $125M one-year + up to $450M contingent) matches 2023 Lilly/Amphastar deal announcements.</p>
+
+  <h3>Section 2 — Unverifiable from external sources (medium risk)</h3>
+  <ul>
+    <li>Precise BAQSIMI milestone trigger thresholds — only the aggregate $450M cap is disclosed; individual triggers would require a direct IR inquiry.</li>
+    <li>Hanxin-affiliate arm's-length pricing mechanism — disclosed only as "cost-plus," with no plus-margin shown.</li>
+    <li>BAQSIMI intangible impairment testing discount rate and sensitivity — standard GAAP disclosure is silent on these specifics.</li>
+    <li>Ongoing Q1/Q2 2026 status of customer-concentration reserve assumptions — not disclosed in any current public document.</li>
+  </ul>
+
+  <h3>Section 3 — Verified accurate (spot-check)</h3>
+  <ul>
+    <li>Amphastar iron sucrose ANDA approval on August 11, 2025, bioequivalent to Venofer — confirmed (BioSpace/Amphastar press release).</li>
+    <li>Amphastar teriparatide ANDA approval on December 15, 2025, therapeutically equivalent to Lilly FORTEO — confirmed (BioSpace/Amphastar press release).</li>
+    <li>Amphastar ipratropium bromide HFA approval on February 24, 2026 with 180-day first-to-file exclusivity — confirmed (Amphastar press release).</li>
+    <li>OBBBA enactment date July 4, 2025 and Section 174A retroactive domestic R&amp;D expensing — confirmed via RSM, Grant Thornton, Plante Moran publications.</li>
+    <li>BAQSIMI acquisition structure: $500M closing + $125M 1-year anniversary + up to $450M contingent — confirmed via Eli Lilly April 2023 announcement and June 30, 2023 close.</li>
+    <li>CEO Jack Zhang and Chairwoman/COO Mary Luo remain in position through early 2026 — confirmed via Amphastar corporate disclosures and March 2026 Stony Brook gift release.</li>
+    <li>AMPH trading at $21.65 on April 21, 2026 (~65% below $62.96 convert strike) — confirmed; Jefferies same-day downgrade to Hold with $22 target.</li>
+    <li>Glucagon competitive landscape includes Xeris Gvoke HypoPen — confirmed via multiple industry sources.</li>
+  </ul>
+
+  <h3>Section 4 — Overall assessment</h3>
+  <p><strong>Critical errors found in the 10-K's time-sensitive disclosures:</strong> 0.</p>
+  <p><strong>Most material gap:</strong> The filing does not disclose a sensitivity analysis on BAQSIMI intangible useful-life assumptions, and this is the single largest carrying-value item exposed to the very product-mix dynamic the memo identifies.</p>
+  <p><strong>Confidence in original analysis:</strong> High. The investment-decision risk is not about whether the 10-K's stated facts are accurate — they appear to be — but about the forward implications of buried dynamics (cannibalization, related-party escalation, refinancing wall) that the filing discloses accurately but does not foreground.</p>
+</section>
+
+<footer>
+  Prepared April 21, 2026. Analytical framework, not investment advice. Source-locked to Amphastar Pharmaceuticals 10-K for fiscal year ended December 31, 2025, as provided by the user. Time-sensitive claims subject to Section 3 verification. Prepared under Filing Reality Check methodology.
+</footer>
+
+</div>
+</body>
+</html>
