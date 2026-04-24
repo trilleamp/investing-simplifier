@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Static File Server (All Dashboards)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8080"],
+      "port": 8080
+    },
+    {
+      "name": "EVA Sub-Dashboard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8081", "--directory", "eva-dashboard"],
+      "port": 8081
+    }
+  ]
+}

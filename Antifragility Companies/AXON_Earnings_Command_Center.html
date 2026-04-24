@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXON Enterprise — Earnings Command Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0f14; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; }
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useCallback, useEffect, useRef, useMemo } = React;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AXON ENTERPRISE — PRE-POPULATED EARNINGS COMMAND CENTER
+// Bustamante MDI × Stoffel-Feroldi Antifragility × Cover Earnings QUICKLY
+// ══════════════════════════════════════════════════════════════════════════════
+
+const AXON_STATE = {
+  company: "Axon Enterprise",
+  ticker: "AXON",
+  sector: "Technology",
+  companyType: "saas_hardware",
+  fiscalYearEnd: "December",
+  investmentThesis: "Axon becomes MORE valuable as AI proliferates because its proprietary data (agency-generated evidence from physical devices) is the irreplaceable input AI tools need, while structural regulatory moat (FedRAMP High JAB P-ATO + CJIS) prevents AI-native alternatives. Hardware-software-data platform with 124% NRR and $11.4B backlog.",
+  quarters: [
+    // FY2024 Quarters (Prior Year)
+    { label: "Q1 FY2024", revenue: 461, eps: 1.41, grossMargin: 63.2, opMargin: 23.6, netMargin: 28.9, fcfMargin: 0, arr: 820, nrr: 122, softwareRev: 176, hardwareRev: 285, newLogos: 0, backlog: 7200 },
+    { label: "Q2 FY2024", revenue: 504, eps: 0.53, grossMargin: 63.5, opMargin: 24.5, netMargin: 8.1, fcfMargin: 14.1, arr: 885, nrr: 122, softwareRev: 195, hardwareRev: 309, newLogos: 0, backlog: 7500 },
+    { label: "Q3 FY2024", revenue: 544, eps: 1.45, grossMargin: 63.2, opMargin: 26.7, netMargin: 12.3, fcfMargin: 12.5, arr: 940, nrr: 122, softwareRev: 203, hardwareRev: 341, newLogos: 0, backlog: 7900 },
+    { label: "Q4 FY2024", revenue: 575, eps: 2.08, grossMargin: 62.8, opMargin: 24.6, netMargin: 23.5, fcfMargin: 39.1, arr: 1000, nrr: 123, softwareRev: 230, hardwareRev: 345, newLogos: 0, backlog: 7900 },
+    // FY2025 Quarters (Current Year)
+    { label: "Q1 FY2025", revenue: 604, eps: 1.41, grossMargin: 63.6, opMargin: 25.7, netMargin: 14.6, fcfMargin: 0, arr: 1100, nrr: 123, softwareRev: 263, hardwareRev: 341, newLogos: 0, backlog: 9900 },
+    { label: "Q2 FY2025", revenue: 669, eps: 2.12, grossMargin: 63.2, opMargin: 25.7, netMargin: 5.4, fcfMargin: 0, arr: 1200, nrr: 124, softwareRev: 292, hardwareRev: 377, newLogos: 0, backlog: 10500 },
+    { label: "Q3 FY2025", revenue: 711, eps: -0.03, grossMargin: 62.7, opMargin: 24.9, netMargin: -0.3, fcfMargin: 0, arr: 1300, nrr: 124, softwareRev: 305, hardwareRev: 405, newLogos: 0, backlog: 11400 },
+    { label: "Q4 FY2025 (Guide)", revenue: 752, eps: 1.60, grossMargin: 0, opMargin: 24.0, netMargin: 0, fcfMargin: 0, arr: 0, nrr: 0, softwareRev: 0, hardwareRev: 0, newLogos: 0, backlog: 0 },
+  ],
+  currentEarnings: {
+    consensusRev: "693", guidanceRev: "0", actualRev: "711",
+    consensusEps: "1.52", guidanceEps: "0", actualEps: "-0.03",
+    nextQRevConsensus: "752", nextQEpsConsensus: "1.60",
+    fyRevConsensus: "2740", fyRevGuidance: "2740",
+    fyEpsConsensus: "4.55", fyEpsGuidance: "",
+    cashPosition: "2400", debt: "690", recentFcf: "225",
+    priorEarningsDate: "2025-08-04", currentEarningsDate: "2025-11-04", nextEarningsDate: "2026-02-24",
+  },
+  mdiScore: {
+    proprietaryData: "strengthening",
+    regulatoryLockin: "structural",
+    networkEffects: "genuine",
+    transactionEmbedding: "deeply",
+    systemOfRecord: "strong",
+    threeQ1: true, threeQ2: true, threeQ3: true,
+    competitorCount: "0-5",
+    horizontalThreat: "low",
+  },
+  antifragility: {
+    d1Score: 9, d2Score: 7, d3Score: 10, d4Score: 9,
+    dipScore: 5, cppScore: 5,
+  },
+  killSwitches: [
+    { trigger: "NRR drops below 110% for 2 consecutive quarters", status: "clear" },
+    { trigger: "Federal legislation bans/restricts AI police reports", status: "clear" },
+    { trigger: "Competitor achieves FedRAMP High + CJIS with full-stack alternative", status: "clear" },
+    { trigger: "Body camera mandates rolled back in major jurisdictions", status: "clear" },
+    { trigger: "Revenue growth decelerates below 15% without reacceleration path", status: "clear" },
+    { trigger: "Stock exceeds 20x NTM revenue (valuation kill switch)", status: "clear" },
+  ],
+  commentary: {
+    managementTone: "confident",
+    keyThemes: "• 7th consecutive quarter of 30%+ growth — remarkable consistency\n• Software & Services growing 41% YoY outpacing Connected Devices 24% — mix shift accelerating\n• AI Era Plan gaining traction — Draft One, Axon Assistant driving productivity\n• Platform Solutions +71% (counter-drone, VR training) — new growth vectors\n• Acquisitions (Carbyne, Prepared, Dedrone, Fūsus) expanding ecosystem and TAM\n• Tariff headwinds modest (~50bps on GM) — managed through supply chain diversification\n• Enterprise vertical booking largest deal in company history (global logistics)",
+    notableQuotes: "Rick Smith CEO: 'Axon 911 marks the next evolution of our connected public safety ecosystem — linking the first moment of crisis to every action that follows.'\n\nBrittany Bagley COO/CFO: 'We are basically selling as much T10 as we can make.' (on TASER 10 supply/demand dynamics)\n\nJosh Isner President: 'In Q4 our enterprise team booked our LARGEST deal in company history with a global logistics customer.'",
+    redFlags: "⚠ GAAP net loss of $2M in Q3 2025 (vs $67M profit in Q3 2024) — driven by SBC, acquisition costs, mark-to-market\n⚠ Stock-based compensation $580-630M for FY2025 — significant dilution concern\n⚠ Q4 2024 out-of-period revenue adjustment (-$3.3M) related to ASC 606 accounting\n⚠ Adjusted gross margin declining 50-70bps YoY from tariffs and product mix\n⚠ Operating expenses grew 40% YoY in Q3 — faster than revenue growth",
+    analystFocus: "Analysts pressed on: (1) NRR sustainability at 124% — management pointed to low churn + upsell into AI Era Plan; (2) TASER 10 supply/demand balance — still demand-constrained, supply investment ongoing; (3) Enterprise vertical scalability — largest deal in history signals product-market fit; (4) Federal pipeline health amid budget uncertainty; (5) SBC as % of revenue trajectory",
+    surpriseFactor: "GAAP EPS miss was the biggest surprise — $-0.03 vs $1.52 consensus. However this was entirely driven by non-cash items (SBC, fair value adjustments). Non-GAAP EPS was $1.20. Stock dropped >20% after Q3 report despite strong revenue beat and guidance raise.",
+  },
+};
+
+// ── Utilities ──
+const p = (v) => parseFloat(v) || 0;
+const fmt = (v, d = 1) => (typeof v === "number" && v !== 0 ? v.toFixed(d) : "—");
+const fmtM = (v) => { const n = p(v); return n >= 1000 ? `$${(n/1000).toFixed(2)}B` : n > 0 ? `$${n.toFixed(0)}M` : "—"; };
+const pct = (a, b) => b ? (((a - b) / Math.abs(b)) * 100).toFixed(1) : "—";
+const arrow = (c, pr) => { if (!c || !pr || p(c) === 0 || p(pr) === 0) return ""; const cv = p(c), pv = p(pr); return cv > pv ? "↑" : cv < pv ? "↓" : "→"; };
+const arrowColor = (a) => a === "↑" ? "#22c55e" : a === "↓" ? "#ef4444" : "#eab308";
+const beatMiss = (actual, estimate) => { if (!actual || !estimate) return { label: "—", c: "#666" }; const a = p(actual), e = p(estimate); return a > e ? { label: `Beat +${pct(a,e)}%`, c: "#22c55e" } : a < e ? { label: `Miss ${pct(a,e)}%`, c: "#ef4444" } : { label: "In-line", c: "#eab308" }; };
+
+function calcMDI(m) {
+  const sc = { strengthening:1, structural:1, genuine:1, deeply:1, strong:1, intact:1, partial:0.5, overstated:0, absent:0, weak:0, mischaracterized:0, weakening:0, partially:0.5, information:0 };
+  const s = [m.proprietaryData, m.regulatoryLockin, m.networkEffects, m.transactionEmbedding, m.systemOfRecord].reduce((a,v) => a + (sc[v]??0), 0);
+  const tq = [m.threeQ1, m.threeQ2, m.threeQ3].filter(Boolean).length;
+  const d = m.competitorCount === "0-5" ? "Early" : m.competitorCount === "6-20" ? "Mid" : "Late";
+  const cl = s >= 4 ? "LOWER RISK" : s >= 2 ? "MEDIUM RISK" : "HIGH RISK";
+  return { score: s, threeQ: tq, disruption: d, classification: cl, horizontal: m.horizontalThreat };
+}
+
+function calcAF(af) {
+  const raw = p(af.d1Score)*0.15 + p(af.d2Score)*0.30 + p(af.d3Score)*0.15 + p(af.d4Score)*0.40;
+  const dip = p(af.dipScore) <= 1 ? 0 : p(af.dipScore) <= 3 ? 0.5 : p(af.dipScore) === 4 ? 1.0 : 1.5;
+  const cpp = p(af.cppScore) <= 3 ? 0 : p(af.cppScore) <= 6 ? 0.5 : p(af.cppScore) <= 9 ? 1.0 : 1.5;
+  const f = Math.min(raw + dip + cpp, 10);
+  const cls = f >= 7.5 ? "ANTIFRAGILE" : f >= 5.0 ? "ROBUST" : f >= 2.5 ? "FRAGILE" : "TERMINAL";
+  return { raw: raw.toFixed(2), dipMod: dip, cppMod: cpp, final: f.toFixed(2), classification: cls };
+}
+
+// ── Styled Components ──
+const Card = ({ title, children, accent = "#3b82f6", icon }) => (
+  <div style={{ background: "#0f1419", border: "1px solid #1e2a3a", borderRadius: 12, marginBottom: 16, overflow: "hidden", borderTop: `3px solid ${accent}` }}>
+    <div style={{ padding: "14px 20px", borderBottom: "1px solid #1e2a3a", display: "flex", alignItems: "center", gap: 10 }}>
+      {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
+      <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#e8ecf1", letterSpacing: 0.5, textTransform: "uppercase" }}>{title}</h3>
+    </div>
+    <div style={{ padding: "16px 20px" }}>{children}</div>
+  </div>
+);
+
+const Pill = ({ label, color = "#3b82f6" }) => (
+  <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: color + "22", color, border: `1px solid ${color}44`, letterSpacing: 0.3 }}>{label}</span>
+);
+
+const MetricBox = ({ label, value, sub, color = "#e0e7ef", small }) => (
+  <div style={{ background: "#141c27", border: "1px solid #1e2a3a", borderRadius: 8, padding: small ? "8px 10px" : "12px 14px", textAlign: "center", minWidth: small ? 80 : 100 }}>
+    <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
+    <div style={{ fontSize: small ? 16 : 22, fontWeight: 800, color, letterSpacing: -0.5 }}>{value}</div>
+    {sub && <div style={{ fontSize: 10, color: "#4a5d73", marginTop: 2 }}>{sub}</div>}
+  </div>
+);
+
+const BarMini = ({ value, max = 10, color = "#3b82f6", label }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    {label && <span style={{ fontSize: 11, color: "#8896a8", minWidth: 140, fontWeight: 600 }}>{label}</span>}
+    <div style={{ flex: 1, height: 8, background: "#1a2332", borderRadius: 4, overflow: "hidden" }}>
+      <div style={{ width: `${(p(value)/max)*100}%`, height: "100%", background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4 }} />
+    </div>
+    <span style={{ fontSize: 12, fontWeight: 700, color, minWidth: 34, textAlign: "right" }}>{value}/{max}</span>
+  </div>
+);
+
+const StatusDot = ({ status }) => {
+  const c = { clear: "#22c55e", warning: "#eab308", triggered: "#ef4444" };
+  return <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: c[status] || "#666", marginRight: 8, boxShadow: `0 0 6px ${c[status]}66` }} />;
+};
+
+const TABS = [
+  { id: "overview", label: "Overview", icon: "📈" },
+  { id: "quarters", label: "8-Quarter Trend", icon: "📊" },
+  { id: "beatmiss", label: "Beat/Miss", icon: "🎯" },
+  { id: "moats", label: "MDI Moats", icon: "🛡️" },
+  { id: "antifragility", label: "Antifragility", icon: "⚡" },
+  { id: "killswitch", label: "Kill Switches", icon: "🚨" },
+  { id: "commentary", label: "Commentary", icon: "💬" },
+  { id: "verdict", label: "Verdict", icon: "⚖️" },
+];
+
+function App() {
+  const [tab, setTab] = useState("overview");
+  const s = AXON_STATE;
+  const mdi = calcMDI(s.mdiScore);
+  const af = calcAF(s.antifragility);
+  const revBM = beatMiss(s.currentEarnings.actualRev, s.currentEarnings.consensusRev);
+  const epsBM = beatMiss(s.currentEarnings.actualEps, s.currentEarnings.consensusEps);
+  const ksAlerts = s.killSwitches.filter(k => k.status !== "clear").length;
+
+  return (
+    <div style={{ fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace", background: "#0a0f14", color: "#c8d3e0", minHeight: "100vh", maxWidth: 1100, margin: "0 auto" }}>
+      {/* ─── HEADER ─── */}
+      <div style={{ background: "linear-gradient(135deg, #0a1018 0%, #101a28 50%, #0c1420 100%)", borderBottom: "2px solid #1e2a3a", padding: "20px 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#e8ecf1" }}>AXON</h1>
+              <span style={{ fontSize: 13, color: "#60a5fa", fontWeight: 600 }}>Axon Enterprise, Inc.</span>
+              <Pill label="SaaS + Hardware" color="#a78bfa" />
+              <Pill label="Technology" color="#60a5fa" />
+            </div>
+            <div style={{ fontSize: 10, color: "#4a5d73", marginTop: 6, letterSpacing: 1.2, textTransform: "uppercase" }}>
+              Bustamante MDI × Stoffel-Feroldi Antifragility × Cover Earnings QUICKLY — FY2025 Q3 Report
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ background: "#22c55e18", border: "1px solid #22c55e33", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#22c55e", fontWeight: 600 }}>MDI</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e" }}>{mdi.score}/5</div>
+            </div>
+            <div style={{ background: "#22c55e18", border: "1px solid #22c55e33", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#22c55e", fontWeight: 600 }}>ANTIFRAGILE</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e" }}>{af.final}</div>
+            </div>
+            <div style={{ background: ksAlerts > 0 ? "#ef444418" : "#22c55e18", border: `1px solid ${ksAlerts > 0 ? "#ef444433" : "#22c55e33"}`, borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: ksAlerts > 0 ? "#ef4444" : "#22c55e", fontWeight: 600 }}>KILL SW</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: ksAlerts > 0 ? "#ef4444" : "#22c55e" }}>{ksAlerts > 0 ? `${ksAlerts} ⚠` : "CLEAR"}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── TABS ─── */}
+      <div style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid #1e2a3a", background: "#0d1219" }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            padding: "12px 14px", border: "none", background: tab === t.id ? "#1a2332" : "transparent",
+            color: tab === t.id ? "#60a5fa" : "#5a6d82", cursor: "pointer", fontSize: 10, fontWeight: 700,
+            borderBottom: tab === t.id ? "2px solid #60a5fa" : "2px solid transparent",
+            whiteSpace: "nowrap", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase", transition: "all 0.15s"
+          }}>{t.icon} {t.label}</button>
+        ))}
+      </div>
+
+      {/* ─── CONTENT ─── */}
+      <div style={{ padding: "20px 16px" }}>
+
+        {/* ═══ OVERVIEW ═══ */}
+        {tab === "overview" && (<div>
+          {/* Hero Metrics Row */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 16 }}>
+            <MetricBox label="Q3 Revenue" value="$711M" color="#e0e7ef" sub="+31% YoY" small />
+            <MetricBox label="ARR" value="$1.3B" color="#a78bfa" sub="+41% YoY" small />
+            <MetricBox label="NRR" value="124%" color="#22c55e" sub="↑ from 122%" small />
+            <MetricBox label="Backlog" value="$11.4B" color="#60a5fa" sub="Future contracted" small />
+            <MetricBox label="Adj EBITDA %" value="24.9%" color="#eab308" sub="FY target: 25%" small />
+            <MetricBox label="SW & Services" value="$305M" color="#22c55e" sub="+41% YoY" small />
+            <MetricBox label="Devices" value="$405M" color="#60a5fa" sub="+24% YoY" small />
+            <MetricBox label="Cash" value="$2.4B" color="#e0e7ef" sub="Net: $1.7B" small />
+          </div>
+
+          {/* Company + Thesis */}
+          <Card title="Company Profile & Thesis (60 seconds)" icon="🏢" accent="#60a5fa">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.7 }}>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>What:</strong> Axon Enterprise is the dominant hardware-software-data platform for public safety. Core products include TASER devices, body cameras (Axon Body 4), the Evidence.com cloud platform, Axon Records RMS, Draft One AI report writing, Carbyne 911, Fūsus RTCC, and drones.</p>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>Model:</strong> Hybrid hardware + multi-year (5-10 year) SaaS subscriptions. Physical devices generate proprietary data → feeds cloud platform → AI products monetize the data layer. Revenue mix shifting toward software (~43% of Q3 rev).</p>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>Stage:</strong> Growth compounder — 7th consecutive quarter of 30%+ growth, $11.4B backlog provides multi-year visibility.</p>
+              <p style={{ margin: "0 0 6px" }}><strong style={{ color: "#eab308" }}>What matters most:</strong></p>
+              <div style={{ paddingLeft: 12 }}>
+                <div>1. Software & Services growth rate (41% — proves SaaS transition)</div>
+                <div>2. NRR trajectory (124% — proves ecosystem stickiness + upsell)</div>
+                <div>3. Regulatory moat integrity (FedRAMP High + CJIS — prevents competition)</div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Investment Thesis */}
+          <Card title="Investment Thesis" icon="💡" accent="#eab308">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.7, fontStyle: "italic", padding: "4px 0" }}>
+              "{s.investmentThesis}"
+            </div>
+          </Card>
+
+          {/* Next Earnings Countdown */}
+          <Card title="Earnings Calendar" icon="📅" accent="#f472b6">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, textAlign: "center" }}>
+              <div>
+                <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600 }}>PRIOR EARNINGS</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#8896a8", marginTop: 4 }}>Aug 4, 2025</div>
+                <div style={{ fontSize: 10, color: "#5a6d82" }}>Q2 FY2025</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600 }}>CURRENT REPORT</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#60a5fa", marginTop: 4 }}>Nov 4, 2025</div>
+                <div style={{ fontSize: 10, color: "#5a6d82" }}>Q3 FY2025</div>
+              </div>
+              <div style={{ background: "#f472b618", borderRadius: 8, padding: 8 }}>
+                <div style={{ fontSize: 10, color: "#f472b6", fontWeight: 600 }}>⏰ NEXT EARNINGS</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#f472b6", marginTop: 4 }}>Feb 24, 2026</div>
+                <div style={{ fontSize: 10, color: "#f472b6" }}>Q4 FY2025 — 4 DAYS AWAY</div>
+              </div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ 8-QUARTER TREND ═══ */}
+        {tab === "quarters" && (<div>
+          <Card title="Quarterly Revenue & Margin Progression (FY2024 → FY2025)" icon="📊" accent="#60a5fa">
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 900 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #2a3a4e" }}>
+                    {["Quarter", "Revenue", "YoY Δ", "QoQ Δ", "EPS", "Adj GM%", "Δ", "EBITDA%", "Δ", "NRR%", "Δ", "ARR", "SW Rev", "HW Rev", "Backlog"].map(h => (
+                      <th key={h} style={{ padding: "8px 4px", textAlign: "right", color: "#6b7d93", fontWeight: 700, fontSize: 10, whiteSpace: "nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {s.quarters.map((q, i) => {
+                    const yI = i >= 4 ? i - 4 : -1;
+                    const yQ = yI >= 0 ? s.quarters[yI] : null;
+                    const pQ = i > 0 ? s.quarters[i-1] : null;
+                    const yoyG = yQ && p(q.revenue) && p(yQ.revenue) ? pct(p(q.revenue), p(yQ.revenue)) : "—";
+                    const qoqG = pQ && p(q.revenue) && p(pQ.revenue) ? pct(p(q.revenue), p(pQ.revenue)) : "—";
+                    const gmA = arrow(q.grossMargin, pQ?.grossMargin);
+                    const ebA = arrow(q.opMargin, pQ?.opMargin);
+                    const nrrA = arrow(q.nrr, pQ?.nrr);
+                    const isCurrent = i >= 4;
+                    return (
+                      <tr key={i} style={{ borderBottom: "1px solid #1e2a3a", background: isCurrent ? "#0f1822" : "transparent" }}>
+                        <td style={{ padding: "8px 4px", color: isCurrent ? "#60a5fa" : "#8896a8", fontWeight: 700, fontSize: 10, textAlign: "left", whiteSpace: "nowrap" }}>{q.label}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#e0e7ef", fontWeight: 700 }}>{fmtM(q.revenue)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: p(yoyG) > 25 ? "#22c55e" : p(yoyG) > 0 ? "#eab308" : "#ef4444", fontWeight: 700 }}>{yoyG !== "—" ? `+${yoyG}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#8896a8" }}>{qoqG !== "—" ? `${p(qoqG) > 0 ? '+' : ''}${qoqG}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: p(q.eps) < 0 ? "#ef4444" : "#e0e7ef", fontWeight: 600 }}>{q.eps !== 0 ? `$${q.eps}` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#e0e7ef" }}>{p(q.grossMargin) > 0 ? `${q.grossMargin}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: arrowColor(gmA), fontSize: 14 }}>{gmA}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#eab308", fontWeight: 600 }}>{p(q.opMargin) > 0 ? `${q.opMargin}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: arrowColor(ebA), fontSize: 14 }}>{ebA}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: p(q.nrr) >= 120 ? "#22c55e" : p(q.nrr) >= 100 ? "#eab308" : "#ef4444", fontWeight: 700 }}>{p(q.nrr) > 0 ? `${q.nrr}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: arrowColor(nrrA), fontSize: 14 }}>{nrrA}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#a78bfa", fontWeight: 600 }}>{fmtM(q.arr)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#22c55e" }}>{fmtM(q.softwareRev)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#60a5fa" }}>{fmtM(q.hardwareRev)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#8896a8" }}>{fmtM(q.backlog)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          {/* Revenue Mix Shift */}
+          <Card title="Software Mix Shift Trajectory" icon="🔄" accent="#22c55e">
+            <div style={{ fontSize: 12, color: "#8896a8", lineHeight: 1.6 }}>
+              {s.quarters.filter(q => p(q.softwareRev) > 0 && p(q.revenue) > 0).map((q, i) => {
+                const swPct = ((p(q.softwareRev) / p(q.revenue)) * 100).toFixed(1);
+                return (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+                    <span style={{ minWidth: 90, fontWeight: 600, fontSize: 10, color: "#6b7d93" }}>{q.label}</span>
+                    <div style={{ flex: 1, height: 20, background: "#1a2332", borderRadius: 4, overflow: "hidden", display: "flex" }}>
+                      <div style={{ width: `${swPct}%`, height: "100%", background: "linear-gradient(90deg, #22c55e88, #22c55e)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#fff" }}>SW {swPct}%</span>
+                      </div>
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: "#60a5fa" }}>HW {(100 - p(swPct)).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* ARR Progression */}
+          <Card title="ARR Progression — $820M → $1.3B in 7 Quarters" icon="🚀" accent="#a78bfa">
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 120, padding: "0 8px" }}>
+              {s.quarters.filter(q => p(q.arr) > 0).map((q, i) => {
+                const maxArr = 1300;
+                const h = (p(q.arr) / maxArr) * 100;
+                return (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: "#a78bfa" }}>{fmtM(q.arr)}</span>
+                    <div style={{ width: "100%", height: `${h}%`, background: `linear-gradient(180deg, #a78bfa, #a78bfa44)`, borderRadius: "4px 4px 0 0", minHeight: 4 }} />
+                    <span style={{ fontSize: 8, color: "#5a6d82", whiteSpace: "nowrap" }}>{q.label.replace('FY','')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ BEAT/MISS ═══ */}
+        {tab === "beatmiss" && (<div>
+          <Card title="Q3 FY2025 Beat/Miss Scorecard" icon="🎯" accent="#22c55e">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 16, background: revBM.c + "12", border: `1px solid ${revBM.c}33`, borderRadius: 10 }}>
+                <div style={{ fontSize: 11, color: "#6b7d93", fontWeight: 600, marginBottom: 8 }}>REVENUE vs STREET</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: revBM.c }}>{revBM.label}</div>
+                <div style={{ fontSize: 12, color: "#8896a8", marginTop: 6 }}>Consensus: $693M → Actual: $711M</div>
+                <div style={{ fontSize: 11, color: "#5a6d82" }}>+31% YoY | 7th consecutive quarter 30%+</div>
+              </div>
+              <div style={{ padding: 16, background: epsBM.c + "12", border: `1px solid ${epsBM.c}33`, borderRadius: 10 }}>
+                <div style={{ fontSize: 11, color: "#6b7d93", fontWeight: 600, marginBottom: 8 }}>GAAP EPS vs STREET</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: epsBM.c }}>{epsBM.label}</div>
+                <div style={{ fontSize: 12, color: "#8896a8", marginTop: 6 }}>Consensus: $1.52 → Actual: -$0.03</div>
+                <div style={{ fontSize: 11, color: "#eab308" }}>⚠ Non-GAAP EPS: $1.20 — miss driven by SBC/non-cash</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Guidance — FY2025 Outlook (Raised Again)" icon="📋" accent="#eab308">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#eab308", marginBottom: 8 }}>Q4 FY2025 GUIDANCE</div>
+                <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8 }}>
+                  <div>Revenue: <strong style={{ color: "#e0e7ef" }}>$750-755M</strong> (~31% YoY)</div>
+                  <div>Adj EBITDA: <strong style={{ color: "#e0e7ef" }}>$178-182M</strong> (~24% margin)</div>
+                </div>
+              </div>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#22c55e", marginBottom: 8 }}>FULL YEAR FY2025 GUIDANCE (RAISED)</div>
+                <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8 }}>
+                  <div>Revenue: <strong style={{ color: "#22c55e" }}>~$2.74B</strong> (raised from $2.65-2.73B)</div>
+                  <div>Growth: <strong style={{ color: "#22c55e" }}>~31%</strong> annual</div>
+                  <div>Adj EBITDA Margin: <strong style={{ color: "#e0e7ef" }}>~25%</strong> (maintained)</div>
+                  <div>SBC: <strong style={{ color: "#eab308" }}>$580-630M</strong></div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Balance Sheet Health" icon="💰" accent="#60a5fa">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              <MetricBox label="Cash & Investments" value="$2.4B" color="#22c55e" small />
+              <MetricBox label="Debt" value="$690M" color="#eab308" sub="Convertible notes" small />
+              <MetricBox label="Net Cash" value="$1.7B" color="#22c55e" small />
+              <MetricBox label="FY2024 FCF" value="$225M" color="#60a5fa" sub="60%+ conversion" small />
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ MDI MOATS ═══ */}
+        {tab === "moats" && (<div>
+          <Card title="Bustamante MDI Pre-Screen — 5 Structural Moats" icon="🏰" accent="#22c55e">
+            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+              <MetricBox label="MDI Score" value={`${mdi.score}/5`} color="#22c55e" sub={mdi.classification} />
+              <MetricBox label="3-Question" value={`${mdi.threeQ}/3`} color="#22c55e" sub="Lower Risk" />
+              <MetricBox label="Disruption" value={mdi.disruption} color="#22c55e" sub="0-5 entrants" />
+              <MetricBox label="Horizontal" value="LOW" color="#22c55e" sub="Platform threat" />
+            </div>
+
+            {[
+              { n: "6. Proprietary Data", v: "STRENGTHENING", c: "#22c55e", d: "Evidence.com holds petabytes of law enforcement digital evidence generated exclusively by Axon hardware. Cannot be obtained, licensed, or synthesized. LLMs make it MORE valuable (Draft One processes it)." },
+              { n: "7. Regulatory Lock-in", v: "STRUCTURAL", c: "#22c55e", d: "ONLY DEMS provider with FedRAMP High JAB P-ATO. Also: CJIS compliance, ISO 27001/27017/27018, SOC 2 Type 2, immutable audit trails for court admissibility. New entrant needs 5-10+ years." },
+              { n: "8. Network Effects", v: "GENUINE", c: "#22c55e", d: "Evidence sharing across agencies/prosecutors/courts, Fūsus RTCC sensor network, Carbyne 911 ecosystem. Multi-sided platform where value increases with participants." },
+              { n: "9. Transaction Embedding", v: "DEEPLY EMBEDDED", c: "#22c55e", d: "Body cameras on officers, TASERs on belts, Fleet cameras in cars, drones responding to 911, ALPR on poles, Carbyne in 911 infrastructure. Turning off = immediate operational halt." },
+              { n: "10. System of Record", v: "STRONG", c: "#22c55e", d: "Evidence.com is canonical evidence repository. Migration risk extreme — chain-of-custody corruption = cases thrown out of court." },
+            ].map((m, i) => (
+              <div key={i} style={{ padding: "12px 16px", marginBottom: 8, background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a", borderLeft: `4px solid ${m.c}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#e0e7ef" }}>{m.n}</span>
+                  <Pill label={m.v} color={m.c} />
+                </div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.5 }}>{m.d}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Three-Question Test (Bustamante)" icon="❓" accent="#eab308">
+            {[
+              { q: "Is the core data proprietary?", a: "YES — Agency-generated evidence from exclusive hardware relationships. Cannot be scraped, licensed, or synthesized." },
+              { q: "Is there regulatory lock-in?", a: "YES — FedRAMP High JAB P-ATO + CJIS compliance. 5-10+ year replication barrier." },
+              { q: "Is software embedded in the transaction?", a: "YES — Physical devices on officers + cloud platform processing evidence + AI generating reports. Software IS the operation." },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, marginBottom: 10, padding: "10px 14px", background: "#141c27", borderRadius: 8 }}>
+                <span style={{ fontSize: 18, color: "#22c55e" }}>✓</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#e0e7ef" }}>{item.q}</div>
+                  <div style={{ fontSize: 11, color: "#7a8da1", marginTop: 2 }}>{item.a}</div>
+                </div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Critical Finding" icon="🔑" accent="#f472b6">
+            <div style={{ padding: 14, background: "#1a1020", border: "1px solid #3a2040", borderRadius: 8, fontSize: 12, color: "#d4b8e8", lineHeight: 1.7 }}>
+              <strong style={{ color: "#f472b6" }}>Axon is NOT a vertical software company being disrupted by LLMs.</strong> It's a hardware-software-data platform where physical devices generate proprietary data wrapped in structural regulatory compliance. Moats LLMs destroy (interface, workflows, public data, talent) <em>barely apply</em>. Moats LLMs strengthen (proprietary data, regulatory lock-in, transaction embedding, network effects) <em>are dominant</em>.
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ ANTIFRAGILITY ═══ */}
+        {tab === "antifragility" && (<div>
+          <Card title="Stoffel-Feroldi 4-Dimension Scoring" icon="📐" accent="#a78bfa">
+            {[
+              { l: "D1: Liability Shield (15%)", v: 9, d: "Evidence mismanagement = case dismissals. TASER malfunction = physical harm. FedRAMP High + CJIS + chain-of-custody = structural barrier." },
+              { l: "D2: Business Model (30%)", v: 7, d: "Strong hybrid: 124% NRR, 41% ARR growth. AI Era Plan as upsell. Deductions: fixed annual pricing (not usage-based), long-term risk AI reduces officers, gov budget dependency." },
+              { l: "D3: Physical Integration (15%)", v: 10, d: "MAXIMUM SCORE. Cameras on officers, TASERs on belts, drones in air, ALPR on poles, 911 infrastructure. Turning off = immediate catastrophic operational failure." },
+              { l: "D4: Data Gravity & Network (40%)", v: 9, d: "Proprietary data from exclusive hardware. Genuine cross-participant network effects (evidence sharing, RTCC, 911). Compounding data gravity. Aggregation risk: Low." },
+            ].map((d, i) => (
+              <div key={i} style={{ marginBottom: 14, padding: "12px 14px", background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a" }}>
+                <BarMini value={d.v} color="#a78bfa" label={d.l} />
+                <div style={{ fontSize: 10, color: "#5a6d82", marginTop: 6, paddingLeft: 148 }}>{d.d}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Modifiers — DIP & CPP" icon="🔧" accent="#eab308">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#eab308", marginBottom: 8 }}>DIP (Data Integrity Premium): 5/5 → +1.5</div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.7 }}>
+                  ✓ CJIS mandates data format<br/>
+                  ✓ Outputs used in legal proceedings<br/>
+                  ✓ FedRAMP High certification<br/>
+                  ✓ Immutable audit trails<br/>
+                  ✓ Switching = compliance violation<br/>
+                  <div style={{ marginTop: 6, color: "#eab308", fontWeight: 600 }}>DIP Expiration: 7-10+ years</div>
+                </div>
+              </div>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#f472b6", marginBottom: 8 }}>CPP (Counter-Positioning): 5/12 → +0.5</div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.7 }}>
+                  ✓ AI Era Plan exists<br/>
+                  ✓ Platform Solutions +71% YoY<br/>
+                  ✗ No explicit cannibalization commitment<br/>
+                  ✗ Fixed-cost, not consumption-based<br/>
+                  ✗ Sales comp not aligned to AI<br/>
+                  <div style={{ marginTop: 6, color: "#f472b6", fontWeight: 600 }}>Profile: Additive strategy (upselling AI) vs. cannibalistic</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Final Antifragility Score" icon="🎯" accent="#22c55e">
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 16, justifyContent: "center" }}>
+              <MetricBox label="Raw Composite" value={af.raw} color="#a78bfa" />
+              <MetricBox label="+ DIP" value={`+${af.dipMod}`} color="#eab308" />
+              <MetricBox label="+ CPP" value={`+${af.cppMod}`} color="#f472b6" />
+              <MetricBox label="Final Score" value={af.final} color="#22c55e" sub="(capped at 10)" />
+            </div>
+            <div style={{ textAlign: "center", padding: 20, background: "#0a1a0a", border: "2px solid #22c55e44", borderRadius: 12 }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: "#22c55e", letterSpacing: 2 }}>ANTIFRAGILE</div>
+              <div style={{ fontSize: 12, color: "#22c55e88", marginTop: 6 }}>Benefits from AI disruption — AI makes proprietary data MORE valuable</div>
+              <div style={{ fontSize: 11, color: "#5a6d82", marginTop: 4 }}>DIP/CPP Profile: High DIP + Low CPP = Defensive incumbent with growth characteristics</div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ KILL SWITCHES ═══ */}
+        {tab === "killswitch" && (<div>
+          <Card title="Kill Switch Monitor — Sell Immediately If Triggered" icon="🚨" accent="#ef4444">
+            <div style={{ padding: "10px 14px", marginBottom: 14, background: "#101a10", border: "1px solid #203a20", borderRadius: 8, fontSize: 11, color: "#22c55e", fontWeight: 600 }}>
+              ✅ ALL 6 KILL SWITCHES CLEAR — No action required
+            </div>
+            {s.killSwitches.map((ks, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginBottom: 6, background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a" }}>
+                <StatusDot status={ks.status} />
+                <span style={{ flex: 1, fontSize: 12, color: "#a8b8cc" }}>{ks.trigger}</span>
+                <Pill label={ks.status.toUpperCase()} color={ks.status === "clear" ? "#22c55e" : ks.status === "warning" ? "#eab308" : "#ef4444"} />
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Review Triggers — Re-Run Full Assessment" icon="🔄" accent="#eab308">
+            {[
+              { t: "Q4 FY2025 earnings (Feb 24, 2026) — 4 DAYS AWAY", u: true },
+              { t: "Major AI policing legislation (EFF investigations into Draft One are leading indicator)" },
+              { t: "Motorola SVX + CommandCentral integrated ecosystem launch" },
+              { t: "Major contract loss to competitor" },
+              { t: "Stock exceeds 20x NTM revenue" },
+              { t: "Management turnover (CEO/CFO/President)" },
+            ].map((r, i) => (
+              <div key={i} style={{ padding: "8px 14px", marginBottom: 4, fontSize: 12, color: r.u ? "#f472b6" : "#8896a8", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: r.u ? "#f472b6" : "#5a6d82" }}>{r.u ? "⏰" : "•"}</span> {r.t}
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Biggest Risk Assessment" icon="⚠️" accent="#ef4444">
+            <div style={{ padding: 14, background: "#1a1010", border: "1px solid #3a2020", borderRadius: 8, fontSize: 12, color: "#d4a8a8", lineHeight: 1.7 }}>
+              <strong style={{ color: "#ef4444" }}>Primary Risk: Regulatory/political backlash against AI in policing.</strong><br/><br/>
+              EFF investigations into Draft One transparency are the leading indicator. If legislation restricts AI-generated police reports or automated surveillance, this directly impacts highest-growth revenue streams.<br/><br/>
+              <strong style={{ color: "#eab308" }}>This is NOT competitive disruption — it's exogenous political risk.</strong> No competitor is structurally threatening Axon. The bear case is primarily regulatory, not competitive.
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ COMMENTARY ═══ */}
+        {tab === "commentary" && (<div>
+          <Card title="Management Tone: CONFIDENT" icon="🎤" accent="#a78bfa">
+            <div style={{ padding: 14, background: "#141c27", borderRadius: 8, fontSize: 12, color: "#a8b8cc", lineHeight: 1.7 }}>
+              Management tone is firmly confident — 7th consecutive quarter of 30%+ growth, guidance raised again, pipeline described as "healthiest ever." No disconnect between tone and numbers on the revenue side. The GAAP loss creates a surface-level concern that management effectively contextualized as non-cash SBC-driven. Brittany Bagley (COO/CFO) was particularly direct about TASER 10 demand exceeding supply capacity.
+            </div>
+          </Card>
+
+          <Card title="Key Themes" icon="📝" accent="#60a5fa">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8, whiteSpace: "pre-line" }}>{s.commentary.keyThemes}</div>
+          </Card>
+
+          <Card title="Notable Quotes" icon="💬" accent="#eab308">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8, whiteSpace: "pre-line", fontStyle: "italic" }}>{s.commentary.notableQuotes}</div>
+          </Card>
+
+          <Card title="Red Flags / Yellow Flags" icon="🚩" accent="#ef4444">
+            <div style={{ fontSize: 12, color: "#d4a8a8", lineHeight: 1.8, whiteSpace: "pre-line" }}>{s.commentary.redFlags}</div>
+          </Card>
+
+          <Card title="Analyst Q&A Focus & Surprise Factor" icon="🔍" accent="#f472b6">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.7, whiteSpace: "pre-line" }}>{s.commentary.analystFocus}</div>
+            <div style={{ marginTop: 12, padding: 12, background: "#1a1020", border: "1px solid #3a2040", borderRadius: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#f472b6", marginBottom: 4 }}>SURPRISE FACTOR</div>
+              <div style={{ fontSize: 12, color: "#d4b8e8", lineHeight: 1.6 }}>{s.commentary.surpriseFactor}</div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ VERDICT ═══ */}
+        {tab === "verdict" && (<div>
+          {/* Final Summary Box */}
+          <Card title="Final Summary Box" icon="📋" accent="#60a5fa">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
+              {[
+                { l: "Quarter Quality", v: "★★★★☆", c: "#eab308" },
+                { l: "Guidance Quality", v: "★★★★★", c: "#22c55e" },
+                { l: "Mgmt Credibility", v: "★★★★☆", c: "#eab308" },
+                { l: "Thesis Status", v: "STRENGTHENED", c: "#22c55e" },
+                { l: "Valuation", v: "ATTRACTIVE", c: "#22c55e" },
+                { l: "Overall Sentiment", v: "BULLISH", c: "#22c55e" },
+              ].map((item, i) => (
+                <div key={i} style={{ background: "#141c27", padding: 12, borderRadius: 8, border: "1px solid #1e2a3a", textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#5a6d82", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>{item.l}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: item.c }}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div style={{ background: "#f472b618", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#f472b6", fontWeight: 600 }}>NEXT EARNINGS</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#f472b6" }}>Feb 24, 2026</div>
+                <div style={{ fontSize: 10, color: "#f472b688" }}>4 days — Q4 FY2025</div>
+              </div>
+              <div style={{ background: "#60a5fa18", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#60a5fa", fontWeight: 600 }}>KEY CATALYST</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#60a5fa", marginTop: 4 }}>Q4 bookings + FY2026 guidance</div>
+              </div>
+              <div style={{ background: "#22c55e18", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#22c55e", fontWeight: 600 }}>INFLECTION?</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#22c55e", marginTop: 4 }}>SW mix crossing 45% = SaaS inflection</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Integrated Verdict — All 3 Frameworks" icon="⚖️" accent="#f472b6">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>BUSTAMANTE MDI</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>5/5</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>LOWER RISK</div>
+                <div style={{ fontSize: 10, color: "#5a6d82", marginTop: 4 }}>3-Q Test: 3/3</div>
+              </div>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>ANTIFRAGILITY</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>10.0</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>ANTIFRAGILE</div>
+                <div style={{ fontSize: 10, color: "#5a6d82", marginTop: 4 }}>DIP 5/5 + CPP 5/12</div>
+              </div>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>COVER QUICKLY</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>BUY</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>THESIS STRENGTHENED</div>
+                <div style={{ fontSize: 10, color: "#5a6d82", marginTop: 4 }}>~10x NTM Rev (40-60% below peak)</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="One-Paragraph Synthesis" icon="📝" accent="#60a5fa">
+            <div style={{ fontSize: 13, color: "#c8d3e0", lineHeight: 1.8, padding: "8px 0" }}>
+              Axon delivered its 7th consecutive quarter of 30%+ revenue growth ($711M, +31% YoY) while raising FY2025 guidance to ~$2.74B and maintaining its 25% Adjusted EBITDA margin target. The GAAP EPS miss (-$0.03 vs $1.52 consensus) was entirely non-cash (SBC, fair value adjustments) and triggered a 20%+ stock decline that created a margin-of-safety entry at ~10x NTM revenue — 40-60% below historical trading range. Crucially, the structural moat thesis strengthened: ARR grew 41% to $1.3B, NRR accelerated to 124%, the $11.4B backlog provides multi-year visibility, and the software mix continued its upward march to ~43% of revenue. Through the Bustamante MDI lens, all 5 structural moats remain intact-to-strengthening, with the three-question test scoring a perfect 3/3. The Stoffel-Feroldi Antifragility score of 10.0 (ANTIFRAGILE) confirms Axon becomes MORE valuable as AI proliferates — its proprietary evidence data is the irreplaceable input AI tools need, while FedRAMP High + CJIS create 5-10+ year regulatory barriers. All 6 kill switches remain clear, with the primary risk being exogenous political/regulatory backlash against AI policing rather than competitive displacement. Position: BUY at 3-4% of portfolio, with Q4 earnings (Feb 24 — 4 days out) as the next critical review trigger.
+            </div>
+          </Card>
+        </div>)}
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: "16px 24px", borderTop: "1px solid #1e2a3a", textAlign: "center", fontSize: 10, color: "#3a4d63" }}>
+        AXON Enterprise — Integrated Framework Analysis — Bustamante MDI v2.0 × Stoffel-Feroldi Antifragility v2.0 × Cover Earnings QUICKLY — Feb 20, 2026
+      </div>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

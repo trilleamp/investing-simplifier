@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyTerminal — DIY Bloomberg</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent-orange: #d97706;
+    --accent-blue: #2563eb;
+    --accent-green: #059669;
+    --accent-red: #dc2626;
+    --accent-purple: #7c3aed;
+    --accent-cyan: #0891b2;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    height: 48px;
+  }
+  .top-bar .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-orange);
+    letter-spacing: 1px;
+  }
+  .top-bar .logo span { color: var(--text-muted); font-weight:400; font-size:12px; margin-left:8px; }
+  .top-bar .clock {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .top-bar .market-status {
+    display:flex; gap:16px; font-size:12px;
+  }
+  .top-bar .market-status .idx {
+    display:flex; align-items:center; gap:4px;
+  }
+
+  /* API KEY BAR */
+  .api-bar {
+    display:flex; align-items:center; gap:10px; padding:6px 20px;
+    background:var(--bg-secondary); border-bottom:1px solid var(--border);
+    font-size:12px;
+  }
+  .api-bar input {
+    background:var(--bg-primary); border:1px solid var(--border); border-radius:6px;
+    padding:4px 10px; font-family:inherit; font-size:12px; color:var(--text-primary);
+    width:280px; outline:none;
+  }
+  .api-bar input:focus { border-color:var(--accent-orange); }
+  .api-bar .status-dot { width:8px; height:8px; border-radius:50%; }
+  .api-bar .status-dot.connected { background:var(--accent-green); }
+  .api-bar .status-dot.disconnected { background:var(--accent-red); }
+  .api-bar .status-dot.demo { background:var(--accent-orange); }
+  .api-bar .btn-sm {
+    padding:4px 12px; border-radius:4px; font-size:11px; font-weight:600;
+    cursor:pointer; font-family:inherit; border:1px solid var(--border);
+    background:var(--accent-orange); color:#fff; border-color:var(--accent-orange);
+  }
+  .api-bar .btn-sm:hover { background:#b45309; }
+  .api-bar .status-text { color:var(--text-muted); }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border);
+    padding: 0 12px;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tab:hover { color: var(--text-secondary); background: rgba(0,0,0,0.03); }
+  .tab.active {
+    color: var(--accent-orange);
+    border-bottom-color: var(--accent-orange);
+  }
+
+  /* MAIN CONTENT */
+  .main-content {
+    height: calc(100vh - 48px - 34px - 42px - 28px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+  .main-content::-webkit-scrollbar { width:6px; }
+  .main-content::-webkit-scrollbar-track { background:var(--bg-primary); }
+  .main-content::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .card-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .card-title .live-dot {
+    width:6px; height:6px; background:var(--accent-green); border-radius:50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .grid-5 { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+
+  /* INDEX CARDS */
+  .index-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor:pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .index-card:hover { background:var(--bg-card-hover); border-color:var(--accent-blue); }
+  .index-card .name { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .index-card .price { font-size:20px; font-weight:700; margin:4px 0; }
+  .index-card .change { font-size:12px; font-weight:600; }
+  .up { color: var(--accent-green); }
+  .down { color: var(--accent-red); }
+  .flat { color: var(--text-muted); }
+
+  /* SECTOR HEATMAP */
+  .heatmap-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .heat-cell {
+    padding:12px 8px; border-radius:6px; text-align:center; cursor:pointer;
+    transition: transform 0.15s;
+  }
+  .heat-cell:hover { transform:scale(1.03); }
+  .heat-cell .sector-name { font-size:10px; font-weight:600; opacity:0.9; }
+  .heat-cell .sector-change { font-size:14px; font-weight:700; margin-top:2px; }
+
+  /* TABLE */
+  .data-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .data-table th {
+    text-align:left; padding:8px 12px; color:var(--text-muted);
+    border-bottom:1px solid var(--border); font-size:10px;
+    text-transform:uppercase; letter-spacing:0.5px; cursor:pointer;
+  }
+  .data-table th:hover { color:var(--accent-orange); }
+  .data-table td { padding:8px 12px; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .data-table tr:hover td { background:rgba(0,0,0,0.03); }
+  .data-table .ticker { color:var(--accent-blue); font-weight:600; }
+
+  /* SEARCH */
+  .search-box {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-size: 14px; color: var(--text-primary);
+    width: 100%; font-family: inherit; outline:none; transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent-orange); }
+  .search-box::placeholder { color:var(--text-muted); }
+
+  /* STOCK DETAIL */
+  .stock-header { display:flex; align-items:flex-end; gap:16px; margin-bottom:16px; }
+  .stock-header .stock-ticker { font-size:28px; font-weight:800; color:var(--accent-orange); }
+  .stock-header .stock-name { font-size:14px; color:var(--text-secondary); }
+  .stock-header .stock-price-big { font-size:32px; font-weight:700; margin-left:auto; }
+  .stock-header .stock-change-big { font-size:16px; font-weight:600; }
+
+  .time-range-btns { display:flex; gap:4px; margin-bottom:12px; }
+  .time-btn {
+    padding:4px 12px; border-radius:4px; font-size:11px;
+    background:var(--bg-card); border:1px solid var(--border);
+    color:var(--text-muted); cursor:pointer; font-family:inherit;
+  }
+  .time-btn:hover { border-color:var(--text-muted); }
+  .time-btn.active { background:var(--accent-orange); color:#fff; border-color:var(--accent-orange); font-weight:600; }
+
+  /* FUNDAMENTALS */
+  .metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .metric-item { padding:10px; background:rgba(0,0,0,0.03); border-radius:6px; }
+  .metric-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; }
+  .metric-value { font-size:16px; font-weight:700; margin-top:2px; }
+
+  /* SCREENER */
+  .filter-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+  .filter-group { display:flex; flex-direction:column; gap:4px; }
+  .filter-label { font-size:10px; color:var(--text-muted); text-transform:uppercase; }
+  .filter-select, .filter-input {
+    background:var(--bg-card); border:1px solid var(--border); border-radius:6px;
+    padding:6px 10px; color:var(--text-primary); font-family:inherit; font-size:12px; outline:none;
+  }
+  .filter-select:focus, .filter-input:focus { border-color:var(--accent-orange); }
+  option { background:var(--bg-secondary); }
+
+  .btn {
+    padding:8px 20px; border-radius:6px; font-size:12px; font-weight:600;
+    cursor:pointer; font-family:inherit; border:none; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--accent-orange); color:#fff; }
+  .btn-primary:hover { background:#b45309; }
+  .btn-secondary { background:var(--bg-card); color:var(--text-primary); border:1px solid var(--border); }
+
+  /* BIOTECH */
+  .pipeline-item { display:flex; align-items:center; padding:12px; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .pipeline-item:last-child { border-bottom:none; }
+  .phase-badge { padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; min-width:60px; text-align:center; }
+  .phase-1 { background:rgba(139,92,246,0.2); color:var(--accent-purple); }
+  .phase-2 { background:rgba(59,130,246,0.2); color:var(--accent-blue); }
+  .phase-3 { background:rgba(6,182,212,0.2); color:var(--accent-cyan); }
+  .phase-approved { background:rgba(16,185,129,0.2); color:var(--accent-green); }
+  .phase-pdufa { background:rgba(245,158,11,0.2); color:var(--accent-orange); }
+
+  .catalyst-timeline { position:relative; padding-left:24px; }
+  .catalyst-timeline::before {
+    content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--border);
+  }
+  .catalyst-item { position:relative; padding:12px 0; padding-left:16px; }
+  .catalyst-item::before {
+    content:''; position:absolute; left:-20px; top:18px; width:10px; height:10px;
+    border-radius:50%; border:2px solid var(--accent-orange); background:#fff;
+  }
+  .catalyst-date { font-size:11px; color:var(--accent-orange); font-weight:600; }
+  .catalyst-company { font-size:13px; font-weight:600; color:var(--text-primary); margin-top:2px; }
+  .catalyst-detail { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+
+  /* NEWS */
+  .news-item { padding:14px 0; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .news-item:last-child { border-bottom:none; }
+  .news-source { font-size:10px; color:var(--accent-blue); text-transform:uppercase; font-weight:600; }
+  .news-headline { font-size:14px; font-weight:600; margin:4px 0; line-height:1.4; cursor:pointer; }
+  .news-headline:hover { color:var(--accent-orange); }
+  .news-meta { font-size:11px; color:var(--text-muted); display:flex; gap:12px; }
+  .sentiment-badge { padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; }
+  .sentiment-bullish { background:rgba(16,185,129,0.2); color:var(--accent-green); }
+  .sentiment-bearish { background:rgba(239,68,68,0.2); color:var(--accent-red); }
+  .sentiment-neutral { background:rgba(148,163,184,0.2); color:var(--text-secondary); }
+  .news-headline a { color:inherit; text-decoration:none; }
+  .news-headline a:hover { color:var(--accent-orange); }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    height:28px; background:var(--bg-secondary); border-top:1px solid var(--border);
+    display:flex; align-items:center; padding:0 20px; justify-content:space-between;
+    font-size:11px; color:var(--text-muted);
+  }
+  .ticker-tape { overflow:hidden; flex:1; margin:0 20px; }
+  .ticker-tape-inner { display:flex; gap:24px; animation: scroll-tape 30s linear infinite; white-space:nowrap; }
+  @keyframes scroll-tape { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .tape-item { display:flex; gap:6px; }
+
+  .chart-container { position:relative; height:300px; margin:8px 0; }
+
+  .loading { opacity:0.5; pointer-events:none; }
+  .loading-msg { text-align:center; padding:20px; color:var(--text-muted); font-size:12px; }
+
+  @media (max-width:1200px) {
+    .grid-4 { grid-template-columns:repeat(2,1fr); }
+    .grid-5 { grid-template-columns:repeat(3,1fr); }
+    .heatmap-grid { grid-template-columns:repeat(3,1fr); }
+    .metric-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo">PYTERMINAL <span>v2.0 — Finnhub Live</span></div>
+  <div class="market-status" id="marketStatus"></div>
+  <div class="clock" id="clock"></div>
+</div>
+
+<!-- API KEY BAR -->
+<div class="api-bar">
+  <div class="status-dot demo" id="apiDot"></div>
+  <span class="status-text" id="apiStatus">Demo Mode</span>
+  <input type="password" id="apiKeyInput" placeholder="Paste Finnhub API key (free at finnhub.io)">
+  <button class="btn-sm" onclick="connectAPI()">Connect</button>
+  <span style="color:var(--text-muted); margin-left:8px; font-size:11px;" id="refreshInfo">Auto-refresh: off</span>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="analysis">Stock Analysis</div>
+  <div class="tab" data-tab="screener">Screener</div>
+  <div class="tab" data-tab="biotech">Biotech / Pharma</div>
+  <div class="tab" data-tab="news">News & Sentiment</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- ===== OVERVIEW TAB ===== -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="grid-5" id="indexCards"></div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-title">Sector Performance (ETFs) <div class="live-dot"></div></div>
+        <div class="heatmap-grid" id="sectorHeatmap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Market Breadth — S&P 500</div>
+        <div class="chart-container"><canvas id="breadthChart"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Top Gainers</div>
+        <table class="data-table" id="gainersTable">
+          <thead><tr><th>Ticker</th><th>Price</th><th>Change</th><th>Volume</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Losers</div>
+        <table class="data-table" id="losersTable">
+          <thead><tr><th>Ticker</th><th>Price</th><th>Change</th><th>Volume</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Most Active</div>
+      <table class="data-table" id="activeTable">
+        <thead><tr><th>Ticker</th><th>Company</th><th>Price</th><th>Change</th><th>Volume</th><th>Avg Vol</th><th>Mkt Cap</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== STOCK ANALYSIS TAB ===== -->
+  <div class="tab-content" id="tab-analysis">
+    <div style="margin-bottom:16px; display:flex; gap:12px; align-items:center;">
+      <input class="search-box" id="stockSearch" placeholder="Enter any ticker symbol (e.g. AAPL, MSFT, NVDA, LLY)..." style="max-width:400px;">
+      <button class="btn btn-primary" onclick="loadStock()">Analyze</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-secondary" onclick="loadStock('AAPL')">AAPL</button>
+        <button class="btn btn-secondary" onclick="loadStock('NVDA')">NVDA</button>
+        <button class="btn btn-secondary" onclick="loadStock('LLY')">LLY</button>
+        <button class="btn btn-secondary" onclick="loadStock('GILD')">GILD</button>
+        <button class="btn btn-secondary" onclick="loadStock('TSLA')">TSLA</button>
+      </div>
+    </div>
+    <div id="stockDetail" style="display:none;">
+      <div class="stock-header" id="stockHeader"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Price Chart</div>
+          <div class="time-range-btns" id="timeRange">
+            <button class="time-btn" data-range="1D">1D</button>
+            <button class="time-btn" data-range="1W">1W</button>
+            <button class="time-btn active" data-range="1M">1M</button>
+            <button class="time-btn" data-range="3M">3M</button>
+            <button class="time-btn" data-range="1Y">1Y</button>
+            <button class="time-btn" data-range="5Y">5Y</button>
+          </div>
+          <div class="chart-container"><canvas id="priceChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Volume Profile</div>
+          <div class="chart-container"><canvas id="volumeChart"></canvas></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Key Fundamentals</div>
+          <div class="metric-grid" id="fundamentals"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Technical Indicators</div>
+          <div class="metric-grid" id="technicals"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Company News</div>
+        <div id="companyNews"></div>
+      </div>
+    </div>
+    <div id="stockPlaceholder" class="card" style="text-align:center; padding:60px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">📊</div>
+      <div style="font-size:18px; font-weight:600; margin-bottom:8px;">Enter a ticker to analyze</div>
+      <div style="color:var(--text-muted); font-size:13px;">Search for any US equity — live data via Finnhub, or demo mode without API key</div>
+    </div>
+  </div>
+
+  <!-- ===== SCREENER TAB ===== -->
+  <div class="tab-content" id="tab-screener">
+    <div class="card">
+      <div class="card-title">Stock Screener</div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Market Cap</label>
+          <select class="filter-select" id="filterMcap">
+            <option value="all">All</option>
+            <option value="mega">Mega (>$200B)</option>
+            <option value="large">Large ($10B–$200B)</option>
+            <option value="mid">Mid ($2B–$10B)</option>
+            <option value="small">Small (<$2B)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Sector</label>
+          <select class="filter-select" id="filterSector">
+            <option value="all">All Sectors</option>
+            <option value="tech">Technology</option>
+            <option value="health">Healthcare</option>
+            <option value="finance">Financials</option>
+            <option value="energy">Energy</option>
+            <option value="consumer">Consumer</option>
+            <option value="industrial">Industrials</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">P/E Range</label>
+          <div style="display:flex;gap:4px;">
+            <input class="filter-input" id="peMin" placeholder="Min" style="width:60px;">
+            <input class="filter-input" id="peMax" placeholder="Max" style="width:60px;">
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Div Yield Min</label>
+          <input class="filter-input" id="divMin" placeholder="e.g. 2%" style="width:80px;">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Rev Growth Min</label>
+          <input class="filter-input" id="revMin" placeholder="e.g. 10%" style="width:80px;">
+        </div>
+        <div class="filter-group" style="align-self:flex-end;">
+          <button class="btn btn-primary" onclick="runScreener()">Screen</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Results (<span id="screenerCount">0</span> matches)</div>
+      <table class="data-table" id="screenerTable">
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Company</th><th>Sector</th><th>Price</th>
+            <th>Mkt Cap</th><th>P/E</th><th>Fwd P/E</th><th>Div Yield</th>
+            <th>Rev Growth</th><th>EPS Growth</th><th>52W Range</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== BIOTECH TAB ===== -->
+  <div class="tab-content" id="tab-biotech">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">FDA Calendar (Finnhub Live) <div class="live-dot" id="fdaLiveDot" style="display:none;"></div></div>
+        <div class="catalyst-timeline" id="fdaCatalysts"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Biotech Index Performance</div>
+        <div class="chart-container"><canvas id="biotechIndexChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Drug Pipeline Tracker — Major Companies</div>
+      <div style="margin-bottom:12px; display:flex; gap:8px;">
+        <button class="btn btn-secondary time-btn active" onclick="filterPipeline('all',this)">All</button>
+        <button class="btn btn-secondary time-btn" onclick="filterPipeline('phase3',this)">Phase 3</button>
+        <button class="btn btn-secondary time-btn" onclick="filterPipeline('pdufa',this)">PDUFA</button>
+        <button class="btn btn-secondary time-btn" onclick="filterPipeline('approved',this)">Recently Approved</button>
+      </div>
+      <table class="data-table" id="pipelineTable">
+        <thead>
+          <tr>
+            <th>Company</th><th>Drug</th><th>Indication</th><th>Phase</th>
+            <th>Catalyst Date</th><th>Status</th><th>Peak Sales Est</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Top Biotech Movers Today</div>
+        <table class="data-table" id="biotechMovers">
+          <thead><tr><th>Ticker</th><th>Company</th><th>Price</th><th>Change</th><th>Catalyst</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Clinical Trial Readouts — Next 30 Days</div>
+        <div id="trialReadouts"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NEWS TAB ===== -->
+  <div class="tab-content" id="tab-news">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">Market News (Finnhub Live) <div class="live-dot" id="newsLiveDot" style="display:none;"></div></div>
+          <div id="newsMarket"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Market Sentiment Gauge</div>
+          <div class="chart-container" style="height:200px;"><canvas id="sentimentChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Trending Tickers</div>
+          <div id="trendingTickers"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Fear & Greed Index</div>
+          <div style="text-align:center; padding:20px;">
+            <div style="font-size:48px; font-weight:800; color:var(--accent-orange);" id="fgiValue">62</div>
+            <div style="font-size:14px; color:var(--text-secondary); margin-top:4px;" id="fgiLabel">Greed</div>
+            <div style="margin-top:12px; height:8px; background:var(--bg-primary); border-radius:4px; overflow:hidden;">
+              <div id="fgiBar" style="height:100%; border-radius:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM TICKER TAPE -->
+<div class="bottom-bar">
+  <span id="dataSource">Demo data</span>
+  <div class="ticker-tape">
+    <div class="ticker-tape-inner" id="tickerTape"></div>
+  </div>
+  <span id="bottomTime"></span>
+</div>
+
+<script>
+// ==========================================
+// FINNHUB API LAYER
+// ==========================================
+
+const FH = {
+  key: null,
+  base: 'https://finnhub.io/api/v1',
+  cache: {},
+  callCount: 0,
+  lastReset: Date.now(),
+
+  setKey(key) {
+    this.key = key;
+    this.cache = {};
+  },
+
+  isConnected() { return !!this.key; },
+
+  // Rate limiter: max 55 calls per minute (leaving buffer under 60 limit)
+  async rateLimitWait() {
+    if(Date.now()-this.lastReset > 60000) { this.callCount=0; this.lastReset=Date.now(); }
+    if(this.callCount >= 55) {
+      const wait = 60000-(Date.now()-this.lastReset)+100;
+      await new Promise(r=>setTimeout(r,wait));
+      this.callCount=0; this.lastReset=Date.now();
+    }
+    this.callCount++;
+  },
+
+  async fetch(endpoint, params={}) {
+    if(!this.key) return null;
+    const cacheKey = endpoint+JSON.stringify(params);
+    const cached = this.cache[cacheKey];
+    if(cached && Date.now()-cached.ts < 30000) return cached.data; // 30s cache
+
+    await this.rateLimitWait();
+    const qs = new URLSearchParams({...params, token:this.key}).toString();
+    try {
+      const res = await fetch(`${this.base}${endpoint}?${qs}`);
+      if(!res.ok) throw new Error(`${res.status}`);
+      const data = await res.json();
+      this.cache[cacheKey]={data,ts:Date.now()};
+      return data;
+    } catch(e) {
+      console.error(`Finnhub error ${endpoint}:`, e);
+      return null;
+    }
+  },
+
+  // ---- Endpoints ----
+  async quote(symbol) { return this.fetch('/quote',{symbol}); },
+  async profile(symbol) { return this.fetch('/stock/profile2',{symbol}); },
+  async metrics(symbol) { return this.fetch('/stock/metric',{symbol,metric:'all'}); },
+  async candles(symbol, resolution, from, to) {
+    return this.fetch('/stock/candle',{symbol,resolution,from:String(from),to:String(to)});
+  },
+  async companyNews(symbol, from, to) { return this.fetch('/company-news',{symbol,from,to}); },
+  async generalNews() { return this.fetch('/news',{category:'general'}); },
+  async fdaCalendar() { return this.fetch('/fda-advisory-committee-calendar',{}); },
+};
+
+// ==========================================
+// DEMO / FALLBACK DATA
+// ==========================================
+
+const DEMO_INDICES = [
+  { name:'S&P 500', symbol:'SPY', price:5842.15, change:0.73 },
+  { name:'NASDAQ', symbol:'QQQ', price:18654.32, change:1.12 },
+  { name:'DOW 30', symbol:'DIA', price:43218.75, change:0.41 },
+  { name:'Russell 2000', symbol:'IWM', price:2087.44, change:-0.32 },
+  { name:'VIX', symbol:'VIX', price:14.82, change:-3.25 },
+];
+
+const SECTOR_ETFS = [
+  { name:'Technology', symbol:'XLK' },{ name:'Healthcare', symbol:'XLV' },
+  { name:'Financials', symbol:'XLF' },{ name:'Energy', symbol:'XLE' },
+  { name:'Consumer Disc.', symbol:'XLY' },{ name:'Industrials', symbol:'XLI' },
+  { name:'Materials', symbol:'XLB' },{ name:'Real Estate', symbol:'XLRE' },
+  { name:'Utilities', symbol:'XLU' },{ name:'Comm Services', symbol:'XLC' },
+  { name:'Cons. Staples', symbol:'XLP' },{ name:'Biotech', symbol:'XBI' },
+];
+
+const WATCHLIST = [
+  'AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','JPM','V','HD',
+  'LLY','UNH','JNJ','PFE','ABBV','MRNA','GILD','REGN','VRTX','AMGN',
+  'BIIB','BMY','XOM','CAT','BRK.B','NEE',
+];
+
+// Sector mapping for screener
+const SECTOR_MAP = {
+  'Technology':'tech','Healthcare':'health','Financial Services':'finance',
+  'Energy':'energy','Consumer Cyclical':'consumer','Consumer Defensive':'consumer',
+  'Industrials':'industrial','Basic Materials':'industrial','Real Estate':'finance',
+  'Communication Services':'tech','Utilities':'energy',
+};
+
+const STOCKS_DB = [
+  { ticker:'AAPL', name:'Apple Inc.', sector:'tech', price:198.45, change:1.23, volume:'52.3M', avgVol:'58.1M', mcap:'3.05T', pe:31.2, fwdPe:28.5, divYield:0.5, revGrowth:8.2, epsGrowth:12.1, w52Low:164.08, w52High:199.62, beta:1.21 },
+  { ticker:'MSFT', name:'Microsoft Corp.', sector:'tech', price:452.80, change:0.87, volume:'22.1M', avgVol:'25.3M', mcap:'3.37T', pe:37.8, fwdPe:32.1, divYield:0.7, revGrowth:16.4, epsGrowth:20.3, w52Low:366.50, w52High:468.35, beta:0.93 },
+  { ticker:'NVDA', name:'NVIDIA Corp.', sector:'tech', price:142.65, change:3.45, volume:'312.5M', avgVol:'285.2M', mcap:'3.49T', pe:65.3, fwdPe:38.2, divYield:0.02, revGrowth:122.4, epsGrowth:168.2, w52Low:47.32, w52High:153.13, beta:1.68 },
+  { ticker:'AMZN', name:'Amazon.com Inc.', sector:'consumer', price:213.25, change:1.55, volume:'48.7M', avgVol:'52.1M', mcap:'2.22T', pe:58.4, fwdPe:35.7, divYield:0, revGrowth:12.5, epsGrowth:94.1, w52Low:151.61, w52High:215.90, beta:1.15 },
+  { ticker:'GOOGL', name:'Alphabet Inc.', sector:'tech', price:178.92, change:0.95, volume:'25.3M', avgVol:'28.9M', mcap:'2.19T', pe:24.8, fwdPe:20.1, divYield:0.5, revGrowth:14.2, epsGrowth:31.5, w52Low:137.16, w52High:191.75, beta:1.07 },
+  { ticker:'META', name:'Meta Platforms', sector:'tech', price:585.40, change:2.10, volume:'16.8M', avgVol:'19.2M', mcap:'1.48T', pe:27.3, fwdPe:22.8, divYield:0.3, revGrowth:24.7, epsGrowth:73.2, w52Low:390.42, w52High:602.95, beta:1.22 },
+  { ticker:'TSLA', name:'Tesla Inc.', sector:'consumer', price:248.30, change:-2.15, volume:'98.5M', avgVol:'105.3M', mcap:'790.5B', pe:72.4, fwdPe:58.3, divYield:0, revGrowth:8.8, epsGrowth:-23.1, w52Low:138.80, w52High:278.98, beta:2.08 },
+  { ticker:'JPM', name:'JPMorgan Chase', sector:'finance', price:245.10, change:0.68, volume:'8.9M', avgVol:'10.2M', mcap:'698.3B', pe:12.8, fwdPe:11.5, divYield:2.1, revGrowth:11.3, epsGrowth:18.4, w52Low:183.09, w52High:252.80, beta:1.08 },
+  { ticker:'V', name:'Visa Inc.', sector:'finance', price:312.55, change:0.45, volume:'5.8M', avgVol:'6.4M', mcap:'612.7B', pe:31.5, fwdPe:26.2, divYield:0.8, revGrowth:9.8, epsGrowth:14.6, w52Low:252.70, w52High:318.42, beta:0.96 },
+  { ticker:'JNJ', name:'Johnson & Johnson', sector:'health', price:162.30, change:-0.22, volume:'7.1M', avgVol:'8.3M', mcap:'391.2B', pe:22.8, fwdPe:14.9, divYield:3.1, revGrowth:4.3, epsGrowth:-15.2, w52Low:144.25, w52High:168.85, beta:0.55 },
+  { ticker:'UNH', name:'UnitedHealth Group', sector:'health', price:582.70, change:1.10, volume:'3.5M', avgVol:'4.1M', mcap:'538.9B', pe:29.4, fwdPe:19.2, divYield:1.3, revGrowth:14.1, epsGrowth:10.8, w52Low:436.38, w52High:630.73, beta:0.68 },
+  { ticker:'LLY', name:'Eli Lilly & Co.', sector:'health', price:892.30, change:1.95, volume:'3.8M', avgVol:'4.2M', mcap:'848.5B', pe:128.5, fwdPe:58.2, divYield:0.6, revGrowth:32.4, epsGrowth:68.5, w52Low:544.89, w52High:972.53, beta:0.42 },
+  { ticker:'PFE', name:'Pfizer Inc.', sector:'health', price:28.45, change:2.85, volume:'42.1M', avgVol:'38.5M', mcap:'160.8B', pe:43.2, fwdPe:10.8, divYield:5.8, revGrowth:-41.2, epsGrowth:-78.5, w52Low:25.20, w52High:31.54, beta:0.68 },
+  { ticker:'ABBV', name:'AbbVie Inc.', sector:'health', price:185.20, change:0.55, volume:'6.2M', avgVol:'7.1M', mcap:'327.1B', pe:58.2, fwdPe:14.5, divYield:3.4, revGrowth:4.2, epsGrowth:-42.8, w52Low:135.85, w52High:198.73, beta:0.62 },
+  { ticker:'MRNA', name:'Moderna Inc.', sector:'health', price:102.15, change:4.25, volume:'12.5M', avgVol:'10.8M', mcap:'39.5B', pe:-1, fwdPe:45.2, divYield:0, revGrowth:-52.8, epsGrowth:-1, w52Low:62.55, w52High:170.47, beta:1.85 },
+  { ticker:'GILD', name:'Gilead Sciences', sector:'health', price:82.90, change:0.72, volume:'8.1M', avgVol:'9.2M', mcap:'103.5B', pe:18.5, fwdPe:11.2, divYield:3.7, revGrowth:5.8, epsGrowth:22.1, w52Low:62.07, w52High:96.42, beta:0.52 },
+  { ticker:'REGN', name:'Regeneron Pharma', sector:'health', price:985.40, change:-0.85, volume:'0.8M', avgVol:'1.0M', mcap:'108.2B', pe:22.1, fwdPe:16.8, divYield:0, revGrowth:6.2, epsGrowth:8.5, w52Low:785.27, w52High:1052.15, beta:0.35 },
+  { ticker:'VRTX', name:'Vertex Pharma', sector:'health', price:465.80, change:1.32, volume:'1.5M', avgVol:'1.8M', mcap:'120.1B', pe:28.7, fwdPe:24.5, divYield:0, revGrowth:12.8, epsGrowth:18.2, w52Low:348.05, w52High:492.67, beta:0.42 },
+  { ticker:'AMGN', name:'Amgen Inc.', sector:'health', price:312.60, change:-0.45, volume:'2.8M', avgVol:'3.2M', mcap:'167.5B', pe:22.5, fwdPe:14.2, divYield:2.8, revGrowth:19.8, epsGrowth:15.2, w52Low:249.57, w52High:338.79, beta:0.68 },
+  { ticker:'BIIB', name:'Biogen Inc.', sector:'health', price:168.50, change:-1.22, volume:'1.8M', avgVol:'2.1M', mcap:'24.5B', pe:16.2, fwdPe:11.8, divYield:0, revGrowth:-3.2, epsGrowth:-12.5, w52Low:148.32, w52High:282.57, beta:0.45 },
+  { ticker:'BMY', name:'Bristol-Myers Squibb', sector:'health', price:52.35, change:0.92, volume:'15.2M', avgVol:'17.8M', mcap:'106.1B', pe:22.8, fwdPe:7.8, divYield:4.6, revGrowth:-2.5, epsGrowth:-58.2, w52Low:39.36, w52High:57.52, beta:0.38 },
+  { ticker:'HD', name:'Home Depot', sector:'consumer', price:398.20, change:0.62, volume:'3.8M', avgVol:'4.2M', mcap:'396.5B', pe:26.8, fwdPe:24.1, divYield:2.2, revGrowth:3.1, epsGrowth:5.2, w52Low:325.29, w52High:421.43, beta:1.05 },
+  { ticker:'CAT', name:'Caterpillar Inc.', sector:'industrial', price:382.50, change:0.35, volume:'2.1M', avgVol:'2.5M', mcap:'185.2B', pe:17.2, fwdPe:15.8, divYield:1.5, revGrowth:3.2, epsGrowth:8.5, w52Low:268.32, w52High:396.78, beta:1.12 },
+  { ticker:'XOM', name:'Exxon Mobil', sector:'energy', price:108.45, change:-1.12, volume:'14.2M', avgVol:'16.8M', mcap:'445.8B', pe:13.2, fwdPe:12.8, divYield:3.4, revGrowth:-6.2, epsGrowth:-15.8, w52Low:95.77, w52High:123.75, beta:0.82 },
+  { ticker:'NEE', name:'NextEra Energy', sector:'energy', price:78.90, change:0.18, volume:'9.5M', avgVol:'11.2M', mcap:'162.3B', pe:22.5, fwdPe:19.8, divYield:2.6, revGrowth:15.2, epsGrowth:8.8, w52Low:58.82, w52High:86.10, beta:0.72 },
+  { ticker:'BRK.B', name:'Berkshire Hathaway', sector:'finance', price:458.20, change:0.32, volume:'3.2M', avgVol:'3.8M', mcap:'985.2B', pe:10.5, fwdPe:22.1, divYield:0, revGrowth:5.2, epsGrowth:-48.2, w52Low:388.27, w52High:491.67, beta:0.56 },
+];
+
+const PIPELINE_DATA = [
+  { company:'LLY', drug:'Tirzepatide (Mounjaro)', indication:'Obesity (expanded)', phase:'Approved', catalyst:'2025 Q4', status:'Approved — label expansion ongoing', peak:'$25B+', filter:'approved' },
+  { company:'LLY', drug:'Donanemab (Kisunla)', indication:"Alzheimer's Disease", phase:'Approved', catalyst:'2024 Jul', status:'Approved by FDA', peak:'$5B+', filter:'approved' },
+  { company:'MRNA', drug:'mRNA-1283', indication:'COVID Next-Gen', phase:'Phase 3', catalyst:'2026 Q1', status:'Phase 3 topline data expected', peak:'$4B', filter:'phase3' },
+  { company:'VRTX', drug:'Suzetrigine (Journavx)', indication:'Acute Pain (non-opioid)', phase:'Approved', catalyst:'2025 Jan', status:'FDA Approved', peak:'$3B+', filter:'approved' },
+  { company:'REGN', drug:'Fianlimab + Libtayo', indication:'Melanoma (1L)', phase:'Phase 3', catalyst:'2026 Q1', status:'PDUFA pending', peak:'$4B+', filter:'phase3' },
+  { company:'ABBV', drug:'Emraclidine', indication:'Schizophrenia', phase:'Phase 2', catalyst:'2026 Q2', status:'Phase 2b data expected', peak:'$5B+', filter:'phase2' },
+  { company:'BMY', drug:'Cobenfy (KarXT)', indication:'Schizophrenia', phase:'Approved', catalyst:'2024 Sep', status:'FDA Approved', peak:'$4B+', filter:'approved' },
+  { company:'PFE', drug:'Danuglipron', indication:'Obesity (oral GLP-1)', phase:'Phase 3', catalyst:'2026 H1', status:'Phase 3 enrolling', peak:'$3B+', filter:'phase3' },
+  { company:'AMGN', drug:'MariTide', indication:'Obesity', phase:'Phase 3', catalyst:'2026 H2', status:'Phase 3 enrolling', peak:'$3B+', filter:'phase3' },
+  { company:'GILD', drug:'Lenacapavir', indication:'HIV Prevention (PrEP)', phase:'PDUFA', catalyst:'2025 Jun 19', status:'PDUFA date set', peak:'$5B+', filter:'pdufa' },
+  { company:'BIIB', drug:'BIIB080', indication:"Alzheimer's (Tau)", phase:'Phase 2', catalyst:'2026 Q1', status:'Phase 2 data expected', peak:'$2B+', filter:'phase2' },
+  { company:'MRNA', drug:'mRNA-4157 (V940)', indication:'Melanoma (adjuvant)', phase:'Phase 3', catalyst:'2026 H2', status:'Phase 3 KEYNOTE-942 enrolling', peak:'$4B+', filter:'phase3' },
+];
+
+// ==========================================
+// UTILITY
+// ==========================================
+
+function fmt(n,d=2) { if(n==null||isNaN(n)) return '—'; return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtPct(n) { if(n==null||isNaN(n)) return '—'; return (n>=0?'+':'')+Number(n).toFixed(2)+'%'; }
+function fmtMcap(n) { if(!n) return '—'; if(n>=1e12) return '$'+fmt(n/1e12,2)+'T'; if(n>=1e9) return '$'+fmt(n/1e9,1)+'B'; if(n>=1e6) return '$'+fmt(n/1e6,0)+'M'; return '$'+n; }
+function fmtVolume(n) { if(!n) return '—'; if(n>=1e6) return fmt(n/1e6,1)+'M'; if(n>=1e3) return fmt(n/1e3,0)+'K'; return String(n); }
+function heatColor(pct) {
+  if(pct>1.5) return 'rgba(5,150,105,0.6)'; if(pct>0.5) return 'rgba(5,150,105,0.35)';
+  if(pct>0) return 'rgba(5,150,105,0.15)'; if(pct>-0.5) return 'rgba(220,38,38,0.15)';
+  if(pct>-1.5) return 'rgba(220,38,38,0.35)'; return 'rgba(220,38,38,0.6)';
+}
+function dateStr(d) { return d.toISOString().split('T')[0]; }
+function unixNow() { return Math.floor(Date.now()/1000); }
+
+// ==========================================
+// CONNECTION & REFRESH
+// ==========================================
+
+let refreshInterval = null;
+
+async function connectAPI() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if(!key) { alert('Please paste your Finnhub API key'); return; }
+
+  FH.setKey(key);
+
+  // Test with a simple quote
+  const test = await FH.quote('AAPL');
+  if(!test || test.c===0) {
+    FH.setKey(null);
+    document.getElementById('apiDot').className='status-dot disconnected';
+    document.getElementById('apiStatus').textContent='Invalid key or API error';
+    return;
+  }
+
+  document.getElementById('apiDot').className='status-dot connected';
+  document.getElementById('apiStatus').textContent='Connected to Finnhub';
+  document.getElementById('dataSource').textContent='Live data via Finnhub';
+  document.getElementById('fdaLiveDot').style.display='inline-block';
+  document.getElementById('newsLiveDot').style.display='inline-block';
+  document.getElementById('refreshInfo').textContent='Auto-refresh: 60s';
+
+  // Load everything live
+  await refreshAll();
+
+  // Auto-refresh every 60s
+  if(refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(refreshAll, 60000);
+}
+
+async function refreshAll() {
+  await Promise.all([
+    refreshIndices(),
+    refreshSectors(),
+    refreshWatchlist(),
+    refreshNews(),
+    refreshFDA(),
+  ]);
+  renderMovers();
+  renderTickerTape();
+}
+
+// ==========================================
+// LIVE DATA — INDICES
+// ==========================================
+
+let liveStockData = {}; // ticker -> {price, change, dp, name, sector, mcap, volume, ...}
+
+async function refreshIndices() {
+  if(!FH.isConnected()) { renderIndices(DEMO_INDICES); return; }
+
+  const symbols = ['SPY','QQQ','DIA','IWM'];
+  const results = await Promise.all(symbols.map(s=>FH.quote(s)));
+  const names = ['S&P 500 (SPY)','NASDAQ (QQQ)','DOW 30 (DIA)','Russell 2000 (IWM)'];
+
+  const indices = results.map((q,i)=> q ? {
+    name:names[i], symbol:symbols[i], price:q.c, change:q.dp||0
+  } : DEMO_INDICES[i]);
+
+  // VIX — not always available on free tier, fall back
+  indices.push(DEMO_INDICES[4]);
+  renderIndices(indices);
+}
+
+function renderIndices(indices) {
+  document.getElementById('indexCards').innerHTML = indices.map(idx=>{
+    const cls = idx.change>=0?'up':'down';
+    const arrow = idx.change>=0?'▲':'▼';
+    return `<div class="index-card">
+      <div class="name">${idx.name}</div>
+      <div class="price">${fmt(idx.price)}</div>
+      <div class="change ${cls}">${arrow} ${fmtPct(idx.change)}</div>
+    </div>`;
+  }).join('');
+
+  // Market status bar
+  document.getElementById('marketStatus').innerHTML = indices.slice(0,3).map(idx=>{
+    const cls = idx.change>=0?'up':'down';
+    return `<div class="idx"><span style="color:var(--text-muted)">${idx.symbol||''}</span> <span class="${cls}">${fmtPct(idx.change)}</span></div>`;
+  }).join('');
+}
+
+// ==========================================
+// LIVE DATA — SECTORS
+// ==========================================
+
+async function refreshSectors() {
+  if(!FH.isConnected()) { renderSectors(SECTOR_ETFS.map((s,i)=>{
+    const changes = [1.45,0.82,0.65,-0.91,1.23,0.34,-0.18,-0.45,0.12,1.67,0.08,1.89];
+    return {...s, change:changes[i]};
+  })); return; }
+
+  const results = await Promise.all(SECTOR_ETFS.map(s=>FH.quote(s.symbol)));
+  const sectors = SECTOR_ETFS.map((s,i)=>({...s, change: results[i]?.dp||0}));
+  renderSectors(sectors);
+}
+
+function renderSectors(sectors) {
+  document.getElementById('sectorHeatmap').innerHTML = sectors.map(s=>{
+    const bg = heatColor(s.change);
+    return `<div class="heat-cell" style="background:${bg}">
+      <div class="sector-name">${s.name}</div>
+      <div class="sector-change">${fmtPct(s.change)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ==========================================
+// LIVE DATA — WATCHLIST QUOTES
+// ==========================================
+
+async function refreshWatchlist() {
+  if(!FH.isConnected()) return; // use STOCKS_DB demo data
+
+  // Batch fetch quotes for all watchlist symbols
+  const quotes = await Promise.all(WATCHLIST.map(s=>FH.quote(s)));
+  quotes.forEach((q,i)=>{
+    if(!q || q.c===0) return;
+    const ticker = WATCHLIST[i];
+    const existing = STOCKS_DB.find(s=>s.ticker===ticker);
+    if(existing) {
+      existing.price = q.c;
+      existing.change = q.dp||0;
+    }
+    liveStockData[ticker] = {price:q.c, change:q.d, dp:q.dp, high:q.h, low:q.l, open:q.o, prevClose:q.pc};
+  });
+}
+
+function renderMovers() {
+  const sorted = [...STOCKS_DB].sort((a,b)=>b.change-a.change);
+  const gainers = sorted.slice(0,6);
+  const losers = sorted.slice(-6).reverse();
+
+  document.querySelector('#gainersTable tbody').innerHTML = gainers.map(s=>
+    `<tr><td class="ticker">${s.ticker}</td><td>$${fmt(s.price)}</td><td class="up">+${fmt(s.change)}%</td><td>${s.volume}</td></tr>`
+  ).join('');
+  document.querySelector('#losersTable tbody').innerHTML = losers.map(s=>
+    `<tr><td class="ticker">${s.ticker}</td><td>$${fmt(s.price)}</td><td class="down">${fmt(s.change)}%</td><td>${s.volume}</td></tr>`
+  ).join('');
+
+  const byVol = [...STOCKS_DB].sort((a,b)=>parseFloat(b.volume)-parseFloat(a.volume)).slice(0,8);
+  document.querySelector('#activeTable tbody').innerHTML = byVol.map(s=>{
+    const cls = s.change>=0?'up':'down';
+    return `<tr><td class="ticker">${s.ticker}</td><td>${s.name}</td><td>$${fmt(s.price)}</td><td class="${cls}">${fmtPct(s.change)}</td><td>${s.volume}</td><td>${s.avgVol}</td><td>$${s.mcap}</td></tr>`;
+  }).join('');
+}
+
+// ==========================================
+// STOCK ANALYSIS — LIVE
+// ==========================================
+
+let priceChart, volumeChart;
+let currentStock = null;
+
+async function loadStock(ticker) {
+  ticker = (ticker || document.getElementById('stockSearch').value).toUpperCase().trim();
+  if(!ticker) return;
+  document.getElementById('stockSearch').value = ticker;
+
+  document.getElementById('stockDetail').style.display='block';
+  document.getElementById('stockPlaceholder').style.display='none';
+
+  if(FH.isConnected()) {
+    await loadStockLive(ticker);
+  } else {
+    loadStockDemo(ticker);
+  }
+}
+
+async function loadStockLive(ticker) {
+  currentStock = ticker;
+
+  // Fetch quote, profile, metrics in parallel
+  const [quote, profile, metrics] = await Promise.all([
+    FH.quote(ticker),
+    FH.profile(ticker),
+    FH.metrics(ticker),
+  ]);
+
+  if(!quote || quote.c===0) {
+    document.getElementById('stockHeader').innerHTML = `
+      <div><div class="stock-ticker">${ticker}</div>
+      <div class="stock-name" style="color:var(--accent-red);">Could not fetch data — check ticker symbol</div></div>`;
+    return;
+  }
+
+  const name = profile?.name || ticker;
+  const cls = (quote.dp||0)>=0?'up':'down';
+
+  document.getElementById('stockHeader').innerHTML = `
+    <div>
+      <div class="stock-ticker">${ticker}</div>
+      <div class="stock-name">${name}${profile?.finnhubIndustry?' — '+profile.finnhubIndustry:''}</div>
+    </div>
+    <div style="margin-left:auto; text-align:right;">
+      <div class="stock-price-big">$${fmt(quote.c)}</div>
+      <div class="stock-change-big ${cls}">${(quote.dp||0)>=0?'▲':'▼'} ${fmtPct(quote.dp||0)} ($${fmt(Math.abs(quote.d||0))})</div>
+    </div>`;
+
+  // Fundamentals from metrics
+  const m = metrics?.metric || {};
+  const fundData = [
+    ['Market Cap', fmtMcap(profile?.marketCapitalization ? profile.marketCapitalization*1e6 : null)],
+    ['P/E (TTM)', fmt(m.peNormalizedAnnual||m.peTTM,1)],
+    ['P/B Ratio', fmt(m.pbAnnual||m.pbQuarterly,2)],
+    ['Div Yield', m.dividendYieldIndicatedAnnual ? fmt(m.dividendYieldIndicatedAnnual,2)+'%' : '—'],
+    ['52W High', m['52WeekHigh'] ? '$'+fmt(m['52WeekHigh']) : '—'],
+    ['52W Low', m['52WeekLow'] ? '$'+fmt(m['52WeekLow']) : '—'],
+    ['Beta', fmt(m.beta,2)],
+    ['ROE', m.roeRfy ? fmt(m.roeRfy,1)+'%' : '—'],
+    ['Profit Margin', m.netProfitMarginTTM ? fmt(m.netProfitMarginTTM,1)+'%' : '—'],
+  ];
+  document.getElementById('fundamentals').innerHTML = fundData.map(([l,v])=>
+    `<div class="metric-item"><div class="metric-label">${l}</div><div class="metric-value">${v}</div></div>`
+  ).join('');
+
+  // Technicals
+  const techData = [
+    ['Open', '$'+fmt(quote.o)], ['High', '$'+fmt(quote.h)], ['Low', '$'+fmt(quote.l)],
+    ['Prev Close', '$'+fmt(quote.pc)],
+    ['10D Avg Vol', m.tenDayAverageTradingVolume ? fmtVolume(m.tenDayAverageTradingVolume*1e6) : '—'],
+    ['3M Avg Vol', m.threeMonthAverageTradingVolume ? fmtVolume(m.threeMonthAverageTradingVolume*1e6) : '—'],
+  ];
+  document.getElementById('technicals').innerHTML = techData.map(([l,v])=>
+    `<div class="metric-item"><div class="metric-label">${l}</div><div class="metric-value">${v}</div></div>`
+  ).join('');
+
+  // Load chart with default range
+  await loadChart(ticker, '1M');
+
+  // Time range buttons
+  document.querySelectorAll('#timeRange .time-btn').forEach(btn=>{
+    btn.onclick = async function(){
+      document.querySelectorAll('#timeRange .time-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      await loadChart(ticker, this.dataset.range);
+    };
+  });
+
+  // Company news
+  const today = dateStr(new Date());
+  const weekAgo = dateStr(new Date(Date.now()-7*86400000));
+  const news = await FH.companyNews(ticker, weekAgo, today);
+  renderCompanyNews(news);
+}
+
+async function loadChart(ticker, range) {
+  const now = unixNow();
+  const ranges = {
+    '1D':  {res:'5',  from:now-86400},
+    '1W':  {res:'15', from:now-7*86400},
+    '1M':  {res:'D',  from:now-30*86400},
+    '3M':  {res:'D',  from:now-90*86400},
+    '1Y':  {res:'W',  from:now-365*86400},
+    '5Y':  {res:'M',  from:now-5*365*86400},
+  };
+  const r = ranges[range] || ranges['1M'];
+  const candles = await FH.candles(ticker, r.res, r.from, now);
+
+  if(!candles || candles.s!=='ok' || !candles.c) {
+    // Fallback to generated data
+    renderPriceChartGenerated(200, range);
+    return;
+  }
+
+  const prices = candles.c;
+  const volumes = candles.v || [];
+  const timestamps = candles.t || [];
+  const labels = timestamps.map(t=>{
+    const d = new Date(t*1000);
+    if(range==='1D') return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    if(range==='1W'||range==='1M') return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+  });
+
+  renderPriceChart(prices, labels);
+  renderVolumeChart(volumes, labels);
+}
+
+function renderPriceChart(prices, labels) {
+  if(priceChart) priceChart.destroy();
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  const isUp = prices[prices.length-1]>=prices[0];
+  const gradient = ctx.createLinearGradient(0,0,0,280);
+  gradient.addColorStop(0, isUp?'rgba(5,150,105,0.15)':'rgba(220,38,38,0.15)');
+  gradient.addColorStop(1, 'rgba(241,245,249,0)');
+
+  priceChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{
+      data:prices, borderColor:isUp?'#059669':'#dc2626',
+      backgroundColor:gradient, fill:true, tension:0.2, pointRadius:0, borderWidth:2,
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{
+        callbacks:{label:ctx=>'$'+fmt(ctx.parsed.y)},
+        backgroundColor:'#fff', borderColor:'#e2e8f0', borderWidth:1, titleColor:'#1e293b', bodyColor:'#475569'
+      }},
+      scales:{
+        x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:10}, grid:{color:'rgba(0,0,0,0.06)'}},
+        y:{ticks:{color:'#64748b',font:{size:10},callback:v=>'$'+fmt(v,0)}, grid:{color:'rgba(0,0,0,0.06)'}},
+      },
+      interaction:{mode:'nearest',intersect:false}
+    }
+  });
+}
+
+function renderVolumeChart(volumes, labels) {
+  if(volumeChart) volumeChart.destroy();
+  if(!volumes.length) return;
+  const avg = volumes.reduce((a,b)=>a+b,0)/volumes.length;
+  volumeChart = new Chart(document.getElementById('volumeChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels, datasets:[{
+      data:volumes,
+      backgroundColor:volumes.map(v=>v>avg?'rgba(37,99,235,0.6)':'rgba(37,99,235,0.25)'),
+      borderRadius:2,
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:10},grid:{display:false}},
+        y:{ticks:{color:'#64748b',font:{size:9},callback:v=>fmtVolume(v)},grid:{color:'rgba(0,0,0,0.06)'}},
+      }
+    }
+  });
+}
+
+function renderPriceChartGenerated(base, range) {
+  const points = {'1D':78,'1W':390,'1M':22,'3M':66,'1Y':52,'5Y':60}[range]||22;
+  const vol = {'1D':0.003,'1W':0.005,'1M':0.012,'3M':0.015,'1Y':0.02,'5Y':0.025}[range]||0.015;
+  const prices = [base]; for(let i=1;i<points;i++) prices.push(Math.max(base*0.7,prices[i-1]+(Math.random()-0.48)*vol*base));
+  const labels = Array.from({length:points},(_,i)=>String(i));
+  renderPriceChart(prices, labels);
+  const vols = Array.from({length:points},()=>50*(0.5+Math.random()*1.5));
+  renderVolumeChart(vols, labels);
+}
+
+function renderCompanyNews(news) {
+  const el = document.getElementById('companyNews');
+  if(!news || !news.length) { el.innerHTML='<div class="loading-msg">No recent news found</div>'; return; }
+  el.innerHTML = news.slice(0,8).map(n=>{
+    const time = new Date(n.datetime*1000);
+    const ago = Math.round((Date.now()-time)/3600000);
+    const sentiment = n.sentiment && n.sentiment>0.3 ? 'bullish' : n.sentiment && n.sentiment<-0.1 ? 'bearish' : 'neutral';
+    return `<div class="news-item">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="news-source">${n.source||'News'}</span>
+        <span class="sentiment-badge sentiment-${sentiment}">${sentiment}</span>
+      </div>
+      <div class="news-headline"><a href="${n.url}" target="_blank">${n.headline}</a></div>
+      <div class="news-meta"><span>${ago}h ago</span></div>
+    </div>`;
+  }).join('');
+}
+
+function loadStockDemo(ticker) {
+  const stock = STOCKS_DB.find(s=>s.ticker===ticker);
+  if(!stock) { alert('Ticker not in demo DB. Connect Finnhub for any ticker, or try: '+STOCKS_DB.map(s=>s.ticker).join(', ')); return; }
+  currentStock = ticker;
+  const cls = stock.change>=0?'up':'down';
+  document.getElementById('stockHeader').innerHTML = `
+    <div><div class="stock-ticker">${stock.ticker}</div><div class="stock-name">${stock.name}</div></div>
+    <div style="margin-left:auto; text-align:right;">
+      <div class="stock-price-big">$${fmt(stock.price)}</div>
+      <div class="stock-change-big ${cls}">${stock.change>=0?'▲':'▼'} ${fmtPct(stock.change)}</div>
+    </div>`;
+  const metrics = [
+    ['Market Cap','$'+stock.mcap],['P/E Ratio',stock.pe>0?fmt(stock.pe):'N/A'],['Forward P/E',fmt(stock.fwdPe)],
+    ['Div Yield',stock.divYield>0?stock.divYield+'%':'—'],['Rev Growth',fmtPct(stock.revGrowth)],['EPS Growth',fmtPct(stock.epsGrowth)],
+    ['Beta',fmt(stock.beta)],['52W Low','$'+fmt(stock.w52Low)],['52W High','$'+fmt(stock.w52High)],
+  ];
+  document.getElementById('fundamentals').innerHTML = metrics.map(([l,v])=>
+    `<div class="metric-item"><div class="metric-label">${l}</div><div class="metric-value">${v}</div></div>`
+  ).join('');
+  const techs=[['RSI (14)',fmt(35+Math.random()*35,1)],['MACD',fmt((Math.random()-0.3)*2,3)],['SMA 20','$'+fmt(stock.price*0.98)],
+    ['SMA 50','$'+fmt(stock.price*0.95)],['SMA 200','$'+fmt(stock.price*0.90)],['Signal','Neutral']];
+  document.getElementById('technicals').innerHTML = techs.map(([l,v])=>
+    `<div class="metric-item"><div class="metric-label">${l}</div><div class="metric-value">${v}</div></div>`
+  ).join('');
+  renderPriceChartGenerated(stock.price, '1M');
+  document.querySelectorAll('#timeRange .time-btn').forEach(btn=>{
+    btn.onclick = function(){ document.querySelectorAll('#timeRange .time-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active'); renderPriceChartGenerated(stock.price, this.dataset.range); };
+  });
+  document.getElementById('companyNews').innerHTML='<div class="loading-msg">Connect Finnhub for live company news</div>';
+}
+
+function switchToAnalysis(ticker) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('[data-tab="analysis"]').classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-analysis').classList.add('active');
+  loadStock(ticker);
+}
+
+// ==========================================
+// NEWS — LIVE
+// ==========================================
+
+const DEMO_NEWS = [
+  { source:'Reuters', headline:'NVIDIA Reports Record Data Center Revenue, Beats Estimates', time:'2h ago', sentiment:'bullish', tickers:['NVDA'] },
+  { source:'Bloomberg', headline:'Fed Signals Patience on Rate Cuts, Cites Persistent Inflation', time:'3h ago', sentiment:'bearish', tickers:['SPY'] },
+  { source:'STAT News', headline:"Eli Lilly's Obesity Drug Mounjaro Shows Promise in Sleep Apnea Trial", time:'4h ago', sentiment:'bullish', tickers:['LLY'] },
+  { source:'WSJ', headline:'Apple Accelerates AI Push With On-Device LLM Updates', time:'5h ago', sentiment:'bullish', tickers:['AAPL'] },
+  { source:'FiercePharma', headline:'Moderna Advances Next-Gen COVID Vaccine Into Late-Stage Trials', time:'5h ago', sentiment:'bullish', tickers:['MRNA'] },
+  { source:'CNBC', headline:'Tesla Shares Dip as Deliveries Miss Analyst Expectations', time:'6h ago', sentiment:'bearish', tickers:['TSLA'] },
+  { source:'Endpoints News', headline:"Gilead's Lenacapavir PrEP Nears FDA Decision", time:'7h ago', sentiment:'bullish', tickers:['GILD'] },
+  { source:'MarketWatch', headline:'S&P 500 Hits New Intraday High as Tech Rally Extends', time:'8h ago', sentiment:'bullish', tickers:['SPY'] },
+  { source:'BioPharma Dive', headline:'AbbVie Moves Emraclidine Into Phase 2b for Schizophrenia', time:'9h ago', sentiment:'neutral', tickers:['ABBV'] },
+  { source:'Reuters', headline:'JPMorgan Raises Dividend, Announces $30B Buyback Program', time:'10h ago', sentiment:'bullish', tickers:['JPM'] },
+];
+
+async function refreshNews() {
+  if(!FH.isConnected()) { renderNewsDemo(); return; }
+
+  const news = await FH.generalNews();
+  if(!news || !news.length) { renderNewsDemo(); return; }
+
+  const el = document.getElementById('newsMarket');
+  el.innerHTML = news.slice(0,12).map(n=>{
+    const time = new Date(n.datetime*1000);
+    const ago = Math.round((Date.now()-time)/3600000);
+    return `<div class="news-item">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="news-source">${n.source||'News'}</span>
+        <span class="sentiment-badge sentiment-neutral">market</span>
+      </div>
+      <div class="news-headline"><a href="${n.url}" target="_blank">${n.headline}</a></div>
+      <div class="news-meta"><span>${ago>0?ago+'h ago':'Just now'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderNewsDemo() {
+  document.getElementById('newsMarket').innerHTML = DEMO_NEWS.map(n=>`
+    <div class="news-item">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="news-source">${n.source}</span>
+        <span class="sentiment-badge sentiment-${n.sentiment}">${n.sentiment}</span>
+      </div>
+      <div class="news-headline">${n.headline}</div>
+      <div class="news-meta"><span>${n.time}</span>
+        <span>${n.tickers.map(t=>'<span class="ticker" style="font-size:11px;">'+t+'</span>').join(' ')}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==========================================
+// FDA CALENDAR — LIVE (Finnhub)
+// ==========================================
+
+const DEMO_FDA = [
+  { date:'2026 Mar 28', company:'GILD', detail:'Lenacapavir PrEP — Advisory Committee meeting' },
+  { date:'2026 Apr 10', company:'REGN', detail:'Fianlimab + Libtayo melanoma — PDUFA' },
+  { date:'2026 Apr 22', company:'MRNA', detail:'mRNA-1283 next-gen COVID — Phase 3 topline' },
+  { date:'2026 May 15', company:'AMGN', detail:'MariTide obesity — Phase 2 full data at ADA' },
+  { date:'2026 Jun 02', company:'ABBV', detail:'Emraclidine schizophrenia — Phase 2b readout' },
+  { date:'2026 Jun 19', company:'GILD', detail:'Lenacapavir for PrEP — PDUFA date' },
+  { date:'2026 Jul', company:'PFE', detail:'Danuglipron oral GLP-1 — Phase 3 interim analysis' },
+  { date:'2026 H2', company:'MRNA', detail:'mRNA-4157 melanoma vaccine — Phase 3 interim' },
+];
+
+async function refreshFDA() {
+  if(!FH.isConnected()) { renderFDADemo(); return; }
+
+  const fda = await FH.fdaCalendar();
+  if(!fda || !fda.length) { renderFDADemo(); return; }
+
+  // Finnhub FDA calendar returns objects with: fromDate, toDate, eventDescription, url
+  document.getElementById('fdaCatalysts').innerHTML = fda.slice(0,15).map(ev=>{
+    const date = ev.fromDate || ev.toDate || '';
+    return `<div class="catalyst-item">
+      <div class="catalyst-date">${date}</div>
+      <div class="catalyst-company">${ev.company||'FDA'}</div>
+      <div class="catalyst-detail">${ev.eventDescription||ev.url||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFDADemo() {
+  document.getElementById('fdaCatalysts').innerHTML = DEMO_FDA.map(c=>`
+    <div class="catalyst-item">
+      <div class="catalyst-date">${c.date}</div>
+      <div class="catalyst-company">${c.company}</div>
+      <div class="catalyst-detail">${c.detail}</div>
+    </div>
+  `).join('');
+}
+
+// ==========================================
+// BIOTECH TAB — STATIC DATA
+// ==========================================
+
+function renderBiotech() {
+  renderFDADemo();
+  renderPipeline('all');
+
+  const bioStocks = STOCKS_DB.filter(s=>s.sector==='health').sort((a,b)=>Math.abs(b.change)-Math.abs(a.change)).slice(0,6);
+  document.querySelector('#biotechMovers tbody').innerHTML = bioStocks.map(s=>{
+    const cls = s.change>=0?'up':'down';
+    const catalyst = PIPELINE_DATA.find(p=>p.company===s.ticker);
+    return `<tr><td class="ticker">${s.ticker}</td><td>${s.name}</td><td>$${fmt(s.price)}</td>
+      <td class="${cls}">${fmtPct(s.change)}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${catalyst?catalyst.drug+' — '+catalyst.status:'—'}</td></tr>`;
+  }).join('');
+
+  document.getElementById('trialReadouts').innerHTML = PIPELINE_DATA.filter(p=>p.filter==='phase3'||p.filter==='pdufa').slice(0,5).map(p=>`
+    <div style="padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="ticker" style="font-size:12px;">${p.company}</span>
+        <span class="phase-badge ${p.filter==='pdufa'?'phase-pdufa':'phase-3'}">${p.phase}</span>
+      </div>
+      <div style="font-size:13px; font-weight:600; margin-top:4px;">${p.drug}</div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${p.indication} — ${p.catalyst}</div>
+    </div>
+  `).join('');
+
+  // Biotech index chart
+  const ctx = document.getElementById('biotechIndexChart').getContext('2d');
+  const labels = Array.from({length:60},(_,i)=>`Day ${i+1}`);
+  const gen = (base,pts)=>{ const d=[base]; for(let i=1;i<pts;i++) d.push(Math.max(base*0.7,d[i-1]+(Math.random()-0.48)*0.018*base)); return d; };
+  new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'XBI', data:gen(92,60), borderColor:'#7c3aed', backgroundColor:'rgba(124,58,237,0.1)', fill:true, tension:0.3, pointRadius:0, borderWidth:2 },
+      { label:'IBB', data:gen(138,60), borderColor:'#0891b2', backgroundColor:'transparent', tension:0.3, pointRadius:0, borderWidth:2 },
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{labels:{color:'#64748b',font:{size:10}}} },
+      scales:{ x:{display:false}, y:{ticks:{color:'#64748b',font:{size:9},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(0,0,0,0.06)'}} }
+    }
+  });
+}
+
+function renderPipeline(filter) {
+  const data = filter==='all' ? PIPELINE_DATA : PIPELINE_DATA.filter(p=>p.filter===filter);
+  document.querySelector('#pipelineTable tbody').innerHTML = data.map(p=>{
+    let phaseCls='phase-1';
+    if(p.phase.includes('2')) phaseCls='phase-2'; if(p.phase.includes('3')) phaseCls='phase-3';
+    if(p.phase==='Approved') phaseCls='phase-approved'; if(p.phase==='PDUFA') phaseCls='phase-pdufa';
+    return `<tr><td class="ticker">${p.company}</td><td>${p.drug}</td><td>${p.indication}</td>
+      <td><span class="phase-badge ${phaseCls}">${p.phase}</span></td>
+      <td>${p.catalyst}</td><td style="font-size:11px;">${p.status}</td><td>${p.peak}</td></tr>`;
+  }).join('');
+}
+
+function filterPipeline(filter, btn) {
+  document.querySelectorAll('#tab-biotech .time-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderPipeline(filter);
+}
+
+// ==========================================
+// SCREENER
+// ==========================================
+
+function runScreener() {
+  const mcap=document.getElementById('filterMcap').value;
+  const sector=document.getElementById('filterSector').value;
+  const peMin=parseFloat(document.getElementById('peMin').value)||0;
+  const peMax=parseFloat(document.getElementById('peMax').value)||9999;
+  const divMin=parseFloat(document.getElementById('divMin').value)||0;
+  const revMin=parseFloat(document.getElementById('revMin').value)||-999;
+
+  let results = STOCKS_DB.filter(s=>{
+    if(sector!=='all'&&s.sector!==sector) return false;
+    if(s.pe>0&&(s.pe<peMin||s.pe>peMax)) return false;
+    if(s.divYield<divMin) return false;
+    if(s.revGrowth<revMin) return false;
+    if(mcap==='mega'&&!s.mcap.includes('T')) return false;
+    if(mcap==='large'&&s.mcap.includes('T')) return false;
+    if(mcap==='small'&&(s.mcap.includes('T')||parseFloat(s.mcap)>10)) return false;
+    return true;
+  });
+
+  document.getElementById('screenerCount').textContent=results.length;
+  document.querySelector('#screenerTable tbody').innerHTML = results.map(s=>{
+    const cls=s.change>=0?'up':'down';
+    return `<tr>
+      <td class="ticker" style="cursor:pointer" onclick="switchToAnalysis('${s.ticker}')">${s.ticker}</td>
+      <td>${s.name}</td><td style="text-transform:capitalize">${s.sector}</td>
+      <td>$${fmt(s.price)}</td><td>$${s.mcap}</td>
+      <td>${s.pe>0?fmt(s.pe):'N/A'}</td><td>${fmt(s.fwdPe)}</td>
+      <td>${s.divYield>0?s.divYield+'%':'—'}</td>
+      <td class="${s.revGrowth>=0?'up':'down'}">${fmtPct(s.revGrowth)}</td>
+      <td class="${s.epsGrowth>=0?'up':'down'}">${fmtPct(s.epsGrowth)}</td>
+      <td>$${fmt(s.w52Low)} — $${fmt(s.w52High)}</td></tr>`;
+  }).join('');
+}
+
+// ==========================================
+// SENTIMENT & STATIC CHARTS
+// ==========================================
+
+function renderSentimentWidgets() {
+  new Chart(document.getElementById('sentimentChart').getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:['Bullish','Neutral','Bearish'], datasets:[{
+      data:[58,25,17], backgroundColor:['#059669','#94a3b8','#dc2626'], borderWidth:0,
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'70%',
+      plugins:{legend:{position:'bottom',labels:{color:'#64748b',font:{size:11},padding:12}}} }
+  });
+
+  const trending = [
+    {ticker:'NVDA',mentions:2847,sentiment:'bullish'},{ticker:'TSLA',mentions:2156,sentiment:'bearish'},
+    {ticker:'AAPL',mentions:1832,sentiment:'bullish'},{ticker:'LLY',mentions:1245,sentiment:'bullish'},
+    {ticker:'MRNA',mentions:987,sentiment:'bullish'},{ticker:'GILD',mentions:856,sentiment:'bullish'},
+  ];
+  document.getElementById('trendingTickers').innerHTML = trending.map(t=>`
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+      <span class="ticker" style="font-size:13px;">${t.ticker}</span>
+      <span style="font-size:11px; color:var(--text-muted);">${t.mentions.toLocaleString()} mentions</span>
+      <span class="sentiment-badge sentiment-${t.sentiment}">${t.sentiment}</span>
+    </div>`).join('');
+
+  const fgi=62;
+  document.getElementById('fgiValue').textContent=fgi;
+  document.getElementById('fgiLabel').textContent=fgi>75?'Extreme Greed':fgi>55?'Greed':fgi>45?'Neutral':fgi>25?'Fear':'Extreme Fear';
+  document.getElementById('fgiBar').style.width=fgi+'%';
+  document.getElementById('fgiBar').style.background='linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-green))';
+}
+
+function renderBreadthChart() {
+  const labels = Array.from({length:20},(_,i)=>`${i+1} Mar`);
+  const gen=(b,n)=>{const d=[b];for(let i=1;i<n;i++) d.push(Math.max(b*0.5,d[i-1]+(Math.random()-0.48)*0.08*b));return d;};
+  new Chart(document.getElementById('breadthChart').getContext('2d'), {
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'Advancing',data:gen(320,20),borderColor:'#059669',backgroundColor:'rgba(5,150,105,0.1)',fill:true,tension:0.3,pointRadius:0,borderWidth:2},
+      {label:'Declining',data:gen(180,20),borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.1)',fill:true,tension:0.3,pointRadius:0,borderWidth:2},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#64748b',font:{size:10}}}},
+      scales:{ x:{ticks:{color:'#64748b',font:{size:9}},grid:{color:'rgba(0,0,0,0.06)'}},
+        y:{ticks:{color:'#64748b',font:{size:9}},grid:{color:'rgba(0,0,0,0.06)'}} } }
+  });
+}
+
+// ==========================================
+// TICKER TAPE
+// ==========================================
+
+function renderTickerTape() {
+  const items = STOCKS_DB.slice(0,15).map(s=>{
+    const cls=s.change>=0?'up':'down';
+    return `<span class="tape-item"><span style="color:var(--accent-blue)">${s.ticker}</span> <span>$${fmt(s.price)}</span> <span class="${cls}">${fmtPct(s.change)}</span></span>`;
+  }).join('');
+  document.getElementById('tickerTape').innerHTML = items + items;
+}
+
+// ==========================================
+// TAB SWITCHING & CLOCK
+// ==========================================
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('stockSearch').addEventListener('keydown', e=>{ if(e.key==='Enter') loadStock(); });
+document.getElementById('apiKeyInput').addEventListener('keydown', e=>{ if(e.key==='Enter') connectAPI(); });
+
+function renderClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' EST';
+  document.getElementById('bottomTime').textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+
+// ==========================================
+// INIT
+// ==========================================
+
+function init() {
+  renderClock();
+  setInterval(renderClock, 1000);
+  renderIndices(DEMO_INDICES);
+  renderSectors(SECTOR_ETFS.map((s,i)=>{
+    const c=[1.45,0.82,0.65,-0.91,1.23,0.34,-0.18,-0.45,0.12,1.67,0.08,1.89];
+    return {...s, change:c[i]};
+  }));
+  renderMovers();
+  renderBreadthChart();
+  renderBiotech();
+  renderNewsDemo();
+  renderSentimentWidgets();
+  renderTickerTape();
+  runScreener();
+}
+
+init();
+</script>
+</body>
+</html>

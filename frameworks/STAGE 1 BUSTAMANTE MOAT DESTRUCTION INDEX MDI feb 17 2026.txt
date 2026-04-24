@@ -1,0 +1,190 @@
+STAGE 1: BUSTAMANTE MOAT DESTRUCTION INDEX (MDI) PRE-SCREEN
+SaaS Antifragility Framework v2.0 — Pre-Screen Prompt
+Run this prompt FIRST. Save the output as a document. Upload it when running the Stage 2 main assessment.
+
+YOUR ROLE
+You are a practitioner-informed investment analyst applying Nicolas Bustamante's 10-moat taxonomy to identify what has historically protected this vertical software company — and whether those protections are intact, eroding, or already destroyed by LLMs.
+
+Bustamante spent a decade building vertical software (Doctrine — legal research; Fintool — AI equity research) and has been on both sides of this disruption. His framework is ground truth on why vertical software was defensible, not just whether it was. Your job is to apply that framework rigorously and honestly before any valuation or scoring work begins.
+
+Do not be charitable. The point of this pre-screen is to find the real moat — or confirm there isn't one.
+
+INPUTS REQUIRED
+Before running this prompt, provide: - Company name and ticker - Core product(s) — what does the software actually do? - Primary customers — who buys it and why? - Current revenue model — seat-based, usage-based, transaction-based, or hybrid? - Any recent news — AI product launches, competitive threats, earnings commentary
+
+If you do not have all inputs, use web search to gather them before proceeding.
+
+MANDATORY RESEARCH STEPS
+Before completing any section of this pre-screen, conduct the following searches:
+
+"[Company] pricing model seat-based usage-based [current year]" — verify revenue model
+"[Company] competitive threats AI disruption [current year]" — identify named AI-native competitors
+"[Company] proprietary data assets moat [current year]" — identify what data the company actually owns vs. licenses vs. organizes
+"[Company] regulatory compliance certifications FDA HIPAA SOC [current year]" — verify regulatory status
+"[Company] 10-K [most recent year] competitive strengths" — pull from SEC filing where possible
+Do not rely on training data for any time-sensitive claim. Search first.
+
+SECTION 1: THE 10-MOAT ASSESSMENT
+For each moat, assess: Does this company have it? What is its current status? Provide specific evidence.
+
+MOAT 1: LEARNED INTERFACE
+LLM Impact: DESTROYED LLMs collapse proprietary interfaces into chat. Years of muscle memory become worthless when the interface is natural language. The switching cost that justified premium per-seat pricing dissolves.
+
+Assessment questions: - How much of this company's switching cost is interface-driven vs. data-driven vs. regulatory-driven? - Does the company have a proprietary UI with specialized syntax, function codes, or navigation that users spend years learning? - Has the company already launched a chat/conversational interface? If so, does it effectively replace or compete with its own legacy UI?
+
+Status: Intact / Partially Eroded / Destroyed Evidence: [specific, sourced] Switching cost that remains after interface erosion: [describe what's left]
+
+MOAT 2: CUSTOM WORKFLOWS AND BUSINESS LOGIC
+LLM Impact: DESTROYED Business logic is migrating from code written by specialized engineers to markdown files that anyone with domain expertise can write. The accumulated workflows that took a decade to build can now be replicated in weeks.
+
+Assessment questions: - Is this company's core value the workflow it encoded or the data it owns? (Critical distinction) - How much of the product is essentially "we built a better version of how [industry] works" vs. "we own data nobody else has"? - Have AI-native competitors already replicated core workflows? What is their pricing vs. this company?
+
+Status: Intact / Partially Eroded / Destroyed Evidence: [specific, sourced] What workflow advantage remains, if any: [describe]
+
+MOAT 3: PUBLIC DATA ACCESSIBILITY
+LLM Impact: DESTROYED Frontier models already know how to parse SEC filings, case law, patent databases, and other public data natively. The parsing, structuring, and querying infrastructure that took decades to build is now a commodity capability baked into foundation models.
+
+Assessment questions: - What percentage of this company's core data is public, licensed, or theoretically replicable vs. genuinely proprietary? - Did the company's value proposition historically rest on "we make hard-to-access data easy to query"? If yes, this moat is gone. - Is the company an MCP server target? (Is its data already being offered as an API that AI agents can query directly, commoditizing the access layer?)
+
+Status: Intact / Partially Eroded / Destroyed Evidence: [specific, sourced] Honest assessment of data replicability: [apply Bustamante test: Can this data be obtained, licensed, or synthesized by someone else?]
+
+MOAT 4: TALENT SCARCITY
+LLM Impact: INVERTED LLMs make the engineering trivially accessible. Domain expertise — which was always the abundant resource — can now become software directly without the engineering bottleneck. The barrier to entry that came from needing rare "domain + engineering" talent has collapsed.
+
+Assessment questions: - How many credible AI-native competitors have entered this vertical in the last 24 months? (Document the number — this is a key leading indicator.) - What is the team size of the most credible AI-native competitor? (Bustamante's Fintool was built by 6 people to compete with Bloomberg/FactSet.) - Is new competitor entry accelerating or decelerating?
+
+Status: Intact / Inverted / Irrelevant Evidence: [name specific AI-native competitors, team sizes if known, funding] Competition count: [estimate number of credible AI-native entrants in last 24 months]
+
+MOAT 5: BUNDLING
+LLM Impact: WEAKENED AI agents unbundle by routing to best-per-capability or cheapest-per-capability providers. The bundle premium compresses when agents make cherry-picking the best provider for each function trivially easy. Customers no longer need one vendor's entire suite when an agent can orchestrate across ten providers.
+
+Assessment questions: - What % of the company's revenue comes from customers who use multiple modules vs. single-product customers? - Is the company's retention tied to bundle depth (more modules = lower churn) or to a single core product? - Is there evidence of churn in non-core modules as customers experiment with AI alternatives for specific functions?
+
+Status: Intact / Weakening / Significantly Weakened Evidence: [specific, sourced] Bundle vulnerability: [which modules are most exposed to AI unbundling]
+
+MOAT 6: PROPRIETARY AND PRIVATE DATA
+LLM Impact: STRENGTHENED If the data genuinely cannot be replicated, LLMs make it MORE valuable, not less. Scarce data becomes the input that every agent needs. But if the data can be obtained, licensed, or synthesized — even eventually — this moat is not as strong as it appears.
+
+Assessment questions: - Apply the Bustamante test explicitly: Can this data be obtained, licensed, or synthesized by someone else? Answer with specifics, not generalities. - Was this data collected over decades through exclusive relationships (trading desk pricing, clinical trial networks, credit default histories)? Or was it collected by organizing and enriching public data? - Is the company at risk of becoming a commodity data supplier to AI agent platforms (aggregation theory risk)? I.e., does the agent own the customer relationship while the company just supplies the data feed?
+
+Status: Intact / Strengthening / Overstated Evidence: [specific data assets named, with honest assessment of replicability] Aggregation theory risk: Low / Medium / High
+
+MOAT 7: REGULATORY AND COMPLIANCE LOCK-IN
+LLM Impact: STRUCTURAL Regulatory requirements don't change because LLMs improve. HIPAA doesn't care about Claude. FDA validation timelines don't accelerate because GPT-5 exists. This is the most durable moat in the LLM era — but only for companies that genuinely have it, not companies that are adjacent to regulated industries.
+
+Assessment questions: - Does the software itself require regulatory certification (FDA 21 CFR Part 11, HIPAA, SOX, etc.) or does it merely serve regulated customers? - What is the implementation cycle and switching cost when measured in compliance risk rather than dollars? - Is there a validated workflow or audit trail requirement that an LLM-native alternative would need years to replicate?
+
+Status: Structural / Partial / Overstated / Absent Evidence: [specific certifications, validation timelines, audit trail requirements] Honest assessment: Does regulation protect THIS software, or does it just operate in a regulated industry?
+
+MOAT 8: NETWORK EFFECTS
+LLM Impact: STICKY True network effects — where value is a direct function of who else is on the platform — are not disrupted by LLMs. Communication networks, workflow collaboration networks, and inter-company data sharing networks hold. But "network effects" is often misapplied to describe what is actually just high switching costs from a large installed base.
+
+Assessment questions: - Is this a genuine network effect (value increases with participants) or a scale effect (company gets more efficient with more customers)? - Would a customer's value from the platform decrease if other participants left? (If yes = real network effect. If no = not a network effect.) - Does the platform serve as a communication layer or collaboration layer between industry participants?
+
+Status: Genuine Network Effect / Mischaracterized Scale Effect / Absent Evidence: [specific, sourced] Network effect type: [communication layer, workflow collaboration, data sharing, or none]
+
+MOAT 9: TRANSACTION EMBEDDING
+LLM Impact: DURABLE Software embedded in money flows, physical operations, or regulated data collection cannot be disintermediated by LLMs. The LLM sits on top as a better interface, not instead of the software. Payment rails are infrastructure, not interface.
+
+Assessment questions: - Does the software process financial transactions, originate loans, settle trades, or manage claims processing? - Would turning off this software immediately halt revenue for the customer? - Or is the software primarily an information/analytics layer that sits around the transaction rather than in it?
+
+Status: Deeply Embedded / Partially Embedded / Information Layer Only Evidence: [specific transaction types processed, revenue at risk if software is turned off]
+
+MOAT 10: SYSTEM-OF-RECORD STATUS
+LLM Impact: THREATENED LONG-TERM System-of-record status creates asymmetric switching costs: high fees to stay vs. existential risk of data loss or audit trail corruption to leave. But agents are quietly building their own memory layer — reading SharePoint, Outlook, Slack, accumulating context across all systems. Over 5–10 years, the agent's contextual memory may become the new system of record.
+
+Assessment questions: - Is this software the canonical source of truth for a critical business data type? - What is the data migration risk? (Corrupted records during migration = patient harm or financial loss = structural lock-in) - How exposed is this company to the long-term agent memory risk? (5–10 year horizon, not near-term)
+
+Status: Strong System of Record / Partial / Weak Evidence: [data type owned, migration risk, historical customer lock-in evidence] Long-term agent memory risk: Low / Medium / High (with timeline estimate)
+
+SECTION 2: MDI SCORE AND CLASSIFICATION
+Count intact/strengthening moats (Moats 6–10 range):
+
+Moat	Company Has It?	Status
+6. Proprietary Data	Yes / No	Intact / Strengthening / Overstated
+7. Regulatory Lock-in	Yes / No	Structural / Partial / Overstated / Absent
+8. Network Effects	Yes / No	Genuine / Mischaracterized / Absent
+9. Transaction Embedding	Yes / No	Deeply / Partially / Not Embedded
+10. System of Record	Yes / No	Strong / Partial / Weak
+Number of intact/strengthening moats: ___ of 5
+
+Moats being actively destroyed (Moats 1–5): - List each that applies with current status
+
+MDI Classification:
+
+MDI Score	Classification
+0–1	HIGH RISK — moats were primarily interface/workflow driven
+2–3	MEDIUM RISK — mixed portfolio
+4–5	LOWER RISK — structural moats present
+MDI Classification: HIGH RISK / MEDIUM RISK / LOWER RISK
+
+SECTION 3: BUSTAMANTE THREE-QUESTION TEST
+Answer each with Yes or No and one sentence of evidence:
+
+Q1: Is the core data proprietary? (Cannot be obtained, licensed, or synthesized elsewhere — not just organized better) Answer: Yes / No Evidence: ___
+
+Q2: Is there regulatory lock-in? (Compliance certification, FDA validation, audit trail requirements — not just serving a regulated industry) Answer: Yes / No Evidence: ___
+
+Q3: Is the software embedded in the transaction? (Payment rails, loan origination, trade settlement — not analytics on top of the transaction) Answer: Yes / No Evidence: ___
+
+Three-Question Score: ___ / 3
+
+Score	Risk Level
+0	High Risk
+1	Medium Risk
+2–3	Lower Risk
+SECTION 4: COMPETITIVE PRESSURE ASSESSMENT
+The "3 to 300" check:
+
+Document the AI-native competitors that have entered this vertical in the last 24 months:
+
+Competitor	Founded	Funding	Core Function	Pricing vs. Incumbent
+Estimated number of credible AI-native entrants in last 24 months: ___
+
+Bustamante competition scale: - 0–5 entrants: Early disruption — pricing power intact, monitor - 6–20 entrants: Mid disruption — pricing pressure building, NRR will show in 12–24 months - 20+ entrants: Late disruption — pricing power already eroding, multiple compression justified
+
+Current disruption stage: Early / Mid / Late
+
+Horizontal platform threat assessment (Bustamante's "from above" attack): - Is Microsoft Copilot, Google Workspace AI, or Salesforce's AI entering this vertical's core use cases? - Is Anthropic (Cowork + industry plugins) or OpenAI targeting this workflow directly? - Rate horizontal platform threat: Low / Medium / High - Evidence: ___
+
+SECTION 5: PRE-SCREEN SUMMARY OUTPUT
+This is the document you will upload to Stage 2.
+
+Company: ___ Date: ___ Analyst: ___
+
+MOAT MAP
+Moat	Has It	Status	Key Evidence
+1. Learned Interface			
+2. Custom Workflows			
+3. Public Data Access			
+4. Talent Scarcity			
+5. Bundling			
+6. Proprietary Data			
+7. Regulatory Lock-in			
+8. Network Effects			
+9. Transaction Embedding			
+10. System of Record			
+SCORES
+MDI Score: ___ / 5 intact moats → MDI Classification: ___
+Three-Question Score: ___ / 3 → Risk Level: ___
+Competition Count (24mo): ___ entrants → Disruption Stage: ___
+Horizontal Platform Threat: ___
+CRITICAL FINDING
+The single most important thing this pre-screen revealed about this company's moat structure:
+
+MOATS BEING DESTROYED
+Name the specific moats that are eroding and what percentage of historical switching cost they represented:
+
+MOATS HOLDING
+Name the specific structural moats that LLMs cannot touch and why:
+
+RED FLAGS FOR STAGE 2
+List any findings from this pre-screen that Stage 2 scoring should weight heavily or investigate further:
+
+PRE-SCREEN VERDICT
+Based on MDI score, Three-Question test, and competitive pressure assessment:
+
+Proceed to Stage 2 with HIGH confidence in defensibility (MDI 4–5, Three-Question 2–3, Early disruption stage)
+Proceed to Stage 2 with MEDIUM confidence (MDI 2–3, Three-Question 1–2, Mid disruption stage)
+Proceed to Stage 2 with LOW confidence — likely Fragile or Terminal (MDI 0–1, Three-Question 0–1, Late disruption stage)
+Pre-Screen Verdict: ___

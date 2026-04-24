@@ -6,17 +6,17 @@
 <title>EVA & Compounder Analysis Dashboard</title>
 <style>
 :root {
-  --dark: #1a1a2e;
-  --navy: #16213e;
-  --blue: #0f3460;
-  --accent: #e94560;
-  --green: #00b894;
-  --red: #e17055;
-  --orange: #fdcb6e;
-  --light: #dfe6e9;
-  --white: #f8f9fa;
-  --card-bg: #1e2a3a;
-  --input-bg: #2d3e50;
+  --dark: #f0f2f5;
+  --navy: #ffffff;
+  --blue: #2c3e7a;
+  --accent: #d63354;
+  --green: #00875a;
+  --red: #cf4a3a;
+  --orange: #c49000;
+  --light: #4a5568;
+  --white: #1a202c;
+  --card-bg: #ffffff;
+  --input-bg: #f7f8fa;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,8 +28,14 @@ body {
   min-height: 100vh;
 }
 
+.header h1 {
+  -webkit-text-fill-color: unset;
+  background: none;
+  color: #ffffff;
+}
+
 .header {
-  background: linear-gradient(135deg, var(--navy), var(--blue));
+  background: linear-gradient(135deg, #2c3e7a, #1a2550);
   padding: 20px 30px;
   border-bottom: 3px solid var(--accent);
   display: flex;
@@ -48,12 +54,12 @@ body {
 
 .header .subtitle {
   font-size: 0.85rem;
-  color: #b2bec3;
+  color: #c0c8d4;
 }
 
 .tabs {
   display: flex;
-  background: var(--navy);
+  background: #e8eaed;
   padding: 0 20px;
   gap: 2px;
   overflow-x: auto;
@@ -64,7 +70,7 @@ body {
   cursor: pointer;
   border: none;
   background: transparent;
-  color: #b2bec3;
+  color: #4b5563;
   font-size: 0.9rem;
   font-weight: 500;
   border-bottom: 3px solid transparent;
@@ -72,8 +78,8 @@ body {
   white-space: nowrap;
 }
 
-.tab:hover { color: var(--white); background: rgba(255,255,255,0.05); }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(233,69,96,0.1); }
+.tab:hover { color: var(--white); background: rgba(0,0,0,0.05); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(214,51,84,0.08); }
 
 .content { padding: 20px; max-width: 1600px; margin: 0 auto; }
 .panel { display: none; }
@@ -92,9 +98,10 @@ body {
   border-radius: 10px;
   padding: 18px;
   border-left: 4px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.summary-card .label { font-size: 0.75rem; color: #b2bec3; text-transform: uppercase; letter-spacing: 1px; }
+.summary-card .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
 .summary-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
 .summary-card.green { border-left-color: var(--green); }
 .summary-card.green .value { color: var(--green); }
@@ -109,6 +116,7 @@ body {
   background: var(--card-bg);
   border-radius: 10px;
   margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 table {
@@ -119,7 +127,7 @@ table {
 
 th {
   background: var(--blue);
-  color: var(--white);
+  color: #ffffff;
   padding: 12px 10px;
   text-align: center;
   font-weight: 600;
@@ -136,12 +144,12 @@ th:first-child { text-align: left; }
 td {
   padding: 10px;
   text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
 td:first-child { text-align: left; font-weight: 600; }
 
-tr:hover { background: rgba(255,255,255,0.04); }
+tr:hover { background: rgba(0,0,0,0.03); }
 
 .positive { color: var(--green); font-weight: 600; }
 .negative { color: var(--red); font-weight: 600; }
@@ -173,7 +181,7 @@ tr:hover { background: rgba(255,255,255,0.04); }
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.12);
 }
 
 .dot.filled { background: var(--green); }
@@ -192,7 +200,7 @@ tr:hover { background: rgba(255,255,255,0.04); }
 
 .assumptions-bar label {
   font-size: 0.8rem;
-  color: #b2bec3;
+  color: #6b7280;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -200,7 +208,7 @@ tr:hover { background: rgba(255,255,255,0.04); }
 
 .assumptions-bar input {
   background: var(--input-bg);
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(0,0,0,0.15);
   color: var(--white);
   padding: 6px 10px;
   border-radius: 6px;
@@ -218,8 +226,8 @@ tr:hover { background: rgba(255,255,255,0.04); }
 /* Editable table inputs */
 table input {
   background: var(--input-bg);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #74b9ff;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #2563eb;
   padding: 4px 6px;
   border-radius: 4px;
   width: 85px;
@@ -245,12 +253,13 @@ table input:focus {
   border-radius: 10px;
   padding: 18px;
   text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .gauge-card h3 {
   font-size: 0.85rem;
   margin-bottom: 12px;
-  color: #dfe6e9;
+  color: #374151;
 }
 
 .bar-chart {
@@ -269,13 +278,13 @@ table input:focus {
   font-size: 0.7rem;
   width: 50px;
   text-align: right;
-  color: #b2bec3;
+  color: #6b7280;
 }
 
 .bar-track {
   flex: 1;
   height: 16px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.06);
   border-radius: 8px;
   overflow: hidden;
   position: relative;
@@ -318,6 +327,7 @@ table input:focus {
   border-radius: 10px;
   padding: 18px;
   border-top: 3px solid var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .formula-card h3 {
@@ -328,7 +338,7 @@ table input:focus {
 
 .formula-card .desc {
   font-size: 0.8rem;
-  color: #b2bec3;
+  color: #6b7280;
   margin-bottom: 10px;
 }
 
@@ -338,12 +348,12 @@ table input:focus {
   border-radius: 6px;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 0.85rem;
-  color: #74b9ff;
+  color: #2563eb;
 }
 
 /* Sorting */
 th.sortable { cursor: pointer; user-select: none; }
-th.sortable:hover { background: rgba(255,255,255,0.1); }
+th.sortable:hover { background: rgba(0,0,0,0.15); }
 th.sortable::after { content: ' \25B5'; font-size: 0.7rem; }
 th.sortable.asc::after { content: ' \25B4'; color: var(--accent); }
 th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
@@ -358,7 +368,7 @@ th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
 }
 
 .veeva-notes h3 { color: var(--orange); margin-bottom: 8px; font-size: 0.95rem; }
-.veeva-notes ul { padding-left: 18px; font-size: 0.82rem; color: #b2bec3; line-height: 1.7; }
+.veeva-notes ul { padding-left: 18px; font-size: 0.82rem; color: #6b7280; line-height: 1.7; }
 
 /* Buttons */
 .btn {
@@ -435,13 +445,13 @@ th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
 
 .modal-field label {
   font-size: 0.75rem;
-  color: #b2bec3;
+  color: #6b7280;
   text-transform: uppercase;
 }
 
 .modal-field input {
   background: var(--input-bg);
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(0,0,0,0.15);
   color: var(--white);
   padding: 8px 12px;
   border-radius: 6px;
@@ -461,7 +471,7 @@ th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
   gap: 10px;
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(0,0,0,0.1);
 }
 
 /* Toast notification */
@@ -523,7 +533,7 @@ th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
 <div class="header">
   <div>
     <h1>EVA & Compounder Analysis Dashboard</h1>
-    <div class="subtitle">Economic Value Added | Return Metrics | Compounder Scoring | <span id="dataDate">Data as of March 13, 2026</span></div>
+    <div class="subtitle">Economic Value Added | Return Metrics | Compounder Scoring | <span id="dataDate">Data as of April 23, 2026</span></div>
   </div>
   <div class="assumptions-bar" style="background:transparent;padding:0;margin:0;">
     <label>Risk-Free Rate <input type="text" id="rfr" value="4.25" onchange="recalcAll()">%</label>
@@ -827,7 +837,7 @@ th.sortable.desc::after { content: ' \25BE'; color: var(--accent); }
         <label>Cost of Debt (%)</label>
         <input id="m_kd" type="number" step="0.1" placeholder="0">
       </div>
-      <div class="modal-field full" style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.1);padding-top:12px;">
+      <div class="modal-field full" style="margin-top:10px;border-top:1px solid rgba(0,0,0,0.1);padding-top:12px;">
         <label style="color:var(--orange);font-weight:600;">PRIOR YEAR DATA (for ROIIC calculation)</label>
       </div>
       <div class="modal-field">
@@ -880,6 +890,10 @@ let DATA = [
   {name:'Samsara (IOT)',period:'FY2026 (Jan 2026)',ebit:-52.6,ni:-9.1,equity:1420,debt:72.8,assets:2541,tax:0.0,beta:1.62,kd:0,prevEbit:-190,prevEquity:1069,prevDebt:0,prevTax:0.0},
   {name:'Comfort Systems (FIX)',period:'FY2025 (Dec 2025)',ebit:1315,ni:1023,equity:2449,debt:145,assets:6441,tax:0.209,beta:1.58,kd:0.062,prevEbit:749.4,prevEquity:1705,prevDebt:68.3,prevTax:0.2162},
   {name:'Amphenol (APH)',period:'FY2025 (Dec 2025)',ebit:5869,ni:4270.3,equity:13510,debt:15502,assets:36237,tax:0.231,beta:1.21,kd:0.0237,prevEbit:3157,prevEquity:9856,prevDebt:6886,prevTax:0.189},
+  {name:'ASML (ASML)',period:'FY2025 (Dec 2025)',ebit:12206,ni:10378,equity:21181,debt:5066,assets:54612,tax:0.173,beta:1.38,kd:0.025,prevEbit:9744,prevEquity:19955,prevDebt:5470,prevTax:0.182},
+  {name:'EMCOR Group (EME)',period:'FY2025 (Dec 2025)',ebit:1713,ni:1273,equity:3675,debt:0,assets:9291,tax:0.261,beta:1.11,kd:0,prevEbit:1345,prevEquity:2939,prevDebt:0,prevTax:0.269},
+  {name:'Interactive Brokers (IBKR)',period:'FY2025 (Dec 2025)',ebit:4771,ni:4357,equity:20472,debt:19,assets:203240,tax:0.087,beta:1.25,kd:0,prevEbit:3695,prevEquity:16597,prevDebt:14,prevTax:0.078},
+  {name:'Medpace (MEDP)',period:'FY2025 (Dec 2025)',ebit:534.9,ni:451.1,equity:459.1,debt:0,assets:1975.5,tax:0.168,beta:1.43,kd:0,prevEbit:446.9,prevEquity:825.5,prevDebt:0,prevTax:0.150},
 ];
 
 const VEEVA_PROJ = [

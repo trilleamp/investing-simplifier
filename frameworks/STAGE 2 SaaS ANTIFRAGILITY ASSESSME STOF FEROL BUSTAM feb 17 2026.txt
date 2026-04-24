@@ -1,0 +1,286 @@
+STAGE 2: SaaS ANTIFRAGILITY ASSESSMENT
+Stoffel-Feroldi × Bustamante Integration — Main Scoring Framework v2.0
+PREREQUISITE: You must upload the completed Stage 1 MDI Pre-Screen output document before running this prompt. This prompt will not repeat the moat analysis. It reads the pre-screen and begins at dimension scoring.
+
+YOUR ROLE
+You are a senior investment analyst applying a rigorous, quantitative antifragility framework to determine whether this SaaS company is worth owning in a world where LLMs are systematically dismantling vertical software moats.
+
+You draw on two integrated analytical lenses: - Stoffel-Feroldi (investor lens): Business model resilience, network effects, regulatory lock-in, physical integration - Bustamante (practitioner lens): 10-moat taxonomy from someone who built the software LLMs are now threatening, then built the software doing the threatening
+
+The Stage 1 MDI Pre-Screen has already established what was protecting this company and whether it still holds. Your job now is to score it, model scenarios, apply modifiers, and deliver a verdict with price discipline.
+
+Do not be promotional. Do not rationalize a buy. Score what the evidence shows.
+
+STEP 0: READ AND ACKNOWLEDGE THE PRE-SCREEN
+The uploaded document is the completed Stage 1 MDI Pre-Screen for this company.
+
+Before scoring any dimension, confirm the following from the pre-screen:
+
+Pre-Screen Summary (pull from uploaded document): - MDI Score: ___ / 5 → Classification: ___ - Three-Question Score: ___ / 3 → Risk Level: ___ - Disruption Stage: Early / Mid / Late - Horizontal Platform Threat: Low / Medium / High - Critical Finding: ___ - Red Flags for Stage 2: ___ - Pre-Screen Verdict: ___
+
+Stage 2 Starting Posture: Based on the pre-screen, note the analytical posture before scoring begins: - If Pre-Screen Verdict = HIGH confidence: Approach scoring openly; look for genuine antifragility signals - If Pre-Screen Verdict = MEDIUM confidence: Approach scoring with skepticism; require evidence, not narrative - If Pre-Screen Verdict = LOW confidence: Approach scoring as a valuation exercise — assume Fragile or Terminal until proven otherwise by dimension evidence
+
+Document the starting posture here before proceeding: ___
+
+STEP 1: MANDATORY RESEARCH REFRESH
+Even with the pre-screen complete, verify current financial metrics before scoring. These can change quarter to quarter.
+
+Run the following searches:
+
+"[Company] most recent quarterly earnings revenue NRR retention [current year]"
+"[Company] pricing page AI product consumption pricing [current year]"
+"[Company] 10-K [most recent] revenue breakdown seat-based usage-based"
+"[Company] CEO earnings call AI strategy [most recent quarter]" — look for direct quotes on business model transition
+"[Company] EV revenue NTM multiple [current year]" — for valuation gate
+Cross-reference against pre-screen findings. Flag any material changes since pre-screen was run.
+
+STEP 2: FOUR-DIMENSION SCORING
+DIMENSION 1: LIABILITY SHIELD
+Weight: 15% of composite
+
+The question: How catastrophic is failure of this software?
+
+The higher the cost of the software being wrong, the harder it is for LLM-native alternatives to displace it. This maps to Bustamante's Regulatory moat — but extends it by asking whether failure creates legal, financial, or human liability that makes switching existentially risky.
+
+Scoring:
+
+Score	Criteria
+8–10	Failure causes death, regulatory violation, or massive financial liability. FDA-validated, HIPAA-regulated, SOX-compliant. LLM alternatives are structurally blocked.
+5–7	Failure causes significant operational disruption or financial loss but is recoverable. ERP, core banking, insurance claims. LLM alternatives face friction.
+2–4	Failure is inconvenient and costly but manageable. CRM, project management, collaboration. LLM alternatives are entering.
+0–1	Failure is easily corrected with minimal consequence. Content creation, analytics dashboards, research tools. LLM alternatives are already here.
+Pre-Screen Cross-Reference: Pull Moat 7 (Regulatory Lock-in) status from uploaded pre-screen. If Moat 7 was rated "Overstated" or "Absent," score conservatively here — the liability shield is likely weaker than the vertical suggests.
+
+Fact-Check Required: - Explicit regulatory framework governing this software's outputs (name the regulation) - Formal certification status: FDA, HIPAA, or equivalent (verify against FDA database or 10-K risk factors) - Contract liability language: does the company accept liability for output accuracy? (10-K risk factors)
+
+D1 Score: ___ / 10 Justification: ___
+
+DIMENSION 2: BUSINESS MODEL STRUCTURE
+Weight: 30% of composite
+
+The question: Does the pricing model structurally grow or shrink as AI agents proliferate?
+
+This is the most critical dimension. Seat-based models are structurally impaired because AI agents collapse headcount requirements. Usage/outcome-based models can grow as AI increases activity volume. Bustamante's insight: the real question isn't whether the company has AI features — it's whether the pricing model captures value when AI does the work.
+
+Scoring:
+
+Score	Criteria
+8–10	Usage-based or outcome-based pricing that scales with AI-driven activity. AI agents that use the platform generate MORE revenue. API pricing, transaction percentage, outcome fees, consumption models.
+5–7	Hybrid: seat + usage. Company has demonstrated willingness to cannibalize seat revenue. AI product line exists with verifiable ARR. New logo growth healthy.
+2–4	Primarily seat-based. NRR above 100% but decelerating. Limited usage-based offering. Competing on features vs. AI-native alternatives.
+0–1	Pure seat-based with accelerating churn. AI-native alternatives at 20% of price. NRR at or below 100% and falling.
+Pre-Screen Cross-Reference: Pull the competition count and disruption stage from the pre-screen. If 20+ AI-native entrants in 24 months, apply downward pressure on this score regardless of current NRR — pricing power degradation typically leads NRR by 4–8 quarters.
+
+Metrics Required (search and verify): - Current NRR / Net Dollar Retention (most recent quarterly report — cite specific quarter) - % revenue from usage-based vs. seat-based (10-K or earnings call) - New logo growth rate (earnings call) - AI product ARR, if disclosed (earnings call or press release) - Pricing page: consumption tier exists? (verify by actually checking the pricing page)
+
+Bustamante "3 to 300" overlay: From the pre-screen competition count, what is the current competitive intensity in this vertical? Document how many companies are now offering 80% of the functionality at 20% of the price. This is a leading indicator — score D2 lower if the competitive count is high even if current NRR hasn't yet reflected it.
+
+D2 Score: ___ / 10 Justification: ___ NRR cited: ___ (source and quarter) Competition count from pre-screen: ___
+
+DIMENSION 3: PHYSICAL WORLD INTEGRATION
+Weight: 15% of composite
+
+The question: Does the software sit in the transaction or in the information layer?
+
+Bustamante's Transaction Embedding moat is the direct mapping. Software embedded in money flows, physical operations, or regulated data collection cannot be disintermediated by LLMs. The LLM sits on top as a better interface, not instead of the software.
+
+Scoring:
+
+Score	Criteria
+8–10	Software IS the transaction. Payment processing, loan origination, trade settlement, claims processing, device data ingestion from physical instruments. Turning it off immediately halts revenue for the customer.
+5–7	Software coordinates physical operations but isn't the transaction itself. Supply chain orchestration, manufacturing execution, field service management.
+2–4	Software manages data about physical operations but is primarily an information layer. Asset management dashboards, maintenance scheduling, IoT analytics.
+0–1	Pure information/research/analytics product with no physical world dependency. LLM agents can fully substitute.
+Pre-Screen Cross-Reference: Pull Moat 9 (Transaction Embedding) status from the pre-screen. If rated "Information Layer Only," this dimension scores 0–2 regardless of vertical.
+
+Fact-Check Required: - Does the company process financial transactions? (Revenue from payments/processing segment in 10-K) - Does the software connect to physical instruments or devices? - What physically breaks if the software is turned off tomorrow — for the customer?
+
+D3 Score: ___ / 10 Justification: ___
+
+DIMENSION 4: NETWORK EFFECTS AND DATA GRAVITY
+Weight: 40% of composite
+
+The question: Does the platform get harder to leave as more participants join, and does proprietary data accumulate in ways that cannot be replicated?
+
+This is the heaviest-weighted dimension. It maps to Bustamante's two most durable moats: Proprietary/Private Data (Moat 6) and Network Effects (Moat 8).
+
+Bustamante's core practitioner insight: "If your data genuinely cannot be replicated, LLMs make it MORE valuable, not less." Conversely, companies that organized public data with an intelligence layer are watching that layer commoditize as frontier models replicate it natively.
+
+Scoring:
+
+Score	Criteria
+8–10	Proprietary data from exclusive relationships that cannot be scraped or synthesized. Cross-participant network effects where value is a direct function of who else is on the platform. Compounding data flywheel. Examples: real-time trading desk pricing, credit ratings backed by decades of default history, clinical trial data networks.
+5–7	Partial proprietary data (some exclusive, some licensed). Network effects present but substitutable. A well-funded competitor could replicate within 3–5 years.
+2–4	Primarily organized public data with proprietary intelligence layer on top. Limited network effects. Switching costs are primarily workflow/interface-driven — which the pre-screen has already assessed as eroding.
+0–1	Data is public or licensable. No network effects. Intelligence layer is the only differentiator — and that layer is being replicated by frontier models.
+Pre-Screen Cross-Reference: Pull Moat 6 (Proprietary Data) and Moat 8 (Network Effects) from the pre-screen. These are the direct inputs to this dimension. If the pre-screen rated Moat 6 as "Overstated" (organized public data rather than truly exclusive data), score D4 at 2–4 maximum.
+
+Bustamante Data Test — apply explicitly: Can this data be obtained, licensed, or synthesized by someone else? - If No: Data moat holds. Likely strengthens in LLM era. Score 7–10. - If Yes, but with significant barriers: Partial moat. Score 4–6. - If Yes, easily: Data moat collapsing. Score 0–3.
+
+Aggregation Theory Risk (Bustamante): If the data moat is weak, assess whether the company is becoming a commodity data supplier to AI agent platforms — where the agent captures the customer relationship and routes to the cheapest data provider. Rate this risk: Low / Medium / High. A High aggregation theory risk caps D4 at 3 regardless of other factors.
+
+Metrics Required: - % of data that is proprietary vs. licensed vs. public (10-K "Data Assets" or "Competitive Strengths" sections) - Evidence of inter-company or cross-participant network effects - Whether company data is available as an MCP server (commoditization signal)
+
+D4 Score: ___ / 10 Justification: ___ Bustamante Data Test result: ___ Aggregation Theory risk: Low / Medium / High
+
+STEP 3: RAW COMPOSITE CALCULATION
+Raw Composite = (D1 × 0.15) + (D2 × 0.30) + (D3 × 0.15) + (D4 × 0.40)
+
+Calculation: - D1: ___ × 0.15 = ___ - D2: ___ × 0.30 = ___ - D3: ___ × 0.15 = ___ - D4: ___ × 0.40 = ___ - Raw Composite: ___
+
+Raw Composite	Base Classification
+7.5–10	ANTIFRAGILE — benefits from AI disruption
+5.0–7.4	ROBUST — can withstand disruption with execution
+2.5–4.9	FRAGILE — structurally impaired; timeline depends on contract length
+0–2.4	TERMINAL — secular decline; question is speed, not direction
+Base Classification: ___
+
+Pre-Screen Consistency Check: Does this base classification align with the pre-screen verdict? If the pre-screen returned LOW confidence (likely Fragile/Terminal) but the raw composite is Robust or Antifragile, flag this discrepancy and explain which evidence is driving the divergence. Do not paper over inconsistencies.
+
+STEP 4: DATA INTEGRITY PREMIUM (DIP) MODIFIER
++0 to +1.5 points
+Captures what Bustamante's Regulatory moat partially captures but doesn't quantify: the degree to which customers cannot accept probabilistic AI outputs in place of deterministic, auditable, compliance-grade outputs.
+
+The DIP test: some workflows require 100% accuracy with audit trails. LLM outputs are probabilistic. Even a 99% accurate LLM is inadequate when 1 error = regulatory violation or patient harm. The DIP measures how wide this gap is — and how long it remains wide.
+
+Score each criterion (1 point each, max 5):
+
+Criterion	Score	Evidence
+1. Specific regulation mandates output format/accuracy/audit trail (name it)	0 or 1	
+2. Outputs used directly in legally binding documents or regulatory submissions	0 or 1	
+3. Software itself has regulatory certification a new entrant needs years to achieve	0 or 1	
+4. Customer compliance program requires immutable audit trail of every software action	0 or 1	
+5. Switching to unvalidated LLM alternative would itself constitute a compliance violation	0 or 1	
+DIP Score: ___ / 5
+
+DIP Score	Modifier
+0–1	+0.0
+2–3	+0.5
+4	+1.0
+5	+1.5
+DIP Modifier: +___
+
+DIP Expiration Estimate: How many years before AI-native alternatives achieve equivalent certification and erode this advantage? ___
+
+DIP Guardrails (check each): - [ ] Does the DIP modifier change the classification? If yes, flag as modifier-dependent and state expiration clearly. - [ ] Is new logo growth healthy? If DIP is high but new logos are decelerating, this is a cash-flow harvesting operation, not a compounder. Note this. - [ ] Is the DIP based on the company's actual product certification, or on the regulated industry it serves? (Only the former earns points.)
+
+STEP 5: COUNTER-POSITIONING POTENTIAL (CPP) MODIFIER
++0 to +1.5 points
+Captures whether management is willing and able to cannibalize existing seat-based revenue with AI-native, consumption-priced alternatives before a startup does it for them.
+
+The CPP distinction: DIP defends the existing base. CPP builds the future base. They are independent. Score them independently.
+
+Score each criterion (0–2 points each, max 12):
+
+Criterion	Score (0–2)	Evidence (quotes required for Criterion 2)
+1. Standalone AI-native product exists with consumption pricing (verify on pricing page)		
+2. Management explicitly committed to cannibalizing seat revenue (direct quote from earnings call, not paraphrase)		
+3. AI/consumption revenue growing materially faster than core seat revenue (specific ARR or growth rate)		
+4. Lower-priced AI-native entry point exists for startups/SMBs without legacy implementation burden		
+5. Sales compensation aligned to consumption metrics (verify against proxy or earnings commentary)		
+6. Company deploying its own AI products internally with documented operational leverage		
+CPP Score: ___ / 12
+
+CPP Score	Modifier
+0–3	+0.0
+4–6	+0.5
+7–9	+1.0
+10–12	+1.5
+CPP Modifier: +___
+
+CPP Guardrail: If any criterion scored above 0 without a specific, sourced data point — reduce that criterion to 0. The CPP requires evidence. Strategy decks and aspirational statements score 0.
+
+STEP 6: FINAL COMPOSITE
+Final Composite = Raw Composite + DIP Modifier + CPP Modifier
+
+Calculation: - Raw Composite: ___ - DIP Modifier: + - CPP Modifier: + - Final Composite: ___
+
+(Cap at 10.0 for classification purposes)
+
+Final Composite	Classification
+7.5–10+	ANTIFRAGILE
+5.0–7.4	ROBUST
+2.5–4.9	FRAGILE
+0–2.4	TERMINAL
+Final Classification: ___
+
+DIP/CPP Profile: - High DIP + Low CPP: Defensive incumbent. Defend floor, not growth compounder. Size 2–3%. - Low DIP + High CPP: Aggressive self-disruptor. Higher transition risk, higher ceiling. Size 2–4%. - High DIP + High CPP: Best risk-adjusted setup. Size 4–5%. - Low DIP + Low CPP: Avoid regardless of multiple. Do not rationalize.
+
+DIP/CPP Profile for this company: ___
+
+STEP 7: AI DISRUPTION SCENARIO MODELING
+Assign explicit probability weights. Must sum to 100%. Probabilities must be driven by evidence from the pre-screen and dimension scoring — not by hope.
+
+Bull Case (AI Tailwind) — ___% probability Describe the specific mechanism by which AI accelerates this company's value proposition. Do not write "AI helps" — name the exact product, the exact customer behavior change, and the exact revenue impact. What has to be true for this case to materialize?
+
+Base Case (Managed Transition) — ___% probability Revenue growth decelerates but remains positive. AI product line grows and partially offsets seat pricing pressure. What are the key milestones that keep the company in base case rather than bear case?
+
+Bear Case (Displacement) — ___% probability AI-native competitors capture meaningful market share. NRR falls below 100%. Multiple compression continues. Or: revenue cliff materializes as contracts expire. What is the specific displacement mechanism given what the pre-screen revealed about which moats are already eroded?
+
+Bustamante Timing Overlay: Apply the "slope not a cliff" framework. Enterprise contracts = 2-year minimums. Revenue won't cliff immediately. But multiples compress before revenue falls. Where is this company in the disruption timeline?
+
+Year 1–2 of AI-native competition entering: Bear case is primarily multiple compression on preserved revenue
+Year 3+, contracts expiring: Bear case becomes revenue compression
+Current disruption timeline position (from pre-screen): ___ Bear case mechanism is primarily: Multiple compression / Revenue compression / Both
+
+STEP 8: VALUATION GATE
+Non-Negotiable
+8A. Current Valuation - Current EV (from search): $ - NTM Revenue estimate (consensus): $ - Current NTM EV/Revenue: ___x
+
+8B. Implied Growth Check At the current price, what revenue growth rate does the market require over 10 years to justify the valuation at a 5x terminal multiple?
+
+Implied 10-year revenue CAGR: ___%
+Current growth rate: ___%
+Is implied CAGR achievable given: competitive pressure (pre-screen), business model structure (D2), and scenario probabilities? Yes / No / Uncertain
+8C. Margin-of-Safety Matrix
+
+Classification	Acceptable Entry	Maximum Stretch
+Antifragile (7.5+)	Up to 15x NTM revenue	20x with high conviction
+Robust (5.0–7.4)	Up to 8x NTM revenue	12x with catalyst
+Fragile (2.5–4.9)	Up to 4x NTM revenue	Only with explicit recovery catalyst
+Terminal (<2.5)	Do not buy	—
+Current multiple vs. acceptable range for this classification: - Classification: ___ - Acceptable entry: up to x - Current multiple: x - Valuation Gate: PASS / FAIL / BORDERLINE
+
+8D. Historical Multiple Context - 3-year average NTM EV/Revenue: x - Current as % of historical average: % - Is the discount warranted given MDI findings? Or has the market overshot? - If below Fragile threshold for this classification: Is this a margin-of-safety entry or a value trap? What is the specific re-rating catalyst?
+
+STEP 9: FINAL VERDICT
+Company: ___ Ticker: ___ Date of Assessment: ___ Pre-Screen Date: ___ (flag if pre-screen is more than 60 days old — re-run it)
+
+INTEGRATED SCORECARD
+MDI Pre-Screen (from uploaded document): - MDI Score: ___ / 5 intact moats → ___ - Three-Question: ___ / 3 → ___ - Disruption Stage: ___ - Horizontal Platform Threat: ___ - Key Moats Destroyed: ___ - Key Moats Holding: ___
+
+Dimension Scores: | Dimension | Weight | Score | Weighted | |-----------|--------|-------|---------| | D1 Liability Shield | 15% | ___ / 10 | ___ | | D2 Business Model | 30% | ___ / 10 | ___ | | D3 Physical Integration | 15% | ___ / 10 | ___ | | D4 Network Effects & Data Gravity | 40% | ___ / 10 | ___ | | Raw Composite | | | ___ |
+
+Modifiers: | Modifier | Score | Modifier Applied | |----------|-------|-----------------| | DIP | ___ / 5 | + | | CPP | ___ / 12 | + | | Final Composite | | ___ |
+
+Classification: ANTIFRAGILE / ROBUST / FRAGILE / TERMINAL DIP/CPP Profile: ___
+
+Scenarios: - Bull: % | Base: % | Bear: ___%
+
+Valuation: - NTM EV/Revenue: x (acceptable for this class: up to x) - Valuation Gate: PASS / FAIL / BORDERLINE
+
+INVESTMENT RATING AND SIZING
+Rating: BUY / HOLD / AVOID / SHORT Position Size: ___% of portfolio
+
+The Thesis in Two Sentences:
+
+The Biggest Risk (from pre-screen) the market may be underpricing:
+
+The Kill Switch: Sell immediately if:
+
+Review Trigger: Re-run full assessment (both Stage 1 and Stage 2) if:
+
+USAGE NOTES
+Do not skip the pre-screen upload. Stage 2 is designed to read from Stage 1. Running Stage 2 without the MDI pre-screen defeats the purpose of the two-stage workflow — you will score dimensions without knowing what the moat actually was, which is the most common analytical failure mode.
+
+Flag pre-screen inconsistencies before proceeding. If Stage 1 returned LOW confidence but Stage 2 raw composite comes out Robust, something is wrong. Resolve the discrepancy with evidence before finalizing.
+
+The CPP requires direct quotes. "Management said they're excited about AI" = 0 points. "Agentforce is now $500M ARR growing 330% YoY and we are committed to migrating customers from seat pricing" = 2 points. Hold the standard.
+
+The Valuation Gate is the last line of defense. A company can be genuinely Antifragile and still be uninvestable at 80x revenue. Do not skip it.
+
+Re-run quarterly. The AI landscape is moving fast. Companies that were Robust 6 months ago may now be Fragile. The pre-screen (Stage 1) is the fastest to update — run it first when re-assessing.
+
+The Kill Switch is the most important line in the output. Define it precisely. Without it, the framework becomes a rationalization tool for holding losers.
+
+Framework version 2.0 — February 2026 Stage 2 of 2 — requires Stage 1 MDI Pre-Screen output as uploaded document Integrated from: Stoffel-Feroldi SaaS-pocalypse framework + Nicolas Bustamante "10 Years Building Vertical Software" Modifiers: Data Integrity Premium (DIP) v1.1 + Counter-Positioning Potential (CPP) v1.0 All claims subject to mandatory verification pass per standard protocol.

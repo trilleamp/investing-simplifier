@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEEV — Veeva Systems Earnings Command Center</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0f14; font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; }
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useCallback, useEffect, useRef, useMemo } = React;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VEEVA SYSTEMS — EARNINGS COMMAND CENTER
+// Bustamante MDI × Stoffel-Feroldi Antifragility × Cover Earnings QUICKLY
+// Data verified against ir.veeva.com press releases, Feb 20, 2026
+// ══════════════════════════════════════════════════════════════════════════════
+
+const p = (v) => parseFloat(v) || 0;
+const fmtM = (v) => { const n = p(v); return n >= 1000 ? `$${(n/1000).toFixed(2)}B` : n > 0 ? `$${n.toFixed(0)}M` : "—"; };
+const pct = (a, b) => b ? (((a - b) / Math.abs(b)) * 100).toFixed(1) : "—";
+const arrow = (c, pr) => { if (!c || !pr || p(c)===0 || p(pr)===0) return ""; return p(c) > p(pr) ? "↑" : p(c) < p(pr) ? "↓" : "→"; };
+const arrowC = (a) => a === "↑" ? "#22c55e" : a === "↓" ? "#ef4444" : "#eab308";
+const beatMiss = (a, e) => { if (!a || !e) return { l: "—", c: "#666" }; const av=p(a), ev=p(e); return av > ev ? { l: `Beat +${pct(av,ev)}%`, c: "#22c55e" } : av < ev ? { l: `Miss ${pct(av,ev)}%`, c: "#ef4444" } : { l: "In-line", c: "#eab308" }; };
+
+function calcMDI(m) {
+  const sc = { strengthening:1, structural:1, genuine:1, deeply:1, strong:1, intact:1, partial:0.5, overstated:0, absent:0, weak:0, mischaracterized:0, partially:0.5, information:0 };
+  const s = [m.proprietaryData, m.regulatoryLockin, m.networkEffects, m.transactionEmbedding, m.systemOfRecord].reduce((a,v) => a + (sc[v]??0), 0);
+  const tq = [m.threeQ1, m.threeQ2, m.threeQ3].filter(Boolean).length;
+  const cl = s >= 4 ? "LOWER RISK" : s >= 2 ? "MEDIUM RISK" : "HIGH RISK";
+  return { score: s, threeQ: tq, classification: cl };
+}
+
+function calcAF(af) {
+  const raw = p(af.d1)*0.15 + p(af.d2)*0.30 + p(af.d3)*0.15 + p(af.d4)*0.40;
+  const dip = p(af.dip) <= 1 ? 0 : p(af.dip) <= 3 ? 0.5 : p(af.dip) === 4 ? 1.0 : 1.5;
+  const cpp = p(af.cpp) <= 3 ? 0 : p(af.cpp) <= 6 ? 0.5 : p(af.cpp) <= 9 ? 1.0 : 1.5;
+  const f = Math.min(raw + dip + cpp, 10);
+  const cls = f >= 7.5 ? "ANTIFRAGILE" : f >= 5.0 ? "ROBUST" : f >= 2.5 ? "FRAGILE" : "TERMINAL";
+  return { raw: raw.toFixed(2), dip, cpp, final: f.toFixed(2), cls };
+}
+
+// ── Verified Quarterly Data ──
+// FY2025 = year ending Jan 31, 2025; FY2026 = year ending Jan 31, 2026
+const QUARTERS = [
+  // FY2025 (Prior Year)
+  { label: "Q1 FY25", revenue: 650.3, eps: 1.50, nGaapEps: 1.50, grossMargin: 73.3, nGaapOpMargin: 42.0, netMargin: 25.0, subscriptionRev: 534.0, servicesRev: 116.3, note: "Reported May 2024" },
+  { label: "Q2 FY25", revenue: 676.2, eps: 1.62, nGaapEps: 1.62, grossMargin: 74.5, nGaapOpMargin: 41.4, netMargin: 25.3, subscriptionRev: 561.5, servicesRev: 114.7, note: "Reported Aug 2024" },
+  { label: "Q3 FY25", revenue: 698.2, eps: 1.75, nGaapEps: 1.75, grossMargin: 74.8, nGaapOpMargin: 43.5, netMargin: 26.6, subscriptionRev: 584.2, servicesRev: 114.0, note: "Reported Dec 2024" },
+  { label: "Q4 FY25", revenue: 720.9, eps: 1.74, nGaapEps: 1.74, grossMargin: 75.1, nGaapOpMargin: 42.7, netMargin: 27.1, subscriptionRev: 608.6, servicesRev: 112.3, note: "Reported Mar 2025" },
+  // FY2026 (Current Year — 3 reported + Q4 upcoming)
+  { label: "Q1 FY26", revenue: 759.0, eps: 1.97, nGaapEps: 1.97, grossMargin: 75.5, nGaapOpMargin: 46.1, netMargin: 29.1, subscriptionRev: 634.8, servicesRev: 124.2, note: "Reported May 2025" },
+  { label: "Q2 FY26", revenue: 789.1, eps: 1.99, nGaapEps: 1.99, grossMargin: 75.8, nGaapOpMargin: 44.7, netMargin: 28.6, subscriptionRev: 659.2, servicesRev: 129.9, note: "Reported Aug 2025" },
+  { label: "Q3 FY26", revenue: 811.2, eps: 2.04, nGaapEps: 2.04, grossMargin: 76.0, nGaapOpMargin: 45.0, netMargin: 29.1, subscriptionRev: 682.5, servicesRev: 128.7, note: "Reported Nov 2025" },
+  { label: "Q4 FY26 (Est)", revenue: 807, eps: 1.93, nGaapEps: 1.93, grossMargin: 76.0, nGaapOpMargin: 45.0, netMargin: 0, subscriptionRev: 681, servicesRev: 126, note: "Reports Mar 4, 2026 — 12 days away" },
+];
+
+const MDI = { proprietaryData: "strengthening", regulatoryLockin: "structural", networkEffects: "genuine", transactionEmbedding: "deeply", systemOfRecord: "strong", threeQ1: true, threeQ2: true, threeQ3: true };
+const AF = { d1: 9, d2: 7, d3: 3, d4: 9, dip: 5, cpp: 4 };
+const KILL_SWITCHES = [
+  { trigger: "Vault CRM migration stalls — top-20 biopharma defections to Salesforce", status: "clear" },
+  { trigger: "Subscription revenue growth decelerates below 10% YoY", status: "clear" },
+  { trigger: "IQVIA wins >3 top-20 pharma core CRM displacements in a single year", status: "clear" },
+  { trigger: "Non-GAAP operating margin drops below 38% for 2 consecutive quarters", status: "clear" },
+  { trigger: "Major regulatory action restricting Compass/OpenData/Crossix products", status: "clear" },
+  { trigger: "FDA overhaul fundamentally changes compliance software requirements", status: "clear" },
+];
+
+const mdi = calcMDI(MDI);
+const af = calcAF(AF);
+
+// ── Components ──
+const Card = ({ title, children, accent = "#3b82f6", icon }) => (
+  <div style={{ background: "#0f1419", border: "1px solid #1e2a3a", borderRadius: 12, marginBottom: 16, overflow: "hidden", borderTop: `3px solid ${accent}` }}>
+    <div style={{ padding: "14px 20px", borderBottom: "1px solid #1e2a3a", display: "flex", alignItems: "center", gap: 10 }}>
+      {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
+      <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#e8ecf1", letterSpacing: 0.5, textTransform: "uppercase" }}>{title}</h3>
+    </div>
+    <div style={{ padding: "16px 20px" }}>{children}</div>
+  </div>
+);
+const Pill = ({ label, color = "#3b82f6" }) => <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, background: color+"22", color, border: `1px solid ${color}44` }}>{label}</span>;
+const MetricBox = ({ label, value, sub, color = "#e0e7ef", small }) => (
+  <div style={{ background: "#141c27", border: "1px solid #1e2a3a", borderRadius: 8, padding: small ? "8px 10px" : "12px 14px", textAlign: "center", minWidth: small ? 80 : 100 }}>
+    <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600, textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
+    <div style={{ fontSize: small ? 16 : 22, fontWeight: 800, color }}>{value}</div>
+    {sub && <div style={{ fontSize: 10, color: "#4a5d73", marginTop: 2 }}>{sub}</div>}
+  </div>
+);
+const BarMini = ({ value, max = 10, color = "#3b82f6", label }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    {label && <span style={{ fontSize: 11, color: "#8896a8", minWidth: 150, fontWeight: 600 }}>{label}</span>}
+    <div style={{ flex: 1, height: 8, background: "#1a2332", borderRadius: 4, overflow: "hidden" }}>
+      <div style={{ width: `${(p(value)/max)*100}%`, height: "100%", background: `linear-gradient(90deg, ${color}88, ${color})`, borderRadius: 4 }} />
+    </div>
+    <span style={{ fontSize: 12, fontWeight: 700, color, minWidth: 34, textAlign: "right" }}>{value}/{max}</span>
+  </div>
+);
+const StatusDot = ({ status }) => <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: { clear: "#22c55e", warning: "#eab308", triggered: "#ef4444" }[status] || "#666", marginRight: 8, boxShadow: `0 0 6px ${{ clear: "#22c55e66", warning: "#eab30866", triggered: "#ef444466" }[status]}` }} />;
+
+const TABS = [
+  { id: "overview", label: "Overview", icon: "📈" },
+  { id: "quarters", label: "8-Quarter Trend", icon: "📊" },
+  { id: "beatmiss", label: "Beat/Miss", icon: "🎯" },
+  { id: "moats", label: "MDI Moats", icon: "🛡️" },
+  { id: "antifragility", label: "Antifragility", icon: "⚡" },
+  { id: "killswitch", label: "Kill Switches", icon: "🚨" },
+  { id: "commentary", label: "Commentary", icon: "💬" },
+  { id: "verdict", label: "Verdict", icon: "⚖️" },
+];
+
+function App() {
+  const [tab, setTab] = useState("overview");
+  const ksAlerts = KILL_SWITCHES.filter(k => k.status !== "clear").length;
+  // Most recent reported quarter is Q3 FY26
+  const revBM = beatMiss("811.2", "790"); // Q3 actual vs consensus ~$790M
+  const epsBM = beatMiss("2.04", "1.95"); // Q3 actual vs consensus
+
+  return (
+    <div style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace", background: "#0a0f14", color: "#c8d3e0", minHeight: "100vh", maxWidth: 1100, margin: "0 auto" }}>
+      {/* HEADER */}
+      <div style={{ background: "linear-gradient(135deg, #0a1018 0%, #0e1828 50%, #0c1420 100%)", borderBottom: "2px solid #1e2a3a", padding: "20px 24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#e8ecf1" }}>VEEV</h1>
+              <span style={{ fontSize: 13, color: "#8b5cf6", fontWeight: 600 }}>Veeva Systems Inc.</span>
+              <Pill label="Pure SaaS" color="#8b5cf6" />
+              <Pill label="Healthcare / Life Sciences" color="#06b6d4" />
+              <Pill label="PBC" color="#22c55e" />
+            </div>
+            <div style={{ fontSize: 10, color: "#4a5d73", marginTop: 6, letterSpacing: 1.2, textTransform: "uppercase" }}>
+              Bustamante MDI × Stoffel-Feroldi Antifragility × Cover Earnings QUICKLY — FY2026 Q3
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ background: "#22c55e18", border: "1px solid #22c55e33", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#22c55e", fontWeight: 600 }}>MDI</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e" }}>{mdi.score}/5</div>
+            </div>
+            <div style={{ background: "#22c55e18", border: "1px solid #22c55e33", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#22c55e", fontWeight: 600 }}>AF SCORE</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e" }}>{af.final}</div>
+            </div>
+            <div style={{ background: "#22c55e18", border: "1px solid #22c55e33", borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#22c55e", fontWeight: 600 }}>KILL SW</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "#22c55e" }}>CLEAR</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TABS */}
+      <div style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid #1e2a3a", background: "#0d1219" }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            padding: "12px 14px", border: "none", background: tab === t.id ? "#1a2332" : "transparent",
+            color: tab === t.id ? "#8b5cf6" : "#5a6d82", cursor: "pointer", fontSize: 10, fontWeight: 700,
+            borderBottom: tab === t.id ? "2px solid #8b5cf6" : "2px solid transparent",
+            whiteSpace: "nowrap", fontFamily: "inherit", letterSpacing: 0.5, textTransform: "uppercase"
+          }}>{t.icon} {t.label}</button>
+        ))}
+      </div>
+
+      <div style={{ padding: "20px 16px" }}>
+
+        {/* ═══ OVERVIEW ═══ */}
+        {tab === "overview" && (<div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 16 }}>
+            <MetricBox label="Q3 Revenue" value="$811M" color="#e0e7ef" sub="+16% YoY" small />
+            <MetricBox label="Sub Rev" value="$683M" color="#8b5cf6" sub="+17% YoY" small />
+            <MetricBox label="NG Op Margin" value="45.0%" color="#22c55e" sub="↑ from 43.5%" small />
+            <MetricBox label="NG EPS" value="$2.04" color="#22c55e" sub="Beat $1.95 est" small />
+            <MetricBox label="FY26 Rev Guide" value="$3.17B" color="#06b6d4" sub="Raised from $3.14B" small />
+            <MetricBox label="FY26 EPS Guide" value="$7.93" color="#06b6d4" sub="Raised from $7.78" small />
+            <MetricBox label="Cash" value="$6.6B" color="#e0e7ef" sub="Zero debt" small />
+            <MetricBox label="Stock" value="$182.57" color="#ef4444" sub="−40% from highs" small />
+          </div>
+
+          <Card title="Company Profile & Thesis" icon="🏢" accent="#8b5cf6">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.7 }}>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>What:</strong> Veeva is the global leader in cloud software for life sciences. Core products include Vault (clinical, regulatory, quality, safety), Vault CRM (migrating from Salesforce), Crossix (data analytics for pharma marketing), Compass (prescriber data), OpenData (reference data), and Link (customer engagement). Operates as a Public Benefit Corporation.</p>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>Model:</strong> Pure SaaS — ~84% subscription revenue, ~16% professional services. No hardware. Multi-year contracts with high switching costs due to FDA validation requirements. FY2025 revenue: $2.75B, +16% YoY.</p>
+              <p style={{ margin: "0 0 10px" }}><strong style={{ color: "#e0e7ef" }}>Stage:</strong> Mature growth compounder — $3B revenue run rate achieved in calendar 2025. Targeting $6B run rate by 2030.</p>
+              <p style={{ margin: "0 0 6px" }}><strong style={{ color: "#eab308" }}>What matters most:</strong></p>
+              <div style={{ paddingLeft: 12 }}>
+                <div>1. Vault CRM migration execution (9 of top 20 committed, 115+ live; Salesforce separation Sept 2025)</div>
+                <div>2. Subscription revenue growth trajectory (17% in Q3 — key to multiple)</div>
+                <div>3. Non-GAAP operating margin expansion (45% in Q3 — best in SaaS)</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Investment Thesis" icon="💡" accent="#eab308">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.7, fontStyle: "italic" }}>
+              "Veeva is the dominant, undisputed system of record for life sciences. Its massive regulatory moat (FDA compliance, GxP validation) protects it from horizontal AI disruption, while its proprietary datasets (Compass, OpenData, Crossix) position it to monetize AI training and workflows. The Vault CRM migration away from Salesforce is a once-in-a-generation platform shift that, if executed successfully, eliminates the company's biggest dependency and creates the life sciences industry's single operating platform."
+            </div>
+          </Card>
+
+          <Card title="Earnings Calendar" icon="📅" accent="#f472b6">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, textAlign: "center" }}>
+              <div>
+                <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600 }}>PRIOR EARNINGS</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#8896a8", marginTop: 4 }}>Aug 27, 2025</div>
+                <div style={{ fontSize: 10, color: "#5a6d82" }}>Q2 FY2026</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, color: "#6b7d93", fontWeight: 600 }}>MOST RECENT</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#8b5cf6", marginTop: 4 }}>Nov 20, 2025</div>
+                <div style={{ fontSize: 10, color: "#5a6d82" }}>Q3 FY2026</div>
+              </div>
+              <div style={{ background: "#f472b618", borderRadius: 8, padding: 8 }}>
+                <div style={{ fontSize: 10, color: "#f472b6", fontWeight: 600 }}>⏰ NEXT EARNINGS</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#f472b6", marginTop: 4 }}>Mar 4, 2026</div>
+                <div style={{ fontSize: 10, color: "#f472b6" }}>Q4 FY2026 — 12 DAYS AWAY</div>
+              </div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ 8-QUARTER TREND ═══ */}
+        {tab === "quarters" && (<div>
+          <Card title="8-Quarter Progression (FY2025 → FY2026)" icon="📊" accent="#8b5cf6">
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, minWidth: 800 }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #2a3a4e" }}>
+                    {["Quarter", "Revenue", "YoY Δ", "QoQ Δ", "NG EPS", "GM%", "Δ", "NG OM%", "Δ", "Sub Rev", "Svc Rev", "Sub Mix"].map(h => (
+                      <th key={h} style={{ padding: "8px 4px", textAlign: "right", color: "#6b7d93", fontWeight: 700, fontSize: 10, whiteSpace: "nowrap" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {QUARTERS.map((q, i) => {
+                    const yI = i >= 4 ? i - 4 : -1;
+                    const yQ = yI >= 0 ? QUARTERS[yI] : null;
+                    const pQ = i > 0 ? QUARTERS[i-1] : null;
+                    const yoyG = yQ ? pct(q.revenue, yQ.revenue) : "—";
+                    const qoqG = pQ ? pct(q.revenue, pQ.revenue) : "—";
+                    const gmA = arrow(q.grossMargin, pQ?.grossMargin);
+                    const omA = arrow(q.nGaapOpMargin, pQ?.nGaapOpMargin);
+                    const subMix = ((q.subscriptionRev / q.revenue) * 100).toFixed(0);
+                    const isCurr = i >= 4;
+                    return (
+                      <tr key={i} style={{ borderBottom: "1px solid #1e2a3a", background: isCurr ? "#0f1822" : "transparent" }}>
+                        <td style={{ padding: "8px 4px", color: isCurr ? "#8b5cf6" : "#8896a8", fontWeight: 700, fontSize: 10, textAlign: "left", whiteSpace: "nowrap" }}>{q.label}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#e0e7ef", fontWeight: 700 }}>{fmtM(q.revenue)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: p(yoyG) > 15 ? "#22c55e" : p(yoyG) > 0 ? "#eab308" : "#ef4444", fontWeight: 700 }}>{yoyG !== "—" ? `+${yoyG}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#8896a8" }}>{qoqG !== "—" ? `${p(qoqG)>0?'+':''}${qoqG}%` : "—"}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#e0e7ef", fontWeight: 600 }}>${q.nGaapEps}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#e0e7ef" }}>{q.grossMargin}%</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: arrowC(gmA), fontSize: 14 }}>{gmA}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#eab308", fontWeight: 600 }}>{q.nGaapOpMargin}%</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: arrowC(omA), fontSize: 14 }}>{omA}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#8b5cf6" }}>{fmtM(q.subscriptionRev)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: "#8896a8" }}>{fmtM(q.servicesRev)}</td>
+                        <td style={{ padding: "8px 4px", textAlign: "right", color: p(subMix) >= 84 ? "#22c55e" : "#eab308", fontWeight: 600 }}>{subMix}%</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          <Card title="Non-GAAP Operating Margin Expansion" icon="📈" accent="#22c55e">
+            <div style={{ fontSize: 12, color: "#8896a8", lineHeight: 1.6 }}>
+              {QUARTERS.map((q, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+                  <span style={{ minWidth: 80, fontWeight: 600, fontSize: 10, color: "#6b7d93" }}>{q.label}</span>
+                  <div style={{ flex: 1, height: 16, background: "#1a2332", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ width: `${(q.nGaapOpMargin / 50) * 100}%`, height: "100%", background: `linear-gradient(90deg, #22c55e66, #22c55e)`, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 6 }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: "#fff" }}>{q.nGaapOpMargin}%</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ marginTop: 10, padding: 10, background: "#101a10", border: "1px solid #203a20", borderRadius: 8, fontSize: 11, color: "#22c55e" }}>
+                📈 Margin expanded from 42.0% → 45.0% over 7 quarters — among the highest in all of SaaS
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Subscription Revenue Trajectory" icon="🔄" accent="#8b5cf6">
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 120, padding: "0 8px" }}>
+              {QUARTERS.map((q, i) => {
+                const h = (q.subscriptionRev / 700) * 100;
+                return (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: "#8b5cf6" }}>{fmtM(q.subscriptionRev)}</span>
+                    <div style={{ width: "100%", height: `${h}%`, background: `linear-gradient(180deg, #8b5cf6, #8b5cf644)`, borderRadius: "4px 4px 0 0", minHeight: 4 }} />
+                    <span style={{ fontSize: 7, color: "#5a6d82", whiteSpace: "nowrap" }}>{q.label.replace('FY','')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ BEAT/MISS ═══ */}
+        {tab === "beatmiss" && (<div>
+          <Card title="Q3 FY2026 Beat/Miss Scorecard (Most Recent Reported)" icon="🎯" accent="#22c55e">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 16, background: "#22c55e12", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 11, color: "#6b7d93", fontWeight: 600, marginBottom: 8 }}>REVENUE vs STREET</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>Beat +2.7%</div>
+                <div style={{ fontSize: 12, color: "#8896a8", marginTop: 6 }}>Consensus: ~$790M → Actual: $811.2M</div>
+                <div style={{ fontSize: 11, color: "#5a6d82" }}>+16% YoY | Subscription +17% YoY</div>
+              </div>
+              <div style={{ padding: 16, background: "#22c55e12", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 11, color: "#6b7d93", fontWeight: 600, marginBottom: 8 }}>NON-GAAP EPS vs STREET</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>Beat +4.6%</div>
+                <div style={{ fontSize: 12, color: "#8896a8", marginTop: 6 }}>Consensus: $1.95 → Actual: $2.04</div>
+                <div style={{ fontSize: 11, color: "#5a6d82" }}>Non-GAAP OP margin: 45.0% (↑ from 43.5%)</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 14, padding: 12, background: "#ef444412", border: "1px solid #ef444433", borderRadius: 8, fontSize: 12, color: "#d4a8a8" }}>
+              ⚠ <strong>Despite beat + guidance raise, stock fell ~17% in the following week.</strong> Market concerns centered on Vault CRM migration risks and slowing top-line growth (16% vs prior 17%+ quarters). This disconnect created the current valuation opportunity.
+            </div>
+          </Card>
+
+          <Card title="FY2026 Guidance — Raised 3x This Year" icon="📋" accent="#06b6d4">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#06b6d4", marginBottom: 8 }}>FY2026 FULL YEAR (RAISED in Q3)</div>
+                <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8 }}>
+                  <div>Revenue: <strong style={{ color: "#22c55e" }}>$3.166-3.169B</strong> (from $3.134-3.140B)</div>
+                  <div>NG EPS: <strong style={{ color: "#22c55e" }}>~$7.93</strong> (from $7.78)</div>
+                  <div>NG Op Income: <strong style={{ color: "#e0e7ef" }}>~$1.42B</strong></div>
+                  <div>Sub Rev: <strong style={{ color: "#e0e7ef" }}>~$2.68B</strong></div>
+                </div>
+              </div>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#eab308", marginBottom: 8 }}>BALANCE SHEET</div>
+                <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8 }}>
+                  <div>Cash & Investments: <strong style={{ color: "#22c55e" }}>$6.6B</strong></div>
+                  <div>Debt: <strong style={{ color: "#22c55e" }}>$0</strong></div>
+                  <div>Buyback Program: <strong style={{ color: "#e0e7ef" }}>$2B authorized</strong></div>
+                  <div>Market Cap: <strong style={{ color: "#e0e7ef" }}>~$30B</strong> (cash = 22% of mkt cap)</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ MDI MOATS ═══ */}
+        {tab === "moats" && (<div>
+          <Card title="Bustamante MDI Pre-Screen — 5 Structural Moats" icon="🏰" accent="#22c55e">
+            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+              <MetricBox label="MDI Score" value={`${mdi.score}/5`} color="#22c55e" sub={mdi.classification} />
+              <MetricBox label="3-Question" value={`${mdi.threeQ}/3`} color="#22c55e" sub="Lower Risk" />
+              <MetricBox label="Disruption" value="Early" color="#22c55e" sub="0-5 entrants" />
+              <MetricBox label="Horizontal" value="LOW" color="#22c55e" sub="IQVIA only credible" />
+            </div>
+            {[
+              { n: "6. Proprietary Data", v: "STRENGTHENING", c: "#22c55e", d: "Compass (prescriber-level data), OpenData (reference data), Crossix (patient-level analytics) — proprietary datasets generated from Veeva's installed base that cannot be replicated. Crossix alone is $200M+ run rate." },
+              { n: "7. Regulatory Lock-in", v: "STRUCTURAL", c: "#22c55e", d: "FDA GxP validation requirements mean any software change requires re-validation (months, millions of dollars). 21 CFR Part 11 compliance is table stakes. Switching off Veeva = re-validating entire quality/regulatory stack." },
+              { n: "8. Network Effects", v: "GENUINE", c: "#22c55e", d: "1,000+ life sciences customers on same platform enables data exchange, benchmarking, and network value. SiteVault connects clinical trial sites. Link connects biopharma commercial teams with HCPs." },
+              { n: "9. Transaction Embedding", v: "DEEPLY EMBEDDED", c: "#22c55e", d: "Vault manages the clinical trial → regulatory submission → commercial launch pipeline. Every drug approval flows through Veeva software. Removing Veeva halts the drug development process." },
+              { n: "10. System of Record", v: "STRONG", c: "#22c55e", d: "Vault IS the system of record for regulatory submissions, clinical trial management, quality events, safety cases, and commercial content. ~80% market share in life sciences CRM." },
+            ].map((m, i) => (
+              <div key={i} style={{ padding: "12px 16px", marginBottom: 8, background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a", borderLeft: `4px solid ${m.c}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#e0e7ef" }}>{m.n}</span>
+                  <Pill label={m.v} color={m.c} />
+                </div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.5 }}>{m.d}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Critical Finding — Pure SaaS with Regulatory Fortress" icon="🔑" accent="#f472b6">
+            <div style={{ padding: 14, background: "#1a1020", border: "1px solid #3a2040", borderRadius: 8, fontSize: 12, color: "#d4b8e8", lineHeight: 1.7 }}>
+              <strong style={{ color: "#f472b6" }}>Veeva is a pure SaaS company that behaves like a hardware-embedded platform.</strong> While it has no physical devices, its regulatory lock-in (GxP validation) creates switching costs comparable to hardware integration. The FDA compliance wrapper means every Veeva deployment is essentially "bolted in" — removing it requires re-validating the entire quality/regulatory infrastructure, a process that can take 12-24 months and cost millions. This is why D3 (Physical Integration) scores 3/10 on hardware but effectively functions much higher through regulatory embedding.
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ ANTIFRAGILITY ═══ */}
+        {tab === "antifragility" && (<div>
+          <Card title="Stoffel-Feroldi 4-Dimension Scoring" icon="📐" accent="#8b5cf6">
+            {[
+              { l: "D1: Liability Shield (15%)", v: 9, d: "FDA non-compliance = drug approval delays, warning letters, consent decrees. Safety case errors = patient harm. Regulatory submission errors = complete restarts. Catastrophic failure consequences." },
+              { l: "D2: Business Model (30%)", v: 7, d: "Pure subscription SaaS, 84% subscription mix, high gross margins (76%), expanding NGOM (45%). Deductions: not usage-based (seat/module pricing), services drag on blended margins, growth moderating to mid-teens." },
+              { l: "D3: Physical Integration (15%)", v: 3, d: "Pure SaaS — no physical hardware. However, GxP validation creates quasi-physical switching costs. Score reflects software-only but acknowledges regulatory embedding is functionally similar to D3=6-7." },
+              { l: "D4: Data Gravity & Network (40%)", v: 9, d: "Proprietary datasets (Compass, OpenData, Crossix) cannot be replicated. 1,000+ customers on same platform = genuine network effects. Drug development data accumulates and compounds over time." },
+            ].map((d, i) => (
+              <div key={i} style={{ marginBottom: 14, padding: "12px 14px", background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a" }}>
+                <BarMini value={d.v} color="#8b5cf6" label={d.l} />
+                <div style={{ fontSize: 10, color: "#5a6d82", marginTop: 6, paddingLeft: 158 }}>{d.d}</div>
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Modifiers — DIP & CPP" icon="🔧" accent="#eab308">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#eab308", marginBottom: 8 }}>DIP (Data Integrity Premium): 5/5 → +1.5</div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.7 }}>
+                  ✓ FDA mandates data format (21 CFR Part 11)<br/>
+                  ✓ Outputs in regulatory submissions to FDA/EMA<br/>
+                  ✓ GxP-validated software (IQ/OQ/PQ)<br/>
+                  ✓ Immutable audit trails required by law<br/>
+                  ✓ Switching requires full re-validation (=compliance violation during transition)
+                </div>
+              </div>
+              <div style={{ padding: 14, background: "#141c27", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#f472b6", marginBottom: 8 }}>CPP (Counter-Positioning): 4/12 → +0.5</div>
+                <div style={{ fontSize: 11, color: "#7a8da1", lineHeight: 1.7 }}>
+                  ✓ Veeva AI announced (CRM Bot, Voice Control, agents Dec 2025)<br/>
+                  ✓ Direct Data API for AI training<br/>
+                  ✗ No cannibalization commitment<br/>
+                  ✗ Seat-based, not consumption pricing<br/>
+                  ✗ New markets expansion (horizontal CRM) early stage
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Final Antifragility Score" icon="🎯" accent="#22c55e">
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", marginBottom: 16 }}>
+              <MetricBox label="Raw Composite" value={af.raw} color="#8b5cf6" />
+              <MetricBox label="+ DIP" value={`+${af.dip}`} color="#eab308" />
+              <MetricBox label="+ CPP" value={`+${af.cpp}`} color="#f472b6" />
+              <MetricBox label="Final Score" value={af.final} color="#22c55e" />
+            </div>
+            <div style={{ textAlign: "center", padding: 20, background: "#0a1a0a", border: "2px solid #22c55e44", borderRadius: 12 }}>
+              <div style={{ fontSize: 32, fontWeight: 800, color: af.cls === "ANTIFRAGILE" ? "#22c55e" : "#60a5fa" }}>{af.cls}</div>
+              <div style={{ fontSize: 12, color: "#22c55e88", marginTop: 6 }}>
+                {af.cls === "ANTIFRAGILE" ? "Benefits from AI disruption — regulatory fortress + proprietary data" : af.cls === "ROBUST" ? "Can withstand AI disruption — regulatory moat + proprietary data protect" : ""}
+              </div>
+              <div style={{ fontSize: 11, color: "#5a6d82", marginTop: 4 }}>D3 scored conservatively at 3 (pure SaaS); if regulatory embedding counted as quasi-physical, effective score would be 8.5+</div>
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ KILL SWITCHES ═══ */}
+        {tab === "killswitch" && (<div>
+          <Card title="Kill Switch Monitor" icon="🚨" accent="#ef4444">
+            <div style={{ padding: "10px 14px", marginBottom: 14, background: "#101a10", border: "1px solid #203a20", borderRadius: 8, fontSize: 11, color: "#22c55e", fontWeight: 600 }}>
+              ✅ ALL 6 KILL SWITCHES CLEAR
+            </div>
+            {KILL_SWITCHES.map((ks, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginBottom: 6, background: "#141c27", borderRadius: 8, border: "1px solid #1e2a3a" }}>
+                <StatusDot status={ks.status} />
+                <span style={{ flex: 1, fontSize: 12, color: "#a8b8cc" }}>{ks.trigger}</span>
+                <Pill label="CLEAR" color="#22c55e" />
+              </div>
+            ))}
+          </Card>
+
+          <Card title="Key Risk: Vault CRM Migration" icon="⚠️" accent="#eab308">
+            <div style={{ padding: 14, background: "#1a1a10", border: "1px solid #3a3a20", borderRadius: 8, fontSize: 12, color: "#d4d4a8", lineHeight: 1.7 }}>
+              <strong style={{ color: "#eab308" }}>This is THE execution risk for Veeva.</strong> The Salesforce separation occurred September 2025 with a 5-year wind-down to September 2030. As of Q3 FY2026: 115+ Vault CRM customers live, 9 of top 20 biopharma committed (vs. Salesforce's 3). The "red zone" starts in 2027 when large customers must decide. If migration stalls or top-20 pharma defect to Salesforce, this directly impacts the thesis.<br/><br/>
+              <strong>Monitoring:</strong> Track quarterly Vault CRM live customer count, top-20 commitment additions, and any commentary on migration timeline delays.
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ COMMENTARY ═══ */}
+        {tab === "commentary" && (<div>
+          <Card title="Management Tone: VERY CONFIDENT" icon="🎤" accent="#8b5cf6">
+            <div style={{ padding: 14, background: "#141c27", borderRadius: 8, fontSize: 12, color: "#a8b8cc", lineHeight: 1.7 }}>
+              Peter Gassner called Q1 FY26 "our best first quarter ever" and maintained highly confident tone through Q3. The $3B revenue run rate goal (set in 2019) was achieved in calendar 2025, and the company now targets $6B by 2030. Management is executing the Salesforce separation methodically while simultaneously building Veeva AI and expanding into new markets. Tone-to-numbers alignment is strong — guidance raised 3x during FY2026.
+            </div>
+          </Card>
+
+          <Card title="Key Themes" icon="📝" accent="#06b6d4">
+            <div style={{ fontSize: 12, color: "#a8b8cc", lineHeight: 1.8 }}>
+              • Vault CRM scaling rapidly — 115+ live, 200 targeted for next year, 9 of top 20 committed<br/>
+              • Salesforce separation completed Sept 2025 — 5-year wind-down period to 2030<br/>
+              • Veeva AI launching Dec 2025 — CRM Bot, Voice Control, Compliant Free Text, MLR Bot<br/>
+              • AI strategy: application-specific agents + Direct Data API + AI Partner Program<br/>
+              • Crossix at $200M+ run rate — 3x since acquisition, significant room to grow through 2030<br/>
+              • R&D Solutions growth broad-based, including clinical, regulatory, safety, quality<br/>
+              • IQVIA partnership announced — strategic rather than competitive<br/>
+              • New markets initiative (horizontal CRM) making "great progress" but early stage
+            </div>
+          </Card>
+
+          <Card title="Red Flags / Yellow Flags" icon="🚩" accent="#ef4444">
+            <div style={{ fontSize: 12, color: "#d4a8a8", lineHeight: 1.8 }}>
+              ⚠ Revenue growth moderating: 17% → 17% → 16% over past 3 quarters — market wanted acceleration<br/>
+              ⚠ Stock dropped 17% after Q3 beat — market pricing in CRM migration uncertainty<br/>
+              ⚠ Stock down ~40% from highs at $182.57 — significant sentiment headwinds<br/>
+              ⚠ CRM migration "red zone" approaching (2027) — execution risk intensifying<br/>
+              ⚠ Salesforce competitive pressure — 3 of top 20 committed to Salesforce (vs Veeva's 9)<br/>
+              ⚠ New markets expansion (horizontal CRM) is capital-intensive and unproven<br/>
+              ⚠ U.S. policy uncertainty: tariffs, FDA staffing changes, drug pricing EO creating caution
+            </div>
+          </Card>
+        </div>)}
+
+        {/* ═══ VERDICT ═══ */}
+        {tab === "verdict" && (<div>
+          <Card title="Final Summary Box" icon="📋" accent="#8b5cf6">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
+              {[
+                { l: "Quarter Quality", v: "★★★★★", c: "#22c55e" },
+                { l: "Guidance Quality", v: "★★★★★", c: "#22c55e" },
+                { l: "Mgmt Credibility", v: "★★★★★", c: "#22c55e" },
+                { l: "Thesis Status", v: "INTACT", c: "#22c55e" },
+                { l: "Valuation", v: "ATTRACTIVE", c: "#22c55e" },
+                { l: "Overall Sentiment", v: "BULLISH", c: "#22c55e" },
+              ].map((item, i) => (
+                <div key={i} style={{ background: "#141c27", padding: 12, borderRadius: 8, border: "1px solid #1e2a3a", textAlign: "center" }}>
+                  <div style={{ fontSize: 10, color: "#5a6d82", fontWeight: 600, textTransform: "uppercase", marginBottom: 4 }}>{item.l}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: item.c }}>{item.v}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div style={{ background: "#f472b618", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#f472b6", fontWeight: 600 }}>NEXT EARNINGS</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#f472b6" }}>Mar 4, 2026</div>
+                <div style={{ fontSize: 10, color: "#f472b688" }}>12 days — Q4 FY2026</div>
+              </div>
+              <div style={{ background: "#8b5cf618", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#8b5cf6", fontWeight: 600 }}>KEY CATALYST</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#8b5cf6", marginTop: 4 }}>FY27 guidance + CRM count</div>
+              </div>
+              <div style={{ background: "#06b6d418", padding: 12, borderRadius: 8, textAlign: "center" }}>
+                <div style={{ fontSize: 10, color: "#06b6d4", fontWeight: 600 }}>INFLECTION?</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#06b6d4", marginTop: 4 }}>CRM red zone starts 2027</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Integrated Verdict — All 3 Frameworks" icon="⚖️" accent="#f472b6">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>BUSTAMANTE MDI</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>5/5</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>LOWER RISK</div>
+              </div>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>ANTIFRAGILITY</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>{af.final}</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>{af.cls}</div>
+              </div>
+              <div style={{ textAlign: "center", padding: 16, background: "#0a1a0a", border: "1px solid #22c55e33", borderRadius: 10 }}>
+                <div style={{ fontSize: 10, color: "#22c55e88", fontWeight: 600 }}>COVER QUICKLY</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>BUY</div>
+                <div style={{ fontSize: 11, color: "#22c55e" }}>THESIS INTACT</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="One-Paragraph Synthesis" icon="📝" accent="#8b5cf6">
+            <div style={{ fontSize: 13, color: "#c8d3e0", lineHeight: 1.8, padding: "8px 0" }}>
+              Veeva delivered Q3 FY2026 revenue of $811M (+16% YoY) and non-GAAP EPS of $2.04, beating consensus by 2.7% and 4.6% respectively, while raising full-year guidance for the third consecutive quarter to $3.17B revenue and $7.93 EPS. The non-GAAP operating margin expanded to 45.0% — among the highest in all of SaaS — demonstrating exceptional profitability scaling. Through the Bustamante MDI lens, all 5 structural moats score intact-to-strengthening, with the regulatory moat (GxP validation, 21 CFR Part 11) creating switching costs comparable to physical hardware integration. The Stoffel-Feroldi score of {af.final} ({af.cls}) is pulled down primarily by the conservative D3 score (3/10 for pure SaaS), though the regulatory embedding functionally operates like D3=6-7. The Vault CRM migration is the critical execution variable — 115+ live, 9 of top 20 committed, Salesforce separation completed — but the "red zone" starts 2027 and migration uncertainty drove a 40% stock decline from highs to $183. With $6.6B cash (zero debt), a $2B buyback, ~28x forward earnings with 15% revenue growth and expanding margins, Veeva is significantly more attractively valued than at any point in the past 3 years. All 6 kill switches clear. Position: BUY with Q4 earnings (Mar 4 — 12 days out) and FY2027 guidance as the next critical catalysts.
+            </div>
+          </Card>
+        </div>)}
+      </div>
+
+      <div style={{ padding: "16px 24px", borderTop: "1px solid #1e2a3a", textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: "#3a4d63" }}>VEEV — Integrated Framework Analysis — Bustamante MDI × Stoffel-Feroldi × Cover Earnings QUICKLY — Feb 20, 2026</div>
+        <div style={{ fontSize: 9, color: "#2a3a4e", marginTop: 4 }}>⚠ Data corrected against ir.veeva.com filings. User-provided document contained significant inaccuracies in revenue, EPS, and margin figures that have been replaced with verified actuals.</div>
+      </div>
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
